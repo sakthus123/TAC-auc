@@ -23,16 +23,7 @@
     --text2: #6b7280;
     --inputbg: #ffffff;
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #0f1117;
-      --card: #1a1d28;
-      --border: #2d3040;
-      --text: #e8e8ed;
-      --text2: #8b8fa3;
-      --inputbg: #252836;
-    }
-  }
+
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
   .container { max-width: 640px; margin: 0 auto; padding: 12px; }
@@ -264,13 +255,26 @@ function render() {
   }
 
   $("content").innerHTML = html;
+  if (_restoreFocus) {
+    const el = document.querySelector(`input[oninput="${_restoreFocus.attr}"]`);
+    if (el) { el.focus(); el.selectionStart = el.selectionEnd = _restoreFocus.pos; }
+    _restoreFocus = null;
+  }
+}
+
+let _restoreFocus = null;
+function _saveFocus() {
+  const el = document.activeElement;
+  if (el && el.tagName === 'INPUT') {
+    _restoreFocus = { attr: el.getAttribute('oninput'), pos: el.selectionStart };
+  }
 }
 
 function setTab(i) { state.tab=i; render(); }
 function setPhase(i) { state.phase=i; render(); }
-function setLSS(k,v) { state.lss[k]=v; render(); }
-function setCD(k,v) { state.cd[k]=v; render(); }
-function setFP(i,v) { state.fullPts[i].conc=v; render(); }
+function setLSS(k,v) { _saveFocus(); state.lss[k]=v; render(); }
+function setCD(k,v) { _saveFocus(); state.cd[k]=v; render(); }
+function setFP(i,v) { _saveFocus(); state.fullPts[i].conc=v; render(); }
 function clearFP() { state.fullPts.forEach(p=>p.conc=""); render(); }
 
 render();
