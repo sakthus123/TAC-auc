@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#1B4F72">
-<title>Tac AUC Calculator v5.2</title>
+<title>Tac AUC Calculator v5.3</title>
 <style>
 :root{--pri:#1B4F72;--acc:#2E75B6;--grn:#27ae60;--org:#f39c12;--red:#e74c3c;--dkr:#8e1600;--bg:#f4f6f8;--cd:#fff;--bd:#e0e3e8;--tx:#1a1a2e;--t2:#6b7280;--inp:#fff;}
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -88,11 +88,15 @@ td{padding:4px 6px;border-bottom:1px solid var(--bd)}tr:nth-child(even){backgrou
 .bx-b .act-line{padding:2px 0}
 .ref-tag{display:inline-block;font-size:7px;padding:1px 5px;border-radius:3px;background:#fff3e0;color:#e65100;font-weight:600;margin-left:3px}
 .hidden{display:none!important}
+.sum{background:var(--pri);color:#fff;border-radius:8px;padding:8px 10px;margin-bottom:8px;font-size:10px;line-height:1.5}
+.sum b{font-weight:700}.sum .sl{opacity:.7;font-size:8px}
+.rf{background:#ffeef0;border:1px solid #f5c6cb;border-radius:8px;padding:7px 10px;margin-bottom:8px;font-size:9px;line-height:1.5}
+.rf b{font-weight:700;color:var(--red)}
 </style>
 </head>
 <body>
 <div class="c">
-<div class="hd"><h1>Tacrolimus AUC Calculator</h1><p>v5.2 · LSS · Full AUC · C/D Ratio · Dose Adj · IPV · Biopsy · Clinical Decision Support</p></div>
+<div class="hd"><h1>Tacrolimus AUC Calculator</h1><p>v5.3 · LSS · Full AUC · C/D Ratio · Dose Adj · IPV · Biopsy · Clinical Decision Support</p></div>
 
 <div class="gb">
 <label>Wt(kg):</label><input type="text" inputmode="decimal" pattern="[0-9.]*" id="wt" placeholder="60" oninput="S.wt=this.value;R()">
@@ -326,42 +330,51 @@ function rI(ctx){
   return h;
 }
 
-// WhatsApp export
-function xWA(){
+// WhatsApp export — two modes: short handoff vs detailed senior review
+function xWA(mode){
   S.ts=new Date();const L=S.lss,tg=TGT[S.phase];
   let t=`📋 *Tacrolimus Assessment*\n🕐 ${S.ts.toLocaleString("en-IN",{dateStyle:"medium",timeStyle:"short"})}\n`;
   if(ok(S.wt))t+=`Weight: ${S.wt} kg\n`;
   t+=`Phase: ${tg.ph} | ${genoLabel()}\n`;
-  if(S.px.dose)t+=`Current: Tac ${S.px.dose}mg/d ${S.px.sched.toUpperCase()}${S.px.dilt!=="none"?` + Dilt ${S.px.dilt.toUpperCase()} ${S.px.diltDose||""}mg/d`:""}\n`;
+  if(S.px.dose)t+=`Current: Tac ${S.px.dose}mg/d ${S.px.sched.toUpperCase()} (${S.px.form.toUpperCase()})${S.px.dilt!=="none"?` + Dilt ${S.px.dilt.toUpperCase()} ${S.px.diltDose||""}mg/d`:""}${S.px.booster!=="none"?` + ${S.px.booster} ${S.px.boosterDose||""}mg/d`:""}\n`;
   t+=`\n`;
   const c0=ok(L.c0)?pf(L.c0):null,c1=ok(L.c1)?pf(L.c1):null,c15=ok(L.c1_5)?pf(L.c1_5):null,c2=ok(L.c2)?pf(L.c2):null,c4=ok(L.c4)?pf(L.c4):null;
-  const ind=c0&&c15?Math.round((19.16+6.75*c0+3.33*c15)*10)/10:null;
-  const won=c2&&c4?Math.round((16.2+2.4*c2+5.9*c4)*10)/10:null;
-  const sch=c0&&c1&&c4?Math.round((8.9+4*c0+1.77*c1+5.47*c4)*10)/10:null;
-  if(ind||won||sch){t+=`*LSS AUC₀₋₁₂:*\n`;if(ind)t+=`Indian: ${ind} ${aS(ind,tg).l}\n`;if(won)t+=`Wong: ${won} ${aS(won,tg).l}\n`;if(sch)t+=`Scholten: ${sch} (exploratory) ${aS(sch,tg).l}\n`;t+=`Target: ${tg.mn}–${tg.mx} µg·h/L\n\n`;}
-  const fv=tA(S.fp);if(fv)t+=`*Full AUC₀₋₁₂:* ${fv} µg·h/L (linear-log trapezoidal) ${aS(fv,tg).l}\n\n`;
-  if(ok(S.cd.c0)&&ok(S.cd.dose)){const r=pf(S.cd.c0)/pf(S.cd.dose);t+=`*C/D Ratio:* ${r.toFixed(2)} → ${cC(r).l}\nC0: ${S.cd.c0} | Dose: ${S.cd.dose} mg/day\n\n`;}
-  const iv=S.ipv.vals.filter(v=>ok(v)).map(pf);
-  if(iv.length>=3){const m=iv.reduce((a,b)=>a+b,0)/iv.length;const sd=Math.sqrt(iv.reduce((a,b)=>a+(b-m)**2,0)/(iv.length-1));t+=`*IPV:* CV% ${(sd/m*100).toFixed(1)}% (n=${iv.length})\n\n`;}
-  if(ok(S.da.curDose)&&ok(S.da.curAUC)&&ok(S.da.tgtAUC)){const nd=pf(S.da.curDose)*(pf(S.da.tgtAUC)/pf(S.da.curAUC));t+=`*Dose Adj:* ${S.da.curDose} → ${nd.toFixed(1)} mg/day\n\n`;}
-  // Optional cascade export
-  if(S.waOpt){
+  const ind2=c0&&c15?Math.round((19.16+6.75*c0+3.33*c15)*10)/10:null;
+  const won2=c2&&c4?Math.round((16.2+2.4*c2+5.9*c4)*10)/10:null;
+  const sch2=c0&&c1&&c4?Math.round((8.9+4*c0+1.77*c1+5.47*c4)*10)/10:null;
+  if(ind2||won2||sch2){t+=`*LSS AUC₀₋₁₂:*\n`;if(ind2)t+=`Indian: ${ind2} ${aS(ind2,tg).l}\n`;if(won2)t+=`Wong: ${won2} ${aS(won2,tg).l}\n`;if(sch2)t+=`Scholten: ${sch2} (exploratory) ${aS(sch2,tg).l}\n`;t+=`Target: ${tg.mn}–${tg.mx} µg·h/L\n\n`;}
+  const fv2=tA(S.fp);if(fv2)t+=`*Full AUC₀₋₁₂:* ${fv2} µg·h/L (linear-log) ${aS(fv2,tg).l}\n\n`;
+  if(ok(S.cd.c0)&&ok(S.cd.dose)){const r=pf(S.cd.c0)/pf(S.cd.dose);t+=`*C/D Ratio:* ${r.toFixed(2)} → ${cC(r).l}\n\n`;}
+  const iv2=S.ipv.vals.filter(v=>ok(v)).map(pf);
+  if(iv2.length>=3){const m=iv2.reduce((a,b)=>a+b,0)/iv2.length;const sd=Math.sqrt(iv2.reduce((a,b)=>a+(b-m)**2,0)/(iv2.length-1));t+=`*IPV:* CV% ${(sd/m*100).toFixed(1)}% (n=${iv2.length})\n\n`;}
+  // Detailed mode: cascade + recheck + flags
+  if(mode==="detail"){
     const cr2=ok(S.cd.c0)&&ok(S.cd.dose)?pf(S.cd.c0)/pf(S.cd.dose):null;
     const cc2=cr2!==null?cC(cr2):null;
-    if(cc2&&cc2.s>=1){
-      t+=`*Metabolizer:* ${cc2.l} (C/D ${cr2.toFixed(2)})\n`;
-      t+=`*Cascade status:*\n`;
-      const px=S.px;
-      t+=`1. Brand lock: ${px.brand==="yes"?"✓":"needed"}\n`;
-      t+=`2. Diltiazem: ${px.dilt!=="none"?px.dilt.toUpperCase()+" "+(px.diltDose||"")+"mg/d ✓":"not started → long-acting preferred, recheck tac day 3–5"}\n`;
-      t+=`3. Schedule: ${px.sched==="tds"?"TDS ✓":px.sched==="od"?"OD ER ✓":"BD → consider TDS if needed, recheck day 5–7"}\n`;
-      t+=`4. mTORi: ${px.mtor!=="none"?"in place"+(ok(px.evrTrough)?" (trough "+px.evrTrough+")":""):"not started → gate: eGFR>40, proteinuria<1g, wound healed"}\n`;
-      t+=`5. MMF: ${ok(px.mmf)&&pf(px.mmf)>=1440?px.mmf+"mg/d ✓":"optimize to ≥1440 MPS"}\n`;
-      t+=`\n`;
-    }
+    if(cc2){t+=`*Metabolizer:* ${cc2.l} (C/D ${cr2.toFixed(2)})\n`;}
+    t+=`\n*Cascade:*\n`;
+    const px=S.px;
+    t+=`1. Brand lock: ${px.brand==="yes"?"✓":"needed"}\n`;
+    const diltTxt=px.dilt==="none"?"not started":px.dilt==="ir_d"?"IR → switch to long-acting":px.dilt.toUpperCase()+" "+(px.diltDose||"")+"mg/d ✓";
+    t+=`2. Diltiazem: ${diltTxt}${px.booster!=="none"?" (booster: "+px.booster+")":""}\n`;
+    t+=`3. Schedule: ${px.sched.toUpperCase()} (${px.form.toUpperCase()})\n`;
+    t+=`4. mTORi: ${px.mtor!=="none"?(px.mtor==="eve"?"EVR":"SRL")+(ok(px.evrTrough)?" trough "+px.evrTrough:" trough ?"):"not started"}\n`;
+    t+=`5. MMF: ${ok(px.mmf)?px.mmf+"mg/d":"?"}\n`;
+    t+=`\n*Recheck timing:*\n`;
+    t+=`After dose change: day 5–7 [PK convention]\n`;
+    t+=`After diltiazem start: day 3–5 [PK convention]\n`;
+    t+=`After BD→TDS: day 5–7, 8h trough ≠ 12h [PK convention]\n`;
+    if(px.mtor!=="none")t+=`mTORi: ${px.mtor==="eve"?"EVR day 5–7":"SRL day 7–10"} then weekly ×4, CBC biweekly [RCT]\n`;
+    t+=`\n`;
+    // Flags
+    const fl=[];
+    if(px.absorb==="unstable")fl.push("absorption unstable");
+    if(px.booster!=="none")fl.push("CYP3A booster active");
+    if(px.bx!=="none")fl.push("recent biopsy: "+px.bx);
+    if(fl.length)t+=`*⚠ Flags:* ${fl.join(", ")}\n`;
   }
-  t+=`_Generated by Tac AUC Calculator v5.2_`;
-  navigator.clipboard.writeText(t).then(()=>sT("Copied — paste in WhatsApp")).catch(()=>{const a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);sT("Copied");});
+  t+=`\n_Tac AUC Calculator v5.3_`;
+  navigator.clipboard.writeText(t).then(()=>sT(mode==="detail"?"Detailed report copied":"Short handoff copied")).catch(()=>{const a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);sT("Copied");});
   $("tsD").textContent=S.ts.toLocaleString("en-IN",{dateStyle:"short",timeStyle:"short"});
 }
 function sT(m){const t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500);}
@@ -377,8 +390,6 @@ function R(){
   if(ok(S.px.dose)&&!ok(S.da.curDose))S.da.curDose=S.px.dose;
 
   let h="";const L=S.lss,tg=TGT[S.phase];
-  // Global validations
-  if(ok(S.wt)&&(pf(S.wt)<20||pf(S.wt)>200))h+=`<div class="al al-e"><b>⚠ Weight ${S.wt} kg:</b> Outside expected range (20–200 kg). Verify.</div>`;
   const c0=ok(L.c0)?pf(L.c0):null,c1=ok(L.c1)?pf(L.c1):null,c15=ok(L.c1_5)?pf(L.c1_5):null,c2=ok(L.c2)?pf(L.c2):null,c4=ok(L.c4)?pf(L.c4):null;
   // Priority: Indian > Wong > Scholten (v5 fix)
   const ind=c0!==null&&c15!==null?Math.round((19.16+6.75*c0+3.33*c15)*10)/10:null;
@@ -395,6 +406,51 @@ function R(){
   const bestOverall=fullAuc||best;
   if(bestOverall!==null&&!ok(S.da.curAUC))S.da.curAUC=String(bestOverall);
   const cx={auc:best,c0,c2,cd:cr,cc,cv};
+
+  // ===== SUMMARY STRIP =====
+  {
+    const parts=[];
+    // Phenotype
+    if(cc)parts.push(`<b>${cc.l}</b>`);
+    else if(S.geno!=="unk")parts.push(`<b>${genoLabel().split("(")[1]?.replace(")","")|| genoLabel()}</b>`);
+    // Current problem
+    const tg2=TGT[S.phase];
+    if(best!==null){
+      if(best<tg2.mn)parts.push("AUC below target");
+      else if(best>tg2.mx)parts.push("AUC above target");
+      else if(c2!==null&&c2>20)parts.push("AUC normal · C2 high → reshape, don't reduce dose");
+      else if(c0!==null&&c0<tg2.c0mn&&best>=tg2.mn)parts.push("AUC normal · C0 low → adequate, don't chase C0");
+      else parts.push("AUC within target");
+    }
+    // Next step
+    if(cc&&cc.s>=1&&S.phase>0){
+      const px2=S.px;
+      if(px2.brand!=="yes")parts.push("Next: brand lock");
+      else if(px2.dilt==="none"&&px2.booster==="none")parts.push("Next: add long-acting diltiazem");
+      else if(px2.dilt==="ir_d")parts.push("Next: switch IR→long-acting diltiazem");
+      else if(px2.sched!=="tds"&&cc.s>=2)parts.push("Next: consider TDS split");
+      else if(px2.mtor==="none"&&cc.s>=2)parts.push("Next: consider mTORi");
+      else parts.push("Cascade steps addressed");
+    }
+    // Absorption
+    if(S.px.absorb==="unstable")parts.push("⚠ absorption unstable");
+    if(parts.length>0)h+=`<div class="sum">${parts.join(" · ")}<div class="sl">Phase: ${TGT[S.phase].ph} · ${genoLabel()}</div></div>`;
+  }
+
+  // ===== RED-FLAG BANNER (consolidated) =====
+  {
+    const flags=[];
+    if(c0!==null&&c1!==null&&c0>c1)flags.push("C0 > C1 (timing error?)");
+    if(c0!==null&&c2!==null&&c0>c2)flags.push("C0 > C2 (timing error?)");
+    if(c0!==null&&c15!==null&&c0>c15)flags.push("C0 > C1.5 (timing error?)");
+    const aucVals2=[ind,won,sch].filter(v=>v!==null);
+    if(aucVals2.length>=2){const mx3=Math.max(...aucVals2),mn3=Math.min(...aucVals2);if((mx3-mn3)/mn3>0.2)flags.push(`LSS divergence ${((mx3-mn3)/mn3*100).toFixed(0)}%`);}
+    if(S.px.absorb==="unstable")flags.push("Absorption unstable — PK data unreliable");
+    if(S.px.booster!=="none")flags.push(`CYP3A booster active (${S.px.booster})`);
+    if(S.px.mtor!=="none"&&!ok(S.px.evrTrough))flags.push("mTORi selected but trough not entered");
+    if(ok(S.wt)&&(pf(S.wt)<20||pf(S.wt)>200))flags.push(`Weight ${S.wt} kg out of range`);
+    if(flags.length>0)h+=`<div class="rf"><b>⚠ Red flags (${flags.length}):</b> ${flags.join(" · ")}</div>`;
+  }
 
   // ===== TAB 0: LSS =====
   if(S.tab===0){
@@ -432,7 +488,7 @@ function R(){
       if(c2!==null&&c2>80)rangeWarn+=`<div class="al al-e"><b>⚠ C2 = ${c2}:</b> Unusually high. Verify value.</div>`;
       h+=`<div class="k" style="background:var(--bg)"><h3>Comparison</h3><div class="rw" style="margin-top:5px">
       ${ind!==null?bg("Indian",ind,"",aS(ind,tg)):""}${won!==null?bg("Wong",won,"",aS(won,tg)):""}${sch!==null?bg("Scholten*",sch,"",aS(sch,tg)):""}
-      </div><div style="font-size:8px;color:var(--t2)">*Exploratory comparator only</div>${rangeWarn}${pkWarn}${divWarn}${rI(cx)}<div class="br"><button class="btn btn-g" onclick="xWA()">📋 Copy for WhatsApp</button><label style="font-size:9px;margin-left:8px;display:flex;align-items:center;gap:3px"><input type="checkbox" ${S.waOpt?"checked":""} onchange="S.waOpt=this.checked"> Include considerations</label></div></div>`;}
+      </div><div style="font-size:8px;color:var(--t2)">*Exploratory comparator only</div>${rangeWarn}${pkWarn}${divWarn}${rI(cx)}<div class="br"><button class="btn btn-g" onclick="xWA('short')">📋 Short</button><button class="btn btn-p" onclick="xWA('detail')">📋 Detailed</button></div></div>`;}
 
     const gd=genoStartDose(ok(S.wt)?pf(S.wt):null);
     if(gd)h+=`<div class="k" style="background:var(--bg)"><h3>Genotype-Adjusted Starting Dose (CPIC-informed)</h3><div style="font-size:10px"><b>${gd.lo}–${gd.hi} mg/day</b> — ${gd.note}<br><span style="font-size:8px;color:var(--t2)">TDM required after initiation. Genotype informs starting dose only — does not replace monitoring.</span></div></div>`;
@@ -453,7 +509,7 @@ function R(){
       h+=`<div class="pk"><b>Derived PK:</b><div class="pkg"><div>Cmax: <b>${mx.toFixed(1)}</b></div><div>Tmax: <b>${ts2[mi]}h</b></div><div>C0: <b>${cv0!==null?cv0.toFixed(1):"—"}</b></div><div>C12: <b>${c12!==null?c12.toFixed(1):"—"}</b></div>${cv0?`<div>Cmax/C0: <b>${(mx/cv0).toFixed(1)}</b></div>`:""}</div></div>`;
       h+=rI({...cx,auc:fv});
     }
-    h+=`<div class="br"><button class="btn btn-o" onclick="S.fp.forEach(p=>p.c='');R()">Clear</button>${fv!==null?`<button class="btn btn-g" onclick="xWA()">📋 WhatsApp</button>`:""}</div></div>`;}
+    h+=`<div class="br"><button class="btn btn-o" onclick="S.fp.forEach(p=>p.c='');R()">Clear</button>${fv!==null?`<button class="btn btn-g" onclick="xWA('short')">📋 Short</button><button class="btn btn-p" onclick="xWA('detail')">📋 Detailed</button>`:""}</div></div>`;}
 
   // ===== TAB 2: C/D =====
   else if(S.tab===2){
@@ -464,7 +520,7 @@ function R(){
     <div class="fl"><label>Total Daily Dose mg</label><input type="text" inputmode="decimal" pattern="[0-9.]*" value="${CD.dose}" oninput="sD('dose',this.value)" placeholder="0.0"></div></div>
     ${cr!==null?`${rV(CD.c0,0.5,50,"C0")}${rV(CD.dose,0.5,30,"Daily dose")}${bg("C/D Ratio",cr,"ng/mL per mg",{l:cc.l,c:cc.c})}
     <div class="al al-${cc.s===0?"ok":cc.s===1?"w":"e"}"><b>${cc.l}</b> — ${cc.a}</div>${rI(cx)}
-    <div class="br"><button class="btn btn-g" onclick="xWA()">📋 WhatsApp</button><label style="font-size:9px;margin-left:8px;display:flex;align-items:center;gap:3px"><input type="checkbox" ${S.waOpt?"checked":""} onchange="S.waOpt=this.checked"> Include considerations</label></div>`:""}</div>`;
+    <div class="br"><button class="btn btn-g" onclick="xWA('short')">📋 Short</button><button class="btn btn-p" onclick="xWA('detail')">📋 Detailed</button></div>`:""}</div>`;
     h+=`<div class="k"><h3>C/D Classification</h3><table><thead><tr><th>C/D</th><th>Class</th><th>India % (approx)</th></tr></thead><tbody>
     <tr><td>≥1.55</td><td>Slow</td><td>~40–50%</td></tr><tr><td>1.05–1.54</td><td>Intermediate</td><td>~25–30%</td></tr>
     <tr><td>&lt;1.05</td><td>Fast</td><td>~15–20%</td></tr><tr><td>&lt;0.8</td><td>Very Rapid</td><td>~5–10%</td></tr></tbody></table></div>`;}
@@ -497,7 +553,7 @@ function R(){
       h+=`<div class="pk"><b>Stats:</b> Mean ${m.toFixed(1)} · SD ${sd.toFixed(1)} · n=${ivv.length} · Range ${Math.min(...ivv).toFixed(1)}–${Math.max(...ivv).toFixed(1)}${ivv.length<6?` · <span style="color:var(--org)">⚠ <6 values — interpret with caution</span>`:""}</div>`;
       if(cv>30)h+=`<div class="al al-w"><b>CV% >30%:</b> Screening trigger — investigate adherence, absorption variability, drug interactions, formulation switches. This is not a definitive diagnosis. ${evTag("exp")}</div>`;
       if(cv>30&&cc&&cc.s>=2)h+=`<div class="al al-i"><b>High IPV + Fast Metabolizer:</b> Consider ER tacrolimus (Advagraf/Envarsus) or formulation locking.</div>`;
-      h+=`<div class="br"><button class="btn btn-g" onclick="xWA()">📋 WhatsApp</button></div>`;}
+      h+=`<div class="br"><button class="btn btn-g" onclick="xWA('short')">📋 Short</button><button class="btn btn-p" onclick="xWA('detail')">📋 Detailed</button></div>`;}
     h+=`</div>`;}
 
   // ===== TAB 5: Biopsy =====
