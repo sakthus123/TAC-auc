@@ -1,0 +1,1738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#1B4F72">
+<title>Tac AUC Calculator v6.9</title>
+<style>
+:root{--pri:#1B4F72;--acc:#2E75B6;--grn:#27ae60;--org:#f39c12;--red:#e74c3c;--dkr:#8e1600;--bg:#f4f6f8;--cd:#fff;--bd:#e0e3e8;--tx:#1a1a2e;--t2:#6b7280;--inp:#fff;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;-webkit-font-smoothing:antialiased;}
+.c{max-width:660px;margin:0 auto;padding:10px;}
+.hd{text-align:center;padding:14px 0 6px}.hd h1{font-size:18px;font-weight:700;color:var(--pri)}.hd p{font-size:9px;color:var(--t2);margin-top:2px}
+.gb{background:var(--cd);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;margin-bottom:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.gb label{font-size:10px;font-weight:600;color:var(--t2);white-space:nowrap}
+.gb input,.gb select{padding:5px 7px;border:1px solid var(--bd);border-radius:5px;font-size:12px;background:var(--inp);color:var(--tx);outline:none;font-family:inherit}
+.gb input:focus,.gb select:focus{border-color:var(--acc)}
+.gb input{width:58px}.gb select{width:auto;-webkit-appearance:none;appearance:none;padding-right:16px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%236b7280'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 5px center}
+.gb .ts{margin-left:auto;font-size:8px;color:var(--t2)}
+.gear{width:28px;height:28px;border-radius:6px;border:1px solid var(--bd);background:none;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:var(--t2)}
+.pc{background:var(--cd);border:1px solid var(--bd);border-radius:8px;margin-bottom:8px;overflow:hidden}
+.pc-h{padding:7px 10px;font-size:11px;font-weight:600;color:var(--pri);cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#f8f9fb}
+.pc-b{padding:8px 10px;display:flex;flex-wrap:wrap;gap:6px}
+.pc-b .f{display:flex;flex-direction:column;gap:2px;min-width:80px}
+.pc-b .f label{font-size:9px;font-weight:600;color:var(--t2)}
+.pc-b .f input,.pc-b .f select{padding:5px 6px;border:1px solid var(--bd);border-radius:5px;font-size:11px;background:var(--inp);color:var(--tx);outline:none;width:100%;font-family:inherit;-webkit-appearance:none}
+.tabs{display:flex;gap:1px;border-bottom:2px solid var(--bd);margin-bottom:8px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab{padding:6px 9px;font-size:10px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--t2);white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-2px}
+.tab.act{color:var(--pri);border-bottom-color:var(--pri)}
+.k{background:var(--cd);border:1px solid var(--bd);border-radius:9px;padding:11px;margin-bottom:8px}
+.k h3{font-size:12px;font-weight:700;color:var(--pri);margin-bottom:2px}
+.k .su{font-size:9px;color:var(--t2);margin-bottom:7px;line-height:1.4}
+.rw{display:flex;gap:7px;margin-bottom:7px;flex-wrap:wrap}
+.fl{flex:1;min-width:80px}
+.fl label{display:block;font-size:9px;font-weight:600;color:var(--t2);margin-bottom:2px}
+.fl input,.fl select{width:100%;padding:6px 7px;border-radius:5px;border:1px solid var(--bd);background:var(--inp);color:var(--tx);font-size:12px;outline:none;font-family:inherit;-webkit-appearance:none}
+.fl input:focus{border-color:var(--acc);box-shadow:0 0 0 2px rgba(46,117,182,.1)}
+.bg{border-radius:9px;padding:9px;text-align:center;flex:1;min-width:110px}
+.bg .l{font-size:8px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.4px}
+.bg .v{font-size:20px;font-weight:700;margin:2px 0}
+.bg .u{font-size:8px;color:var(--t2)}
+.bg .s{font-size:9px;font-weight:600;margin-top:2px}
+.al{padding:7px 9px;border-radius:7px;font-size:10px;margin-top:5px;line-height:1.5}.al b{font-weight:700}
+.al-ok{background:#e8f5e9;border:1px solid #a5d6a7}
+.al-w{background:#fff8e1;border:1px solid #ffe082}
+.al-e{background:#ffeef0;border:1px solid #f5c6cb}
+.al-i{background:#e3f2fd;border:1px solid #90caf9}
+.iv{margin-top:7px;border:1px solid var(--bd);border-radius:7px;overflow:hidden}
+.iv-h{padding:7px 9px;font-size:10px;font-weight:700;color:#fff;background:var(--pri);cursor:pointer;display:flex;justify-content:space-between}
+.iv-b{padding:9px;font-size:10px;line-height:1.6}
+.iv-s{padding:4px 0;border-bottom:1px solid var(--bd)}.iv-s:last-child{border:none}
+.iv-s .n{display:inline-block;width:20px;height:20px;border-radius:50%;background:var(--pri);color:#fff;text-align:center;line-height:20px;font-size:9px;font-weight:700;margin-right:5px}
+.iv-s.done{opacity:.35;text-decoration:line-through}.iv-s.next{background:#fff8e1;border-radius:4px;padding:4px 5px}
+.iv-s .rc{font-size:8px;color:var(--acc);margin-top:2px;font-style:italic}
+.iv-s .ci{font-size:8px;color:var(--red);margin-top:1px}
+.ev-tag{display:inline-block;font-size:7px;padding:1px 4px;border-radius:3px;font-weight:600;margin-left:4px;vertical-align:middle}
+.ev-rct{background:#e8f5e9;color:#2e7d32}
+.ev-pk{background:#e3f2fd;color:#1565c0}
+.ev-exp{background:#fff8e1;color:#e65100}
+.pb{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:7px}
+.pb button{padding:4px 9px;border-radius:14px;font-size:9px;font-weight:600;cursor:pointer;border:1px solid var(--bd);background:transparent;color:var(--tx)}
+.pb button.act{background:var(--pri);color:#fff;border-color:var(--pri)}
+table{width:100%;border-collapse:collapse;font-size:9px}
+th{background:var(--pri);color:#fff;padding:5px 6px;text-align:left;font-weight:600}
+td{padding:4px 6px;border-bottom:1px solid var(--bd)}tr:nth-child(even){background:#f9fafb}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.tp{display:flex;align-items:center;gap:4px}.tp span{font-size:9px;font-weight:600;color:var(--t2);min-width:40px}.tp input{flex:1;padding:4px 6px;border-radius:5px;border:1px solid var(--bd);background:var(--inp);color:var(--tx);font-size:11px;outline:none}
+.btn{padding:5px 12px;border-radius:5px;font-size:10px;font-weight:600;cursor:pointer;border:none}
+.btn-p{background:var(--pri);color:#fff}.btn-o{background:transparent;border:1px solid var(--bd);color:var(--t2)}.btn-g{background:var(--grn);color:#fff}
+.br{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap}
+.ie{display:flex;gap:3px;align-items:center;margin-bottom:3px}.ie input{width:65px;padding:4px 6px;border:1px solid var(--bd);border-radius:5px;font-size:11px;background:var(--inp);color:var(--tx);outline:none}.ie .rm{width:22px;height:22px;border-radius:50%;border:1px solid var(--bd);background:none;color:var(--red);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.pk{margin-top:5px;padding:5px;border-radius:5px;background:#f9fafb;font-size:9px}.pkg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;margin-top:2px}
+.ft{text-align:center;font-size:7px;color:var(--t2);padding:8px 0;border-top:1px solid var(--bd);margin-top:10px}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:9px 18px;border-radius:7px;font-size:11px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none}.toast.show{opacity:1}
+.modal-bg{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.4);z-index:998;display:none;align-items:center;justify-content:center}
+.modal-bg.show{display:flex}
+.modal{background:var(--cd);border-radius:12px;padding:16px;max-width:340px;width:90%;max-height:80vh;overflow-y:auto}
+.modal h3{font-size:14px;font-weight:700;color:var(--pri);margin-bottom:10px}
+.modal .mrw{display:flex;gap:6px;margin-bottom:6px;align-items:center}
+.modal .mrw label{font-size:10px;color:var(--t2);min-width:90px;font-weight:600}
+.modal .mrw input{flex:1;padding:5px 7px;border:1px solid var(--bd);border-radius:5px;font-size:12px;background:var(--inp);color:var(--tx);outline:none}
+.modal .mbr{display:flex;gap:6px;margin-top:10px;justify-content:flex-end}
+.bx{border:1px solid var(--bd);border-radius:7px;margin-bottom:6px;overflow:hidden}
+.bx-h{padding:6px 9px;font-size:10px;font-weight:700;background:#f8f9fb;color:var(--pri);cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.bx-b{padding:8px 9px;font-size:9.5px;line-height:1.6}
+.bx-b .act-line{padding:2px 0}
+.ref-tag{display:inline-block;font-size:7px;padding:1px 5px;border-radius:3px;background:#fff3e0;color:#e65100;font-weight:600;margin-left:3px}
+.hidden{display:none!important}
+.sum{background:var(--pri);color:#fff;border-radius:8px;padding:8px 10px;margin-bottom:8px;font-size:10px;line-height:1.5}
+.sum b{font-weight:700}.sum .sl{opacity:.7;font-size:8px}
+.rf{background:#ffeef0;border:1px solid #f5c6cb;border-radius:8px;padding:7px 10px;margin-bottom:8px;font-size:9px;line-height:1.5}
+.rf b{font-weight:700;color:var(--red)}
+</style>
+</head>
+<body>
+<div class="c">
+<div class="hd"><h1>Tacrolimus AUC Calculator</h1><p>v6.9 · Priority-routed · AUC/Peak/Undershoot engines · Clinical Decision Support</p></div>
+
+<div class="gb">
+<label>Wt(kg):</label><input type="text" inputmode="decimal" pattern="[0-9.]*" id="wt" placeholder="60" maxlength="5" oninput="S.wt=this.value;R()">
+<label>CYP3A5:</label><select id="geno" onchange="S.geno=this.value;R()"><option value="unk">Unknown</option><option value="11">*1/*1 Expressor</option><option value="13">*1/*3 Hetero</option><option value="33">*3/*3 Non-expr</option></select>
+<button class="gear" onclick="openSet()">⚙</button>
+<span class="ts" id="tsD"></span>
+</div>
+
+<div class="gb">
+<label>Pt:</label><input type="text" id="ptName" placeholder="Name / ID" maxlength="40" style="width:110px" oninput="S.patientName=this.value;R()">
+<label>Donor age:</label><input type="text" inputmode="decimal" pattern="[0-9.]*" id="donorAge" placeholder="yrs" maxlength="3" oninput="S.donorAge=this.value;R()">
+<label>Assay:</label><select id="assaySel" onchange="setAssay(this.value)"><option value="CMIA" title="Abbott Architect/Alinity · +20–26% vs LC-MS/MS">CMIA</option><option value="ECLIA" title="Roche Elecsys/cobas · +11–13% vs LC-MS/MS">ECLIA</option><option value="CLIA" title="MAGLUMI or other CLIA · ≈ CMIA concordance">CLIA</option><option value="LCMS" title="LC-MS/MS · reference standard">LC-MS/MS</option></select>
+<label>Risk:</label><select id="riskSel" onchange="setRiskTier(this.value)"><option value="low">Low</option><option value="std" selected>Standard</option><option value="high">High</option></select>
+<span style="font-size:8px;color:var(--t2);margin-left:auto" id="assayNote">CMIA · Standard</span>
+</div>
+
+<div class="pc"><div class="pc-h" onclick="togglePC(this)">Current Regimen <span id="pcArrow">▼</span></div>
+<div class="pc-b" id="pcBody">
+<div class="f"><label>Tac formulation</label><select onchange="sP('form',this.value)"><option value="ir">IR (immediate)</option><option value="adv">Advagraf / std ER</option><option value="env">Envarsus / MeltDose</option></select></div>
+<div class="f"><label>Tac schedule</label><select onchange="sP('sched',this.value)"><option value="bd">BD (q12h)</option><option value="tds">TDS (q8h)</option><option value="od">OD (ER)</option></select></div>
+<div class="f"><label>Tac dose (mg/d)</label><input type="text" inputmode="decimal" pattern="[0-9.]*" value="" oninput="sP('dose',this.value)" placeholder="0" maxlength="5"></div>
+<div class="f"><label>Diltiazem</label><select onchange="sP('dilt',this.value)"><option value="none">None</option><option value="ir_d">IR</option><option value="sr">SR</option><option value="cd">CD</option></select></div>
+<div class="f" id="diltDoseRow"><label>Dilt dose (mg/d)</label><input id="diltDoseInp" type="text" inputmode="decimal" pattern="[0-9.]*" value="" oninput="sP('diltDose',this.value)" placeholder="0" maxlength="5"></div>
+<div class="f"><label>Azole (advanced)</label><select onchange="sP('booster',this.value)"><option value="none">None</option><option value="keto">Ketoconazole</option><option value="fluco">Fluconazole</option><option value="other">Other azole</option></select></div>
+<div class="f" id="boosterDoseRow"><label>Booster dose</label><input type="text" inputmode="decimal" pattern="[0-9.]*" value="" oninput="sP('boosterDose',this.value)" placeholder="mg/d" maxlength="5"></div>
+<div class="f"><label>mTORi</label><select onchange="sP('mtor',this.value)"><option value="none">None</option><option value="eve">Everolimus</option><option value="sir">Sirolimus</option></select></div>
+<div class="f" id="mtorTroughRow"><label>mTORi trough</label><input type="text" inputmode="decimal" pattern="[0-9.]*" value="" oninput="sP('evrTrough',this.value)" placeholder="ng/mL" maxlength="5"></div>
+<div class="f" id="mtorDoseRow"><label>mTORi dose (mg/d)</label><input type="text" inputmode="decimal" pattern="[0-9.]*" value="" oninput="sP('mtorDose',this.value)" placeholder="0" maxlength="5"></div>
+<div class="f"><label>MMF/MPS (mg/d)</label><input type="text" inputmode="decimal" pattern="[0-9.]*" value="" oninput="sP('mmf',this.value)" placeholder="0" maxlength="5"></div>
+<div class="f"><label>Brand locked?</label><select onchange="sP('brand',this.value)"><option value="no">No</option><option value="yes">Yes</option></select></div>
+<div class="f"><label>Absorption</label><select onchange="sP('absorb',this.value)"><option value="ok">Stable</option><option value="unstable">Unstable (D/V/malabsorption)</option></select></div>
+<div class="f"><label>Hct (%)</label><input type="text" inputmode="decimal" pattern="[0-9.]*" value="" oninput="sP('hct',this.value)" placeholder="e.g. 35" maxlength="4"></div>
+<div class="f"><label>Recent biopsy</label><select onchange="sP('bx',this.value)"><option value="none">None / not done</option><option value="cni">CNI toxicity</option><option value="tcmr">Borderline / TCMR</option><option value="mixed">Mixed lesion</option><option value="ifta">IFTA / chronicity</option></select></div>
+<div class="f"><label>Cr trend</label><select onchange="sP('crT',this.value)"><option value="stable">Stable</option><option value="rising">Rising</option><option value="falling">Falling</option><option value="new">New baseline</option></select></div>
+<div class="f"><label>Cr current (mg/dL)</label><input type="text" inputmode="decimal" pattern="[0-9.]*" value="" oninput="sP('crCurrent',this.value)" placeholder="0.0" maxlength="5"></div>
+<div class="f"><label>Recent AKI (≤30d)</label><select onchange="sP('aki',this.value)"><option value="no">No</option><option value="recovering">Recovering (Cr ↓)</option><option value="resolved">Resolved</option></select></div>
+<div class="f" id="akiPeakCrRow"><label>Peak Cr during AKI</label><input type="text" inputmode="decimal" pattern="[0-9.]*" value="" oninput="sP('akiPeakCr',this.value)" placeholder="mg/dL" maxlength="5"></div>
+<div class="f" id="diltTimingRow"><label>Dilt-tac timing</label><select onchange="sP('diltTiming',this.value)"><option value="unk">Unknown / not checked</option><option value="synced">Same time window (together or near)</option><option value="unsynced">Staggered (hours apart)</option></select></div>
+<div class="f" style="grid-column:1/-1"><label>Toxicity symptoms (check all)</label><div style="display:flex;flex-wrap:wrap;gap:8px;font-size:9px;padding:4px">
+<label style="display:flex;align-items:center;gap:3px;cursor:pointer"><input type="checkbox" id="tx_tremor" onchange="sPtx('toxTremor',this.checked)"> Tremor</label>
+<label style="display:flex;align-items:center;gap:3px;cursor:pointer"><input type="checkbox" id="tx_htn" onchange="sPtx('toxHtn',this.checked)"> HTN</label>
+<label style="display:flex;align-items:center;gap:3px;cursor:pointer"><input type="checkbox" id="tx_nodat" onchange="sPtx('toxNodat',this.checked)"> NODAT / hyperglycemia</label>
+<label style="display:flex;align-items:center;gap:3px;cursor:pointer"><input type="checkbox" id="tx_gi" onchange="sPtx('toxGi',this.checked)"> GI intolerance</label>
+<label style="display:flex;align-items:center;gap:3px;cursor:pointer"><input type="checkbox" id="tx_neuro" onchange="sPtx('toxNeuro',this.checked)"> Neurotox (HA/PRES)</label>
+</div></div>
+<div class="f"><label>Clinical goal (override)</label><select onchange="sP('goal',this.value)"><option value="auto">Auto (context-driven)</option><option value="auc">AUC control</option><option value="peak">Peak reduction</option><option value="both">Both (peak + AUC)</option><option value="undershoot">Undershoot recovery</option></select></div>
+</div></div>
+
+<div class="tabs" id="tabs"></div>
+<div id="ct"></div>
+<div class="ft">Clinical decision support tool · Targets locally configurable per assay platform (switch in top bar) · Not a substitute for clinical judgment</div>
+</div>
+
+<div class="modal-bg" id="setModal"><div class="modal">
+<h3>⚙ Target Settings</h3>
+<div style="font-size:9px;color:var(--t2);margin-bottom:8px">Customize AUC and C0 targets for your center.</div>
+<div id="setBody"></div>
+<div class="mbr"><button class="btn btn-o" onclick="resetSet()">Reset defaults</button><button class="btn btn-p" onclick="saveSet()">Save</button></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const TABS=["Plan","LSS","Full AUC","C/D Ratio","Dose Adj","IPV","Biopsy","Tac→CsA","Reference"];
+// v6.8: Per-platform target tables. CMIA/ECLIA/CLIA share identical defaults (immunoassays cross-react with metabolites → read higher than LC-MS/MS).
+// LC-MS/MS defaults are ~18% lower (Bazin 2010 CMIA slope 1.20; Saitman 2016 −18.5% LC-MS/MS bias). User-editable per platform.
+// v6.9: Per-platform × per-risk-tier target tables. 4 platforms × 3 tiers = 12 target arrays.
+// Risk-tier targets (CMIA std = existing values):
+//   Low:  M0-3 C0 8-12/AUC 100-150 | M3-12 C0 5-8/AUC 70-100 | >12 C0 4-6/AUC 55-80
+//   Std:  M0-3 C0 10-15/AUC 120-180 | M3-12 C0 6-10/AUC 80-120 | >12 C0 5-8/AUC 60-100
+//   High: M0-3 C0 12-18/AUC 150-220 | M3-12 C0 8-12/AUC 100-150 | >12 C0 6-10/AUC 80-120
+// ECLIA ×0.911 (Challenged Comparison 2022); LCMS ×0.82 (Bazin 2010); CLIA ≈ CMIA (Fu 2025 CCLM).
+const DEF_TGT_PLATFORMS={
+  CMIA:{
+    low: [{ph:"Month 0–3",mn:100,mx:150,c0mn:8,c0mx:12},{ph:"Month 3–12",mn:70,mx:100,c0mn:5,c0mx:8},{ph:">12 months",mn:55,mx:80,c0mn:4,c0mx:6}],
+    std: [{ph:"Month 0–3",mn:120,mx:180,c0mn:10,c0mx:15},{ph:"Month 3–12",mn:80,mx:120,c0mn:6,c0mx:10},{ph:">12 months",mn:60,mx:100,c0mn:5,c0mx:8}],
+    high:[{ph:"Month 0–3",mn:150,mx:220,c0mn:12,c0mx:18},{ph:"Month 3–12",mn:100,mx:150,c0mn:8,c0mx:12},{ph:">12 months",mn:80,mx:120,c0mn:6,c0mx:10}]
+  },
+  ECLIA:{
+    low: [{ph:"Month 0–3",mn:91,mx:137,c0mn:7,c0mx:11},{ph:"Month 3–12",mn:64,mx:91,c0mn:4.5,c0mx:7},{ph:">12 months",mn:50,mx:73,c0mn:3.5,c0mx:5.5}],
+    std: [{ph:"Month 0–3",mn:109,mx:164,c0mn:9,c0mx:14},{ph:"Month 3–12",mn:73,mx:109,c0mn:5.5,c0mx:9},{ph:">12 months",mn:55,mx:91,c0mn:4.5,c0mx:7.5}],
+    high:[{ph:"Month 0–3",mn:137,mx:200,c0mn:11,c0mx:16},{ph:"Month 3–12",mn:91,mx:137,c0mn:7,c0mx:11},{ph:">12 months",mn:73,mx:109,c0mn:5.5,c0mx:9}]
+  },
+  CLIA:{
+    low: [{ph:"Month 0–3",mn:100,mx:150,c0mn:8,c0mx:12},{ph:"Month 3–12",mn:70,mx:100,c0mn:5,c0mx:8},{ph:">12 months",mn:55,mx:80,c0mn:4,c0mx:6}],
+    std: [{ph:"Month 0–3",mn:120,mx:180,c0mn:10,c0mx:15},{ph:"Month 3–12",mn:80,mx:120,c0mn:6,c0mx:10},{ph:">12 months",mn:60,mx:100,c0mn:5,c0mx:8}],
+    high:[{ph:"Month 0–3",mn:150,mx:220,c0mn:12,c0mx:18},{ph:"Month 3–12",mn:100,mx:150,c0mn:8,c0mx:12},{ph:">12 months",mn:80,mx:120,c0mn:6,c0mx:10}]
+  },
+  LCMS:{
+    low: [{ph:"Month 0–3",mn:82,mx:123,c0mn:6.5,c0mx:10},{ph:"Month 3–12",mn:57,mx:82,c0mn:4,c0mx:6.5},{ph:">12 months",mn:45,mx:66,c0mn:3,c0mx:5}],
+    std: [{ph:"Month 0–3",mn:98,mx:148,c0mn:8,c0mx:12},{ph:"Month 3–12",mn:66,mx:98,c0mn:5,c0mx:8},{ph:">12 months",mn:49,mx:82,c0mn:4,c0mx:7}],
+    high:[{ph:"Month 0–3",mn:123,mx:180,c0mn:10,c0mx:15},{ph:"Month 3–12",mn:82,mx:123,c0mn:6.5,c0mx:10},{ph:">12 months",mn:66,mx:98,c0mn:5,c0mx:8}]
+  }
+};
+const TP=["0","0.5","1","1.5","2","3","4","6","8","10","12"];
+const CsaT=[{ph:"Month 1–3",c0mn:200,c0mx:300,c2mn:800,c2mx:1000},{ph:"Month 4–12",c0mn:100,c0mx:250,c2mn:400,c2mx:600},{ph:">1 Year",c0mn:100,c0mx:150,c2mn:400,c2mx:600}];
+
+let TGT_PLATFORMS=JSON.parse(JSON.stringify(DEF_TGT_PLATFORMS));
+let maxDilt=180;
+// v6.9 Migration: detect old flat format (CMIA was an array) → wrap in {low,std,high}
+try{
+  const np=localStorage.getItem("tacTgtPlatforms");
+  if(np){
+    const parsed=JSON.parse(np);
+    // Old format: {CMIA:[...], ECLIA:[...]} → migrate std slot, seed low/high from defaults
+    if(Array.isArray(parsed.CMIA)){
+      ["CMIA","ECLIA","CLIA","LCMS"].forEach(p=>{
+        if(Array.isArray(parsed[p])){
+          TGT_PLATFORMS[p]=JSON.parse(JSON.stringify(DEF_TGT_PLATFORMS[p]));
+          TGT_PLATFORMS[p].std=parsed[p]; // preserve user's saved std targets
+        } else if(parsed[p]){TGT_PLATFORMS[p]=parsed[p];}
+      });
+    } else {TGT_PLATFORMS=parsed;}
+  } else {
+    const s=localStorage.getItem("tacTgt5");
+    if(s){TGT_PLATFORMS.CMIA.std=JSON.parse(s);}
+  }
+}catch(e){}
+try{const d=localStorage.getItem("tacMaxDilt");if(d)maxDilt=parseInt(d)||180;}catch(e){}
+let TGT=TGT_PLATFORMS.CMIA.std; // active targets — always a 3-element phase array
+
+let S={tab:0,phase:0,wt:"",geno:"unk",patientName:"",donorAge:"",assay:"CMIA",riskTier:"std",
+  lss:{c0:"",c1:"",c1_5:"",c2:"",c4:"",at_c0:"",at_c1:"",at_c1_5:"",at_c2:"",at_c4:""},cd:{c0:"",dose:""},
+  fp:TP.map(t=>({t,c:""})),da:{curDose:"",curAUC:"",tgtAUC:"",curC0:"",tgtC0:""},
+  ipv:{vals:["","","","","",""]},
+  csa:{reason:"rescue",ifta:""},
+  bxSnap:{date:"",grade:"",c0:"",dose:"",auc:"",cr:"",notes:""},
+  px:{form:"ir",sched:"bd",dose:"",dilt:"none",diltDose:"",booster:"none",boosterDose:"",mtor:"none",evrTrough:"",mtorDose:"",mmf:"",brand:"no",absorb:"ok",hct:"",crCurrent:"",bx:"none",
+    mtorEgfr:"",mtorProt:"",mtorWound:"unk",mtorInfect:"unk",mtorLeuko:"unk",mtorEbv:"unk",crT:"stable",
+    aki:"no",akiPeakCr:"",diltTiming:"unk",
+    toxTremor:false,toxHtn:false,toxNodat:false,toxGi:false,toxNeuro:false,
+    goal:"auto"},
+  waOpt:false,ts:null};
+
+// Load saved preferences
+try{const a=localStorage.getItem("tacAssay");if(a&&TGT_PLATFORMS[a]){S.assay=a;}}catch(e){}
+try{const r=localStorage.getItem("tacRiskTier");if(r&&["low","std","high"].includes(r))S.riskTier=r;}catch(e){}
+try{const bx=localStorage.getItem("tacBxSnapshot");if(bx)S.bxSnap=JSON.parse(bx);}catch(e){}
+TGT=TGT_PLATFORMS[S.assay][S.riskTier]; // apply after loading preferences
+
+let _cmp={};
+
+const assayLabel=a=>a==="LCMS"?"LC-MS/MS":a;
+const tierLabel=r=>r==="low"?"Low Risk":r==="high"?"High Risk":"Standard";
+function _updateTGT(){TGT=TGT_PLATFORMS[S.assay][S.riskTier];const n=$("assayNote");if(n)n.textContent=`${assayLabel(S.assay)} · ${tierLabel(S.riskTier)}`;}
+function setAssay(a){if(!TGT_PLATFORMS[a])return;S.assay=a;_updateTGT();try{localStorage.setItem("tacAssay",a);}catch(e){}R();}
+function setRiskTier(r){if(!["low","std","high"].includes(r))return;S.riskTier=r;_updateTGT();try{localStorage.setItem("tacRiskTier",r);}catch(e){}R();}
+function saveBxSnap(){try{localStorage.setItem("tacBxSnapshot",JSON.stringify(S.bxSnap));}catch(e){}sT("Biopsy snapshot saved");R();}
+function clearBxSnap(){S.bxSnap={date:"",grade:"",c0:"",dose:"",auc:"",cr:"",notes:""};try{localStorage.removeItem("tacBxSnapshot");}catch(e){}sT("Snapshot cleared");R();}
+
+const $=id=>document.getElementById(id);
+const pf=v=>parseFloat(v);
+const ok=v=>v!==""&&!isNaN(pf(v))&&pf(v)>0;
+const okZ=v=>v!==""&&!isNaN(pf(v))&&pf(v)>=0; // allows zero (proteinuria, undetectable levels)
+// Range validation for clinical values
+function rV(v,lo,hi,label){if(!ok(v))return"";const n=pf(v);if(n<lo)return`<div class="al al-e"><b>⚠ ${label} = ${n}:</b> Below expected range (${lo}–${hi}). Verify.</div>`;if(n>hi)return`<div class="al al-e"><b>⚠ ${label} = ${n}:</b> Above expected range (${lo}–${hi}). Verify.</div>`;return"";}
+
+// Focus management
+let _rf=null;
+function _sv(){const e=document.activeElement;if(e&&e.tagName==="INPUT"&&!e.closest(".gb")&&!e.closest(".pc-b")&&!e.closest(".modal")){_rf={a:e.getAttribute("oninput")||"",p:e.selectionStart||0};}}
+function _rs(){if(_rf){const els=$("ct").querySelectorAll("input");for(const e of els){if((e.getAttribute("oninput")||"")=== _rf.a){e.focus();try{e.setSelectionRange(_rf.p,_rf.p)}catch(x){}break;}}_rf=null;}}
+
+// Patient context toggle
+function togglePC(el){const b=$("pcBody");b.classList.toggle("hidden");$("pcArrow").textContent=b.classList.contains("hidden")?"▶":"▼";}
+function sP(k,v){_sv();S.px[k]=v;if(k==='dose'){S.cd.dose=v;S.da.curDose=v;}updateFieldVis();R();}
+// Conditional field visibility (v6.2, extended v6.7)
+function updateFieldVis(){
+  const dr=$('diltDoseRow');if(dr)dr.style.display=S.px.dilt==='none'?'none':'';
+  const br=$('boosterDoseRow');if(br)br.style.display=S.px.booster==='none'?'none':'';
+  const mr=$('mtorTroughRow');if(mr)mr.style.display=S.px.mtor==='none'?'none':'';
+  const mdr=$('mtorDoseRow');if(mdr)mdr.style.display=S.px.mtor==='none'?'none':'';
+  const akr=$('akiPeakCrRow');if(akr)akr.style.display=S.px.aki==='no'?'none':'';
+  const dtr=$('diltTimingRow');if(dtr)dtr.style.display=S.px.dilt==='none'?'none':'';
+}
+
+// Settings — v6.9: shows all 3 tiers for active platform
+function openSet(){
+  const pName=assayLabel(S.assay);
+  const tierCols=["low","std","high"];
+  const tierNames={"low":"Low Risk","std":"Standard","high":"High Risk"};
+  const tierColors={"low":"#e8f5e9","std":"#f0f7ff","high":"#fff8e1"};
+  let h=`<div style="background:#f0f7ff;border:1px solid #bbd9f5;border-radius:6px;padding:6px 8px;margin-bottom:8px;font-size:10px"><b>Editing: ${pName}</b> — all three risk tiers shown below.<br><span style="font-size:8px;color:var(--t2)">Switch Assay in the top bar to edit a different platform. Currently active tier: <b>${tierNames[S.riskTier]}</b>.</span></div>`;
+  tierCols.forEach(tier=>{
+    const tArr=TGT_PLATFORMS[S.assay][tier];
+    h+=`<div style="background:${tierColors[tier]};border:1px solid var(--bd);border-radius:6px;padding:7px 9px;margin-bottom:6px"><div style="font-weight:700;font-size:11px;margin-bottom:5px;color:var(--pri)">${tierNames[tier]}</div>`;
+    tArr.forEach((t,i)=>{h+=`<div style="font-size:9px;font-weight:600;color:var(--t2);margin-bottom:2px">${t.ph}</div>
+<div class="mrw"><label>AUC min–max</label><input id="s_mn_${tier}_${i}" value="${t.mn}">–<input id="s_mx_${tier}_${i}" value="${t.mx}"></div>
+<div class="mrw"><label>C0 min–max</label><input id="s_c0mn_${tier}_${i}" value="${t.c0mn}">–<input id="s_c0mx_${tier}_${i}" value="${t.c0mx}"></div>`;});
+    h+=`</div>`;
+  });
+  h+=`<div style="font-weight:600;font-size:11px;margin:8px 0 4px;color:var(--org)">Formulary</div>`;
+  h+=`<div class="mrw"><label>Max Dilt (mg/d)</label><input id="s_maxDilt" value="${maxDilt}" style="width:60px"><span style="font-size:8px;color:var(--t2)">Cascade advances when dose reaches this</span></div>`;
+  $("setBody").innerHTML=h;$("setModal").classList.add("show");
+}
+function saveSet(){
+  ["low","std","high"].forEach(tier=>{
+    TGT_PLATFORMS[S.assay][tier].forEach((t,i)=>{
+      t.mn=+$(`s_mn_${tier}_${i}`).value||t.mn;t.mx=+$(`s_mx_${tier}_${i}`).value||t.mx;
+      t.c0mn=+$(`s_c0mn_${tier}_${i}`).value||t.c0mn;t.c0mx=+$(`s_c0mx_${tier}_${i}`).value||t.c0mx;
+    });
+  });
+  maxDilt=+$('s_maxDilt').value||180;
+  _updateTGT(); // re-sync TGT to active tier after edits
+  try{localStorage.setItem("tacTgtPlatforms",JSON.stringify(TGT_PLATFORMS));localStorage.setItem("tacMaxDilt",String(maxDilt));}catch(e){}
+  $("setModal").classList.remove("show");R();sT(`Targets saved — ${assayLabel(S.assay)}`);
+}
+function resetSet(){
+  TGT_PLATFORMS[S.assay]=JSON.parse(JSON.stringify(DEF_TGT_PLATFORMS[S.assay]));
+  _updateTGT();maxDilt=180;
+  try{localStorage.setItem("tacTgtPlatforms",JSON.stringify(TGT_PLATFORMS));localStorage.removeItem("tacMaxDilt");}catch(e){}
+  $("setModal").classList.remove("show");R();sT(`Defaults restored — ${assayLabel(S.assay)}`);
+}
+$("setModal").addEventListener("click",e=>{if(e.target===$("setModal"))$("setModal").classList.remove("show");});
+
+// Helpers
+function aS(a,t){if(!t)return{l:"",c:"#888"};if(a<t.mn)return{l:"Below target",c:"var(--red)"};if(a>t.mx)return{l:"Above target",c:"var(--org)"};return{l:"Within target",c:"var(--grn)"};}
+function cC(d){if(d>=1.55)return{l:"Slow Metabolizer",c:"var(--grn)",a:"Standard protocol",s:0};if(d>=1.05)return{l:"Intermediate",c:"var(--org)",a:"Monitor — many behave as fast metabolizers clinically",s:1};if(d>=0.8)return{l:"Fast Metabolizer",c:"var(--red)",a:"Warrants intervention — consider cascade",s:2};return{l:"Very Rapid",c:"var(--dkr)",a:"Evaluate urgently — high risk of underexposure and peak toxicity",s:3};}
+function c2C(v){if(v<=20)return{l:"Acceptable peak",c:"var(--grn)"};if(v<=30)return{l:"High peak — interpret with AUC and clinical context",c:"var(--org)"};return{l:"Very high peak — review dosing and absorption",c:"var(--red)"};}
+
+// LINEAR-LOG TRAPEZOIDAL (v5 fix)
+function tA(pts){
+  const s=pts.filter(p=>ok(p.c)).map(p=>({t:pf(p.t),c:pf(p.c)})).sort((a,b)=>a.t-b.t);
+  if(s.length<2)return null;
+  let a=0;
+  for(let i=1;i<s.length;i++){
+    const c1=s[i-1].c, c2=s[i].c, dt=s[i].t-s[i-1].t;
+    if(dt===0)continue;
+    if(c2>=c1||c1<=0||c2<=0){
+      // Ascending or equal: linear
+      a+=(c1+c2)/2*dt;
+    } else {
+      // Descending: log-trapezoidal
+      a+=(c1-c2)/Math.log(c1/c2)*dt;
+    }
+  }
+  return Math.round(a*10)/10;
+}
+
+// Check if full AUC profile is complete enough for AUC₀₋₁₂ label
+// Requires: T=0 present AND at least one point ≥ T=8h
+function isCompleteAUC(pts){
+  const filled=pts.filter(p=>ok(p.c));
+  const hasT0=filled.some(p=>pf(p.t)===0);
+  const hasLate=filled.some(p=>pf(p.t)>=8);
+  return hasT0&&hasLate&&filled.length>=3;
+}
+// TDS: AUC₀₋₈ completeness (T=0 + T≥6 + ≥3 points within 0–8h)
+function isCompleteAUC8(pts){
+  const filled=pts.filter(p=>ok(p.c)&&pf(p.t)<=8);
+  const hasT0=filled.some(p=>pf(p.t)===0);
+  const hasLate=filled.some(p=>pf(p.t)>=6);
+  return hasT0&&hasLate&&filled.length>=3;
+}
+// TDS target conversion: AUC₀₋₈ target = AUC₀₋₁₂ target × 2/3
+function tdsTarget(tg){return{mn:Math.round(tg.mn*2/3),mx:Math.round(tg.mx*2/3)};}
+// Get last filled timepoint
+function lastFilledTP(pts){
+  const filled=pts.filter(p=>ok(p.c)).map(p=>pf(p.t)).sort((a,b)=>a-b);
+  return filled.length?filled[filled.length-1]:0;
+}
+
+function bg(l,v,u,st){return`<div class="bg" style="background:${st.c}10"><div class="l">${l}</div><div class="v" style="color:${st.c}">${typeof v==="number"?v.toFixed(1):v}</div><div class="u">${u}</div>${st.l?`<div class="s" style="color:${st.c}">${st.l}</div>`:""}</div>`;}
+function ps(){return`<div class="pb">${TGT.map((t,i)=>`<button class="${S.phase===i?"act":""}" onclick="S.phase=${i};S.da.tgtAUC='';S.da.tgtC0='';R()">${t.ph}</button>`).join("")}</div>`;}
+function genoLabel(){return S.geno==="11"?"CYP3A5 *1/*1 (Expressor)":S.geno==="13"?"CYP3A5 *1/*3 (Heterozygous)":S.geno==="33"?"CYP3A5 *3/*3 (Non-expressor)":"CYP3A5 Unknown";}
+function genoStartDose(w){if(!w)return null;if(S.geno==="11")return{lo:(w*.20).toFixed(1),hi:(w*.30).toFixed(1),note:"Expressor — 2–3× of 0.10 mg/kg/d standard (DPWG: up to 2.5×; CPIC cap: 0.3 mg/kg/d)"};if(S.geno==="13")return{lo:(w*.15).toFixed(1),hi:(w*.20).toFixed(1),note:"Heterozygous — 1.5–2× of 0.10 mg/kg/d standard (DPWG: 1.5×; CPIC groups with *1/*1)"};if(S.geno==="33")return{lo:(w*.10).toFixed(1),hi:(w*.15).toFixed(1),note:"Non-expressor — standard dose (CPIC-informed)"};return null;}
+function evTag(type){const m={rct:"RCT/Meta-analysis",pk:"PK convention",exp:"Expert consensus"};const c={rct:"ev-rct",pk:"ev-pk",exp:"ev-exp"};return `<span class="ev-tag ${c[type]}">${m[type]}</span>`;}
+
+// ===== PK SPARKLINE (v6.6) =====
+function pkSpark(pts,tgMn,tgMx){
+  const d=pts.filter(p=>p.c>0).sort((a,b)=>a.t-b.t);
+  if(d.length<2)return"";
+  const W=220,H=65,pad=18,pR=8;
+  const tMax=Math.max(d[d.length-1].t,4),cMax=Math.max(...d.map(p=>p.c))*1.15;
+  const x=t=>pad+(t/tMax)*(W-pad-pR),y=c=>pad+(1-c/cMax)*(H-pad-4);
+  // Build path
+  const line=d.map((p,i)=>`${i===0?"M":"L"}${x(p.t).toFixed(1)},${y(p.c).toFixed(1)}`).join(" ");
+  const area=line+` L${x(d[d.length-1].t).toFixed(1)},${(H-4).toFixed(1)} L${x(d[0].t).toFixed(1)},${(H-4).toFixed(1)} Z`;
+  // Cmax marker
+  const cm=d.reduce((a,b)=>b.c>a.c?b:a);
+  const cmaxC0=d[0].c>0?(cm.c/d[0].c):null;
+  const curveLabel=cmaxC0?cmaxC0<2.5?"flat":cmaxC0<3.5?"moderate":"steep":"";
+  const curveCol=cmaxC0?cmaxC0<2.5?"var(--grn)":cmaxC0<3.5?"var(--org)":"var(--red)":"var(--t2)";
+  let svg=`<svg viewBox="0 0 ${W} ${H}" style="width:${W}px;height:${H}px;display:block;margin:4px auto" xmlns="http://www.w3.org/2000/svg">`;
+  // Target zone (horizontal band)
+  if(tgMn&&tgMx&&tgMn<cMax){
+    const yTop=y(Math.min(tgMx,cMax)),yBot=y(Math.max(tgMn,0));
+    svg+=`<rect x="${pad}" y="${yTop.toFixed(1)}" width="${W-pad-pR}" height="${Math.max(yBot-yTop,1).toFixed(1)}" fill="var(--grn)" opacity="0.08"/>`;
+  }
+  // Axis
+  svg+=`<line x1="${pad}" y1="${H-4}" x2="${W-pR}" y2="${H-4}" stroke="var(--bd)" stroke-width="0.5"/>`;
+  svg+=`<line x1="${pad}" y1="${pad}" x2="${pad}" y2="${H-4}" stroke="var(--bd)" stroke-width="0.5"/>`;
+  // Area fill + line
+  svg+=`<path d="${area}" fill="${curveCol}" opacity="0.1"/>`;
+  svg+=`<path d="${line}" fill="none" stroke="${curveCol}" stroke-width="1.5" stroke-linejoin="round"/>`;
+  // Points
+  d.forEach(p=>{svg+=`<circle cx="${x(p.t).toFixed(1)}" cy="${y(p.c).toFixed(1)}" r="2.5" fill="${curveCol}" stroke="#fff" stroke-width="0.5"/>`;});
+  // Labels
+  svg+=`<text x="${x(cm.t).toFixed(1)}" y="${(y(cm.c)-5).toFixed(1)}" text-anchor="middle" font-size="7" fill="${curveCol}" font-weight="600">${cm.c.toFixed(0)}</text>`;
+  if(d[0].c!==cm.c)svg+=`<text x="${(x(d[0].t)+8).toFixed(1)}" y="${(y(d[0].c)-3).toFixed(1)}" font-size="6" fill="var(--t2)">C0 ${d[0].c.toFixed(1)}</text>`;
+  // Time axis labels
+  d.forEach(p=>{svg+=`<text x="${x(p.t).toFixed(1)}" y="${H}" text-anchor="middle" font-size="5.5" fill="var(--t2)">${p.t}h</text>`;});
+  // Curve shape label
+  if(curveLabel)svg+=`<text x="${W-pR}" y="10" text-anchor="end" font-size="7" fill="${curveCol}" font-weight="600">${curveLabel}</text>`;
+  svg+=`</svg>`;
+  return `<div style="text-align:center;margin:5px 0">${svg}<div style="font-size:7px;color:var(--t2)">Concentration–time curve${cmaxC0?` · Cmax/C0 ${cmaxC0.toFixed(1)}`:""}</div></div>`;
+}
+
+// ===== SAMPLE TIMING TOLERANCE (v6.6) =====
+const NOM_T={c0:0,c1:60,c1_5:90,c2:120,c4:240}; // nominal times in minutes
+function timingDrift(key){
+  const at=S.lss['at_'+key];
+  if(!ok(at))return null;
+  const actual=pf(at);
+  const nom=NOM_T[key];
+  return{drift:Math.abs(actual-nom),actual,nom,key};
+}
+function timingBadge(key){
+  const d=timingDrift(key);
+  if(!d)return"";
+  if(d.drift<=5)return` <span style="font-size:7px;color:var(--grn)">✓ ${d.actual}min</span>`;
+  if(d.drift<=10)return` <span style="font-size:7px;color:var(--org)">~${d.actual}min (±${d.drift})</span>`;
+  return` <span style="font-size:7px;color:var(--red)">⚠ ${d.actual}min (drift ${d.drift}min)</span>`;
+}
+function timingGrade(){
+  const checks=Object.keys(NOM_T).map(k=>timingDrift(k)).filter(d=>d!==null);
+  if(checks.length===0)return{grade:"not entered",color:"var(--t2)",filled:false};
+  const maxDrift=Math.max(...checks.map(d=>d.drift));
+  if(maxDrift<=5)return{grade:"exact",color:"var(--grn)",filled:true};
+  if(maxDrift<=10)return{grade:"near-exact",color:"var(--org)",filled:true};
+  return{grade:"timing-compromised",color:"var(--red)",filled:true};
+}
+function sLt(k,v){_sv();S.lss['at_'+k]=v;R();}
+
+// ===== RELIABILITY CARD (v6.6) =====
+function reliabilityCard(cx,tg,flags,ind,won,sch){
+  const issues={critical:[],significant:[],minor:[]};
+  // PK data quality
+  if(cx.c0!==null&&cx.c2!==null&&cx.c0>cx.c2)issues.critical.push("C0 > C2 — sample timing or label error");
+  const lssN=[ind,won,sch].filter(v=>v!==null).length;
+  if(lssN===1)issues.minor.push("Single LSS equation — add timepoints for cross-validation");
+  if(lssN>=2){const av=[ind,won,sch].filter(v=>v!==null),mx=Math.max(...av),mn=Math.min(...av),div=(mx-mn)/mn;if(div>0.2)issues.significant.push(`LSS divergence ${(div*100).toFixed(0)}%`);else if(div>0.15)issues.minor.push(`LSS divergence ${(div*100).toFixed(0)}% — borderline`);}
+  // Timing
+  const tGrade=timingGrade();
+  if(tGrade.filled&&tGrade.grade==="timing-compromised")issues.significant.push("Sample timing drift >10 min — LSS accuracy reduced");
+  // Clinical context
+  if(S.px.absorb==="unstable")issues.critical.push("Absorption unstable — all PK data unreliable");
+  if(ok(S.px.hct)&&pf(S.px.hct)<25)issues.significant.push(`Hct ${S.px.hct}% very low — trough substantially underestimates true exposure`);
+  else if(ok(S.px.hct)&&pf(S.px.hct)<30)issues.significant.push(`Hct ${S.px.hct}% low — trough underestimates exposure; anticipate trough rise as Hct recovers`);
+  else if(ok(S.px.hct)&&pf(S.px.hct)<35&&S.phase===0)issues.minor.push(`Hct ${S.px.hct}% borderline low (Month 0–3) — trough may rise 10–15% as Hct normalizes toward 40%`);
+  if(S.px.booster!=="none")issues.minor.push(`Azole active (${S.px.booster})`);
+  if(S.px.crT==="rising")issues.significant.push("Cr rising — clinical deterioration");
+  if(S.px.sched!=="bd")issues.significant.push(`${S.px.sched.toUpperCase()} schedule — C/D thresholds and LSS equations not validated`);
+  // Input validation
+  if(ok(S.px.dose)&&(pf(S.px.dose)<0.5||pf(S.px.dose)>40))issues.minor.push(`Tac dose ${S.px.dose} outside range`);
+  if(ok(S.wt)&&(pf(S.wt)<2||pf(S.wt)>250))issues.minor.push(`Weight ${S.wt} outside range`);
+  // Confidence grade
+  let grade,gradeCol;
+  if(issues.critical.length>0){grade="Unreliable";gradeCol="var(--red)";}
+  else if(issues.significant.length>0){grade="Low confidence";gradeCol="var(--org)";}
+  else if(issues.minor.length>0){grade="Moderate";gradeCol="var(--org)";}
+  else{grade="High confidence";gradeCol="var(--grn)";}
+  // Render
+  const allIssues=[...issues.critical.map(i=>`<span style="color:var(--red)">● ${i}</span>`),...issues.significant.map(i=>`<span style="color:var(--org)">● ${i}</span>`),...issues.minor.map(i=>`<span style="color:var(--t2)">● ${i}</span>`)];
+  const tBadge=tGrade.filled?` · Timing: <span style="color:${tGrade.color}">${tGrade.grade}</span>`:"";
+  if(allIssues.length===0)return`<div class="al al-ok" style="font-size:9px;padding:5px 8px"><b style="color:${gradeCol}">◆ ${grade}</b>${tBadge}</div>`;
+  return`<div class="al al-${issues.critical.length?"e":issues.significant.length?"w":"i"}" style="font-size:9px;padding:5px 8px;line-height:1.6"><b style="color:${gradeCol}">◆ ${grade}</b>${tBadge}<br>${allIssues.join("<br>")}</div>`;
+}
+// C0 vs phase target check — aucWithin: true when AUC is known and within target (v6.6 Fix 3)
+function c0PhaseCheck(c0val,tg,aucWithin){if(c0val===null)return"";if(c0val<tg.c0mn){if(aucWithin)return`<div class="al al-i"><b>C0 ${c0val.toFixed(1)}: below population C0 target (${tg.c0mn}–${tg.c0mx})</b> — but AUC is within target. This is a trough gap, not underexposure. Do not chase C0 upward.</div>`;return`<div class="al al-e"><b>C0 ${c0val.toFixed(1)}: below phase target (${tg.c0mn}–${tg.c0mx})</b> — underexposed.</div>`;}if(c0val>tg.c0mx)return`<div class="al al-w"><b>C0 ${c0val.toFixed(1)}: above phase target (${tg.c0mn}–${tg.c0mx})</b> — risk of toxicity/overexposure.</div>`;return`<div class="al al-ok"><b>C0 ${c0val.toFixed(1)}: within phase target (${tg.c0mn}–${tg.c0mx})</b></div>`;}
+
+// ===== INTERVENTION CASCADE =====
+// Demoted summary for non-Plan tabs (phenotype + flags only, no actionable dose-change language)
+function rISummary(ctx){
+  const px=S.px;
+  let h="";
+  let flags=[];
+  // Genotype-phenotype discordance
+  if(ctx.cd!==null&&S.geno!=="unk"){
+    if(S.geno==="33"&&ctx.cd<1.05)flags.push("Genotype-phenotype mismatch: CYP3A5 *3/*3 but C/D <1.05 (fast phenotype). Check adherence, GI absorption, drug interactions.");
+    if(S.geno==="11"&&ctx.cd>=1.55)flags.push("Genotype-phenotype mismatch: CYP3A5 *1/*1 but C/D ≥1.55 (slow phenotype). Verify assay and concomitant inhibitors.");
+  }
+  if(ctx.cd!==null&&S.phase===0)flags.push("C/D in first 0–3 months: exploratory only. Steroid taper, gut recovery, Hct shifts confound the ratio.");
+  if(ctx.cv!==null&&ctx.cv>30)flags.push("IPV CV% >30%: investigate adherence, absorption variability, drug interactions.");
+  if(px.absorb==="unstable")flags.push("Absorption unstable: PK data unreliable.");
+  if(px.booster!=="none")flags.push(`Azole (advanced) active: ${px.booster}.`);
+  // AUC-based flags (informational only)
+  if(ctx.auc!==null){const tg=TGT[S.phase];
+    if(ctx.auc>tg.mx)flags.push(`AUC ${ctx.auc.toFixed(0)} above target ${tg.mx}.`);
+    if(ctx.auc>=tg.mn&&ctx.auc<=tg.mx&&ctx.c2!==null&&ctx.c2>20)flags.push(`Normal AUC + high C2 peak: reshaping may be indicated.`);
+    if(ctx.auc<tg.mn)flags.push(`AUC ${ctx.auc.toFixed(0)} below target ${tg.mn}.`);
+  }
+  if(flags.length>0){
+    h+=`<div class="al al-i" style="margin-top:5px"><b>Flags:</b> ${flags.join(" · ")}</div>`;
+  }
+  h+=`<div class="al al-i" style="margin-top:3px;font-size:8px;font-style:italic"><b>→ See Plan tab for actionable recommendations.</b> This tab provides PK data and phenotype summary only.</div>`;
+  return h;
+}
+// ===== OLD rI() CASCADE REMOVED in v6.2 =====
+// All non-Plan tabs now use rISummary() for phenotype summary only.
+// Plan tab is the sole authority for actionable recommendations.
+
+// WhatsApp export — two modes: short handoff vs detailed senior review
+function xWA(mode){
+  S.ts=new Date();const tg=TGT[S.phase];
+  let t=`📋 *Tacrolimus Assessment*\n🕐 ${S.ts.toLocaleString("en-IN",{dateStyle:"medium",timeStyle:"short"})}\n`;
+  // v6.8: patient header
+  if(S.patientName)t+=`👤 *${S.patientName}*${ok(S.donorAge)?` · Donor age ${S.donorAge}y`:""}\n`;
+  else if(ok(S.donorAge))t+=`Donor age: ${S.donorAge}y\n`;
+  t+=`Assay: ${assayLabel(S.assay)} · Risk tier: ${tierLabel(S.riskTier)}\n`;
+  if(ok(S.wt))t+=`Weight: ${S.wt} kg\n`;
+  if(ok(S.px.crCurrent))t+=`Cr: ${S.px.crCurrent} mg/dL\n`;
+  t+=`Phase: ${tg.ph} | ${genoLabel()}\n`;
+  if(S.px.dose)t+=`Current: Tac ${S.px.dose}mg/d ${S.px.sched.toUpperCase()} (${S.px.form.toUpperCase()})${S.px.dilt!=="none"?` + Dilt ${(S.px.dilt==="ir_d"?"IR":S.px.dilt.toUpperCase())} ${S.px.diltDose||""}mg/d`:""}${S.px.booster!=="none"?` + ${S.px.booster} ${S.px.boosterDose||""}mg/d`:""}${S.px.mtor!=="none"?` + ${S.px.mtor==="eve"?"EVR":"SRL"}${ok(S.px.mtorDose)?" "+S.px.mtorDose+"mg/d":""}${ok(S.px.evrTrough)?" (trough "+S.px.evrTrough+")":""}`:""}\n`;
+  t+=`\n`;
+  // Use cached values from R() — single source of truth (v6.2 Fix 7)
+  const {ind,won,sch,fullAuc,fullAucRaw,fullAucComplete,cr,cc,cv}=_cmp;
+  if(ind||won||sch){t+=`*LSS AUC₀₋₁₂:*\n`;if(ind)t+=`Indian (Mathew): ${ind} ${aS(ind,tg).l}\n`;if(won)t+=`Wong: ${won} ${aS(won,tg).l}\n`;if(sch)t+=`Armendáriz: ${sch} (exploratory) ${aS(sch,tg).l}\n`;t+=`Target: ${tg.mn}–${tg.mx} µg·h/L\n\n`;}
+  if(fullAuc)t+=`*Full AUC₀₋₁₂:* ${fullAuc} µg·h/L (linear-log) ${aS(fullAuc,tg).l}\n\n`;
+  else if(fullAucRaw&&!fullAucComplete){const ltp=lastFilledTP(S.fp);t+=`*Partial AUC₀₋${ltp.toFixed(0)}:* ${fullAucRaw} µg·h/L (incomplete — NOT AUC₀₋₁₂)\n\n`;}
+  if(cr!==null&&cc!==null){
+    if(S.px.sched==="bd")t+=`*C/D Ratio:* ${cr.toFixed(2)} → ${cc.l}\n\n`;
+    else t+=`*C/D Ratio:* ${cr.toFixed(2)} (⚠ ${S.px.sched.toUpperCase()} schedule — thresholds validated for BD only)\n\n`;
+  }
+  if(cv!==null)t+=`*IPV:* CV% ${cv.toFixed(1)}%\n\n`;
+  if(aucC0ratio!==null)t+=`*AUC/C0 ratio:* ${aucC0ratio.toFixed(1)} → Individualized C0 target: ${indivC0tgt.lo.toFixed(1)}–${indivC0tgt.hi.toFixed(1)} ng/mL\n\n`;
+  // Detailed mode: cascade + recheck + flags
+  if(mode==="detail"){
+    if(cc&&S.px.sched==="bd"){t+=`*Metabolizer:* ${cc.l} (C/D ${cr.toFixed(2)})\n`;}
+    else if(cc){t+=`*Metabolizer:* C/D ${cr.toFixed(2)} (⚠ phenotype not classified — ${S.px.sched.toUpperCase()} schedule)\n`;}
+    t+=`\n*Cascade:*\n`;
+    const px=S.px;
+    t+=`1. Brand lock: ${px.brand==="yes"?"✓":"needed"}\n`;
+    const diltTxt=px.dilt==="none"?"not started":px.dilt==="ir_d"?"IR → switch to long-acting":`${px.dilt.toUpperCase()} ${ok(px.diltDose)?px.diltDose+"mg/d":"dose not entered"} ${ok(px.diltDose)&&pf(px.diltDose)>=maxDilt?"✓":""}`;
+    t+=`2. Diltiazem: ${diltTxt}${px.booster!=="none"?" (booster: "+px.booster+")":""}\n`;
+    t+=`3. Schedule: ${px.sched.toUpperCase()} (${px.form.toUpperCase()})\n`;
+    t+=`4. mTORi: ${px.mtor!=="none"?(px.mtor==="eve"?"EVR":"SRL")+(ok(px.mtorDose)?" "+px.mtorDose+"mg/d":"")+(ok(px.evrTrough)?" trough "+px.evrTrough:" trough ?")+((ok(px.mtorDose)&&ok(px.evrTrough))?" (C/D "+(pf(px.evrTrough)/pf(px.mtorDose)).toFixed(2)+")":""):"not started"}\n`;
+    t+=`5. MMF: ${ok(px.mmf)?px.mmf+"mg/d":"?"}\n`;
+    t+=`\n*Recheck timing:*\n`;
+    t+=`After dose change: day 5–7 [PK convention]\n`;
+    t+=`After diltiazem start: day 3–5 [PK convention]\n`;
+    t+=`After BD→TDS: day 5–7, 8h trough ≠ 12h [PK convention]\n`;
+    if(px.mtor!=="none")t+=`mTORi: ${px.mtor==="eve"?"EVR day 5–7":"SRL day 7–10"} then weekly ×4, CBC biweekly [RCT]\n`;
+    t+=`\n`;
+    // Flags
+    const fl=[];
+    if(px.absorb==="unstable")fl.push("absorption unstable");
+    if(px.booster!=="none")fl.push("Azole (advanced) active");
+    if(px.bx!=="none")fl.push("recent biopsy: "+px.bx);
+    if(px.sched!=="bd")fl.push(`${px.sched.toUpperCase()} schedule — C/D thresholds not directly interpretable`);
+    if(px.crT==="rising")fl.push("⚠ Cr RISING");
+    if(px.crT==="falling")fl.push("Cr falling — may reflect recent intervention");
+    if(px.aki!=="no")fl.push(`recent AKI (${px.aki})${ok(px.akiPeakCr)?" peak Cr "+px.akiPeakCr:""}`);
+    const toxFlag=toxSxList(px);
+    if(toxFlag.length)fl.push("tox sx: "+toxFlag.join(", "));
+    if(px.dilt!=="none"&&px.diltTiming==="unsynced")fl.push("⚠ dilt NOT tac-synced");
+    if(fl.length)t+=`*⚠ Flags:* ${fl.join(", ")}\n`;
+    // v6.7: Engine context
+    const _plan=(typeof _cmp!=="undefined"&&_cmp.plan)||null;
+    if(px.goal!=="auto")t+=`*Goal override:* ${px.goal}\n`;
+    const cmaxAbs=(typeof _cmp!=="undefined"&&_cmp.cmaxAbs)||null;
+    if(cmaxAbs)t+=`*Cmax (proxy):* ${cmaxAbs.toFixed(1)} ng/mL${cmaxAbs>=25?" ⚠":""}\n`;
+    // v6.9: biopsy snapshot
+    const sn=S.bxSnap;
+    if(sn.date||sn.grade||sn.c0){t+=`\n*Biopsy context${sn.date?" ("+sn.date+")":""}:*\n`;if(sn.grade)t+=`Finding: ${sn.grade}\n`;if(ok(sn.c0))t+=`C0 at biopsy: ${sn.c0} ng/mL\n`;if(ok(sn.dose))t+=`Dose at biopsy: ${sn.dose} mg/d\n`;if(ok(sn.auc))t+=`AUC at biopsy: ${sn.auc} µg·h/L\n`;if(ok(sn.cr))t+=`Cr at biopsy: ${sn.cr} mg/dL\n`;if(sn.notes)t+=`Notes: ${sn.notes}\n`;}
+  }
+  t+=`\n_Tac AUC Calculator v6.9_`;
+  navigator.clipboard.writeText(t).then(()=>sT(mode==="detail"?"Detailed report copied":"Short handoff copied")).catch(()=>{const a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);sT("Copied");});
+  $("tsD").textContent=S.ts.toLocaleString("en-IN",{dateStyle:"short",timeStyle:"short"});
+}
+function sT(m){const t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500);}
+
+// ===== v6.7 PRIORITY ROUTER + PEAK ENGINE =====
+// Decision architecture: context-driven priority selection with manual override.
+// AUC-first by default. Peak reduction activated only when AUC in/near target + peak signal.
+// Peak mode locked when AUC < lower target bound (prevents peak-chasing at cost of underexposure).
+
+// Peak signal detection — absolute Cmax proxy (C1.5 from LSS or highest from full profile) and Cmax/C0 ratio
+function peakSignal(ctx,lssC15){
+  const cm=ctx.cmaxC0||null;
+  // Cmax proxy: prefer full-profile Cmax if available, else LSS C1.5
+  const cmaxAbs=ctx.cmaxAbs||lssC15||null;
+  const steep=cm!==null&&cm>=3.2;
+  const high=cmaxAbs!==null&&cmaxAbs>=25;
+  const veryHigh=cmaxAbs!==null&&cmaxAbs>=30;
+  return{cm,cmaxAbs,steep,high,veryHigh,flag:steep||high};
+}
+
+// Toxicity symptom detection
+function toxSxActive(px){
+  return px.toxTremor||px.toxHtn||px.toxNodat||px.toxGi||px.toxNeuro;
+}
+function toxSxList(px){
+  const l=[];
+  if(px.toxTremor)l.push("tremor");
+  if(px.toxHtn)l.push("HTN");
+  if(px.toxNodat)l.push("NODAT");
+  if(px.toxGi)l.push("GI intolerance");
+  if(px.toxNeuro)l.push("neurotox");
+  return l;
+}
+
+// Priority router — returns {engine, reason, locked}
+function routePriority(ctx,px,tg,pkSig){
+  const auc=ctx.auc, c0v=ctx.c0;
+  const aucOk=auc!==null, c0ok=c0v!==null;
+  const aucInTgt=aucOk&&auc>=tg.mn&&auc<=tg.mx;
+  const aucAbove=aucOk&&auc>tg.mx;
+  const aucBelow=aucOk&&auc<tg.mn;
+  const aucNearTgt=aucOk&&auc>=tg.mn*0.9; // within 10% below lower bound = "near target"
+  const c0InTgt=c0ok&&c0v>=tg.c0mn&&c0v<=tg.c0mx;
+  const c0Below=c0ok&&c0v<tg.c0mn;
+  const crRising=px.crT==="rising";
+  const crImproving=px.crT==="falling"||px.aki==="recovering";
+  const toxActive=toxSxActive(px);
+  const akiRecent=px.aki==="recovering"||px.aki==="resolved";
+
+  // Manual goal override
+  if(px.goal!=="auto"){
+    // Safety lock: peak mode requires AUC within or above lower target bound
+    if(px.goal==="peak"&&aucBelow&&auc<tg.mn*0.9){
+      return{engine:"undershoot",reason:`Peak-reduction mode requested but AUC ${auc.toFixed(0)} < ${Math.round(tg.mn*0.9)} (90% of lower target). LOCKED — routed to undershoot to prevent peak-chasing at cost of rejection risk. Address underexposure first.`,locked:true,override:"peak→undershoot"};
+    }
+    if(px.goal==="peak"&&!aucOk&&!c0ok){
+      return{engine:"auc",reason:"Peak-reduction mode requested but no exposure data entered. Enter C0 or AUC first.",locked:true,override:"peak→auc"};
+    }
+    const manualReasons={auc:"User override: AUC control.",peak:"User override: peak reduction.",both:"User override: both AUC and peak.",undershoot:"User override: undershoot recovery cascade."};
+    return{engine:px.goal,reason:manualReasons[px.goal]||"Manual override.",locked:false};
+  }
+
+  // Auto routing logic
+  // 1. Undershoot takes precedence for rejection prevention
+  if(aucBelow||(!aucOk&&c0Below)){
+    return{engine:"undershoot",reason:`${aucOk?"AUC "+auc.toFixed(0)+" below target "+tg.mn:"C0 "+c0v.toFixed(1)+" below target "+tg.c0mn}. Undershoot takes precedence — rejection risk > peak toxicity concern.`,locked:false};
+  }
+
+  // 2. AUC supratherapeutic + Cr rising + peak signal → both
+  if(aucAbove&&crRising&&pkSig.flag){
+    return{engine:"both",reason:`AUC ${auc.toFixed(0)} above target + Cr rising + peak signal (${pkSig.steep?"Cmax/C0 "+pkSig.cm.toFixed(1):"Cmax "+pkSig.cmaxAbs.toFixed(0)}). Dual priority: reduce AUC and flatten curve.`,locked:false};
+  }
+
+  // 3. AUC supratherapeutic + post-AKI recovery + peak signal → peak-weighted
+  if(aucAbove&&akiRecent&&crImproving&&pkSig.flag){
+    return{engine:"peak",reason:`Post-AKI recovery + Cr improving + AUC ${auc.toFixed(0)} above target + peak signal. Peak reduction weighted — graft is recovering, acute concentration-related injury is the dominant mechanism.`,locked:false};
+  }
+
+  // 4. AUC supratherapeutic alone → AUC engine
+  if(aucAbove){
+    return{engine:"auc",reason:`AUC ${auc.toFixed(0)} above target ${tg.mx}. Standard dose reduction.`,locked:false};
+  }
+
+  // 5. AUC in target + peak signal + tox symptoms → peak engine (toxicity-at-target)
+  if(aucInTgt&&pkSig.flag&&toxActive){
+    return{engine:"peak",reason:`AUC ${auc.toFixed(0)} in target but peak signal (${pkSig.steep?"Cmax/C0 "+pkSig.cm.toFixed(1):"Cmax "+pkSig.cmaxAbs.toFixed(0)}) + toxicity symptoms (${toxSxList(px).join(", ")}). Toxicity-at-target — reshape curve without reducing total exposure.`,locked:false};
+  }
+
+  // 6. AUC in target + peak signal alone (no symptoms) → peak awareness, not action
+  if(aucInTgt&&pkSig.flag&&!toxActive){
+    return{engine:"auc",reason:`AUC ${auc.toFixed(0)} in target. Peak signal present (${pkSig.steep?"Cmax/C0 "+pkSig.cm.toFixed(1):"Cmax "+pkSig.cmaxAbs.toFixed(0)}) but no toxicity symptoms — peak flagged, not actioned.`,locked:false,peakFlag:true};
+  }
+
+  // 7. AUC in target, no flags → maintain
+  if(aucInTgt){
+    return{engine:"auc",reason:`AUC ${auc.toFixed(0)} in target. Routine monitoring.`,locked:false};
+  }
+
+  // 8. Near-target AUC (90-100% of lower bound) + peak signal → peak engine allowed
+  if(aucOk&&aucNearTgt&&!aucBelow&&pkSig.flag){
+    return{engine:"peak",reason:`AUC ${auc.toFixed(0)} near lower target bound. Peak signal present. Peak reduction permissible — small margin for underexposure.`,locked:false};
+  }
+
+  // 9. No AUC, only C0 → AUC engine (will use C0 pathway)
+  if(!aucOk){
+    return{engine:"auc",reason:"No AUC available. C0-based pathway.",locked:false};
+  }
+
+  // Fallback
+  return{engine:"auc",reason:"Default AUC engine.",locked:false};
+}
+
+// ===== PEAK REDUCTION ENGINE =====
+// Primary metric: Cmax < 25 ng/mL absolute OR Cmax/C0 < 3.2
+// Dose cut first-line. Dilt escalation DEPRIORITIZED (raises Cmax).
+// Schedule split (BD→TDS) offered as alternate lever.
+function peakEngine(ctx,px,tg,pkSig,maxDilt,tacMax){
+  const auc=ctx.auc, c0v=ctx.c0;
+  const aucOk=auc!==null, c0ok=c0v!==null;
+  const cD=ok(px.dose)?pf(px.dose):null;
+  const w=ok(S.wt)?pf(S.wt):null;
+  const cmaxAbs=pkSig.cmaxAbs;
+  const cm=pkSig.cm;
+  const epistemic="Peak-reduction strategy is clinical judgment applied where validated targets are limited. AUC remains the primary validated metric. The 25 ng/mL Cmax ceiling and 22 ng/mL target are heuristics — no RCT or guideline defines specific Cmax cutoffs. STRATO (Langone 2015) supports Cmax reduction → tremor reduction directionally; ASTCOFF (Tremblay 2017) quantifies Prograf→LCPT Cmax reduction of ~17–30%. Use clinical judgment alongside these numeric flags.";
+
+  // No peak data available
+  if(!pkSig.flag&&!cmaxAbs&&!cm){
+    return{type:"action",hl:"Peak mode selected but no Cmax data. Enter C1.5 (LSS) or full profile to assess peak.",rc:"Collect C1.5 timepoint or full PK profile. Reassess.",why:"Peak-reduction engine requires Cmax proxy (C1.5 or full profile maximum). Without peak data, cannot compute peak-targeted dose adjustment.",notYet:"Peak-targeted dose change deferred until Cmax data available.",also:epistemic};
+  }
+
+  // Target peak = 22 ng/mL midpoint (<25 ceiling, accounting for uncertainty)
+  const peakTgt=22;
+  const peakReductionNeeded=cmaxAbs?Math.max(0,(cmaxAbs-peakTgt)/cmaxAbs):0;
+  // Dose reduction — linear PK: new dose ≈ current × (target / current peak)
+  const peakBasedDose=(cD&&cmaxAbs)?cD*(peakTgt/cmaxAbs):null;
+
+  // Dilt status note
+  const diltNote=px.dilt!=="none"?`Current diltiazem (${px.dilt==="ir_d"?"IR":px.dilt.toUpperCase()} ${px.diltDose||"?"}mg/d) — DO NOT escalate. Diltiazem raises absolute Cmax (inhibits clearance, peak shifts up). Ratio flattens but absolute peak rises. If dilt is inappropriately high, consider reducing.`:"No diltiazem present. Do NOT add diltiazem as peak-reduction lever — it raises absolute Cmax.";
+
+  // Schedule-split option
+  const schedOption=px.sched==="bd"?` <b>Alternate lever:</b> Tac TDS split (same daily dose ÷3, q8h) — flattens Cmax ~30% without changing AUC. ${cD?`e.g., ${(cD/3).toFixed(1)} mg q8h vs current ${(cD/2).toFixed(1)} mg BD.`:""} Cost: LSS invalid on TDS (Mathew/Wong/Armendáriz all BD-validated); AUC monitoring requires full profile.`:px.sched==="tds"?" Already TDS — schedule lever exhausted.":"";
+
+  // Build dose options (granularity)
+  let doseOptions="";
+  if(cD&&peakBasedDose){
+    const conservative=cD*0.90; // -10%
+    const standard=peakBasedDose;
+    const aggressive=cD*0.80; // -20%
+    const minDose=Math.min(conservative,standard,aggressive);
+    const maxDoseOpt=Math.max(conservative,standard,aggressive);
+    doseOptions=`<br><b>Dose options (granularity):</b><br>
+    · Conservative: ${conservative.toFixed(2)} mg/d (−10%) — minimal exposure change<br>
+    · Standard: ${standard.toFixed(2)} mg/d (peak-proportional) — projected Cmax ~${peakTgt} ng/mL<br>
+    · Aggressive: ${aggressive.toFixed(2)} mg/d (−20%) — faster peak drop, higher undershoot risk<br>
+    · Range: ${minDose.toFixed(1)}–${maxDoseOpt.toFixed(1)} mg/d`;
+  }
+
+  // Case 1: AUC within target + peak elevated → curve reshape without dose cut if possible
+  if(aucOk&&auc>=tg.mn&&auc<=tg.mx&&pkSig.flag){
+    const cutDose=cD?cD*0.90:null; // -10% as entry point
+    return{type:"action",hl:`Peak reduction — AUC in target, Cmax ${cmaxAbs?cmaxAbs.toFixed(0):"elevated"}${cm?` (Cmax/C0 ${cm.toFixed(1)})`:""}. Reshape curve.`,rc:`${cD?`Modest tac cut (~10%): ${cutDose.toFixed(2)} mg/d. ${schedOption}`:"Enter current dose for peak-targeted calculation."} Recheck C0+C1.5 day 5–7. Target Cmax <25.`,why:`AUC ${auc.toFixed(0)} is within target (${tg.mn}–${tg.mx}). Peak signal (${pkSig.steep?"Cmax/C0 "+cm.toFixed(1)+" >3.2":"Cmax "+cmaxAbs.toFixed(0)+" >25"}) drives peak toxicity risk independent of AUC. Dose cut reduces Cmax linearly; schedule split reduces Cmax without changing AUC. ${diltNote}`,notYet:"Large dose reduction deferred — AUC is in target. Aggressive cut risks underexposure.",also:epistemic};
+  }
+
+  // Case 2: AUC above target + peak elevated → standard peak-targeted dose cut
+  if(aucOk&&auc>tg.mx&&pkSig.flag){
+    return{type:"action",hl:`Peak reduction (AUC above target). Cut tac dose. ${peakBasedDose?`Current ${cD}mg/d → ~${peakBasedDose.toFixed(2)} mg/d (peak-targeted).`:""}${doseOptions}`,rc:`Recheck C0+C1.5 day 5–7. Target Cmax <25, AUC ${tg.mn}–${tg.mx}. ${schedOption}`,why:`AUC ${auc.toFixed(0)} above target ${tg.mx}, Cmax ${cmaxAbs?cmaxAbs.toFixed(0):"elevated"} above 25. Both metrics agree: reduce total exposure AND peak simultaneously. Linear PK assumption — cut dose proportional to Cmax overage. ${diltNote}`,notYet:"Diltiazem escalation contraindicated in peak mode (raises absolute Cmax). mTORi conversion deferred to chronic management.",also:epistemic};
+  }
+
+  // Case 3: Near-target AUC + peak signal (routing case 8)
+  if(aucOk&&auc>=tg.mn*0.9&&auc<tg.mn){
+    return{type:"action",hl:`Peak reduction at near-target AUC. Small dose reduction — monitor for undershoot.`,rc:`${cD?`Modest cut: ${(cD*0.90).toFixed(2)} mg/d (−10%). `:""}${schedOption} Recheck C0+C1.5 day 5.`,why:`AUC ${auc.toFixed(0)} is near lower target bound (${tg.mn}). Peak signal present. Peak reduction permissible but narrow margin — any drop below 90% of target risks rejection.`,notYet:"Aggressive dose cut deferred — AUC margin too narrow.",also:epistemic};
+  }
+
+  // Fallback: peak data present but exposure unclear
+  return{type:"action",hl:"Peak reduction — insufficient AUC data for quantitative targeting.",rc:"Collect full PK profile or LSS with C1.5. Then reassess dose.",why:"Peak engine needs AUC context to avoid undershoot. Pure peak targeting without AUC check is unsafe.",notYet:"Dose change deferred until AUC available.",also:epistemic};
+}
+
+// ===== PLAN ENGINE: single source of truth (v6.7: priority-routed) =====
+function getPlan(ctx){
+  const px=S.px, tg=TGT[S.phase], w=ok(S.wt)?pf(S.wt):null;
+  const auc=ctx.auc, c0v=ctx.c0, c2v=ctx.c2, cdR=ctx.cd, ccR=ctx.cc;
+  const cmaxC0=ctx.cmaxC0||null; // v6.2: from full profile derived PK
+  const aucOk=auc!==null, c0ok=c0v!==null;
+  const diltD=ok(px.diltDose)?pf(px.diltDose):0;
+  const mmfOk=ok(px.mmf)&&pf(px.mmf)>=1440;
+  const mmfAdv=!mmfOk&&px.mtor==="none"?`Also: ensure MMF ≥1440 MPS (or ≥2g MMF) before escalating CNI strategy.`:"";
+  const cD=ok(px.dose)?pf(px.dose):null;
+
+  // Dose ceiling: 0.3 mg/kg/day or 30 mg/day hard cap
+  const tacMax=w?Math.min(w*0.3,30):30;
+  function doseHL(nd,label){
+    const capped=Math.min(nd,tacMax);
+    const over=nd>tacMax;
+    let s=`${cD} → ${capped.toFixed(1)} mg/day (${px.sched==="tds"?(capped/3).toFixed(1)+" q8h":px.sched==="od"?capped.toFixed(1)+" OD":(capped/2).toFixed(1)+" BD"})`;
+    if(over)s+=`. ⚠ Proportional calc was ${nd.toFixed(1)} mg/d — capped at ${tacMax.toFixed(0)} mg/d (~0.3 mg/kg/d). Senior review required.`;
+    return s;
+  }
+  // C0-based target dose (less precise than AUC)
+  const c0TgtMid=(tg.c0mn+tg.c0mx)/2;
+
+  // === HARD STOPS ===
+  // 1. Absorption unstable
+  if(px.absorb==="unstable")return{type:"stop",hl:"PK unreliable — address GI/absorption issue first, then reassess.",rc:"Reassess C0/AUC after GI issue resolved.",why:"Unstable absorption (diarrhea, vomiting, malabsorption) makes trough levels, AUC estimates, and C/D ratios unreliable. Dose changes based on unreliable data risk over- or under-exposure.",notYet:"All pharmacologic changes deferred until absorption stabilizes.",also:""};
+
+  // 2. Biopsy TCMR → do not minimize, BUT assess exposure status
+  if(px.bx==="tcmr"){
+    const tcmrBase="Biopsy shows borderline/subclinical TCMR. Under-treatment of rejection drives late graft failure. CNI minimization is contraindicated until rejection is controlled.";
+    if(aucOk){
+      if(auc>=tg.mn&&auc<=tg.mx){
+        const c0Low=c0ok&&c0v<tg.c0mn;
+        const c0Note=c0Low?` C0 ${c0v.toFixed(1)} is below C0 range (${tg.c0mn}–${tg.c0mx}) — this is a trough gap, not underexposure. Do NOT chase C0 when AUC is adequate.`:"";
+        const c0Rc=c0Low?(()=>{let r="Trough gap: raise trough floor without increasing total AUC.";if(px.dilt==="none")r+=" Add diltiazem IR 30 TDS for presystemic boosting (best trough lift). Consider TDS split for tac (same dose ÷3, q8h).";else if(px.dilt==="ir_d")r+=` Titrate IR diltiazem up to max (${maxDilt} mg/d).${px.sched==="bd"?" Consider TDS split for tac (same dose ÷3, q8h).":""}`;else if(px.dilt==="cd"||px.dilt==="sr")r+=` Current ${px.dilt.toUpperCase()} provides weaker presystemic boosting than IR TDS. Consider switching to IR 30 TDS for better trough lift — expect C0 to rise without changing tac dose. Recheck C0 day 3–5 after switch.${px.sched==="bd"?" Also consider TDS split for tac (same dose ÷3, q8h).":""}`;r+=" Treat rejection with pulse steroids if clinically indicated. Reassess biopsy at 3–6 months.";return r;})():"Maintain current regimen. Reassess biopsy + clinical trend at 3–6 months.";
+        return{type:"stop",hl:`Adequate exposure. Treat rejection — do NOT reduce tac.${c0Low?" Trough gap — switch to IR TDS or TDS split to raise trough.":""}`,rc:c0Rc,why:`${tcmrBase} AUC ${auc.toFixed(0)} is within target (${tg.mn}–${tg.mx}).${c0Note}`,notYet:"All minimization/curve-flattening steps deferred until rejection addressed.",also:mmfAdv};
+      }
+      if(auc>tg.mx){
+        return{type:"stop",hl:`TCMR + overexposure. Cautious dose reduction — do NOT undertreat rejection.${cD?` Current ${cD}mg/d → ~${(cD*(tg.mx/auc)).toFixed(1)} mg/d.`:""}`,rc:"Reduce dose carefully. Recheck trough day 5–7. Reassess biopsy at 3–6 months.",why:`${tcmrBase} However, AUC ${auc.toFixed(0)} is above target ${tg.mx}. Overexposure carries toxicity risk (NODAT, nephrotoxicity). Reduce dose to bring AUC into range — but ensure trough remains therapeutic.`,notYet:"Minimization protocols deferred. This is a toxicity-driven reduction, not minimization.",also:mmfAdv};
+      }
+      if(auc<tg.mn){
+        return{type:"stop",hl:"TCMR + underexposure. Optimize exposure urgently — treat rejection.",rc:"Increase tac exposure. Recheck trough + AUC day 5–7. Pulse steroids if clinically indicated.",why:`${tcmrBase} AUC ${auc.toFixed(0)} is below target ${tg.mn}. Patient is both rejecting AND underexposed — highest-risk scenario. Optimize immunosuppression immediately.`,notYet:"All minimization deferred. Priority: achieve target AUC + treat rejection.",also:mmfAdv};
+      }
+    }
+    if(c0ok){
+      if(c0v>=tg.c0mn&&c0v<=tg.c0mx){
+        return{type:"stop",hl:"Treat rejection. C0 appears adequate — consider AUC for precision.",rc:"Maintain current regimen. AUC assessment recommended. Reassess biopsy at 3–6 months.",why:`${tcmrBase} C0 ${c0v.toFixed(1)} is within target (${tg.c0mn}–${tg.c0mx}). Without AUC, this is approximate — C0 and AUC can diverge substantially (r² 0.53–0.90 across studies).`,notYet:"All minimization deferred until rejection addressed.",also:mmfAdv};
+      }
+      if(c0v<tg.c0mn){
+        return{type:"stop",hl:"TCMR + C0 below target. Optimize exposure — treat rejection.",rc:"Increase tac exposure. AUC recommended for precise targeting. Pulse steroids if clinically indicated.",why:`${tcmrBase} C0 ${c0v.toFixed(1)} is below target ${tg.c0mn}. Without AUC this is less precise, but direction is clear: exposure needs to increase.`,notYet:"All minimization deferred. Priority: therapeutic exposure + treat rejection.",also:mmfAdv};
+      }
+      if(c0v>tg.c0mx){
+        return{type:"stop",hl:"TCMR + C0 above target. Cautious reduction — do NOT undertreat rejection.",rc:"Consider modest dose reduction. AUC recommended before aggressive changes. Reassess biopsy at 3–6 months.",why:`${tcmrBase} C0 ${c0v.toFixed(1)} is above target ${tg.c0mx}. Overexposure risk, but C0-based adjustment is less precise. AUC strongly recommended before dose changes.`,notYet:"Minimization deferred. This is toxicity management, not minimization.",also:mmfAdv};
+      }
+    }
+    return{type:"stop",hl:"TCMR detected. Enter exposure data to guide management.",rc:"Enter C0 or AUC. Treat rejection with pulse steroids if clinically indicated.",why:`${tcmrBase} No exposure data available — cannot determine exposure status.`,notYet:"All minimization deferred until rejection addressed and exposure assessed.",also:mmfAdv};
+  }
+
+  // 3. Biopsy mixed lesion → treat rejection first
+  if(px.bx==="mixed")return{type:"stop",hl:"Mixed lesion: treat rejection FIRST, then address CNI toxicity.",rc:"Treat rejection. Once controlled, reassess for CNI minimization.",why:"Rejection + CNI toxicity coexist. Management priority is suppressing the alloimmune response. Reducing CNI now risks precipitous drop in graft protection. Major RCTs excluded this scenario — this is expert practice logic.",notYet:"CNI minimization deferred until alloimmune injury is controlled.",also:mmfAdv};
+
+  // === v6.7 PRIORITY ROUTER ===
+  // Peak-first logic when context flags peak-dominant toxicity risk.
+  // Lss C1.5 retrieved from cached _cmp if available.
+  const lssC15=(typeof _cmp!=="undefined"&&_cmp.c15)||null;
+  // Also pass absolute Cmax from full profile
+  ctx.cmaxAbs=ctx.cmaxAbs||(ctx.cmaxC0&&c0v?ctx.cmaxC0*c0v:null);
+  const pkSig=peakSignal(ctx,lssC15);
+  const route=routePriority(ctx,px,tg,pkSig);
+
+  // Route to peak engine when selected
+  if(route.engine==="peak"){
+    const r=peakEngine(ctx,px,tg,pkSig,maxDilt,tacMax);
+    r.engine="peak";r.routeReason=route.reason;r.override=route.override||null;r.peakSignal=pkSig;
+    return r;
+  }
+  // "Both" mode: run peak engine but annotate with AUC priority check
+  if(route.engine==="both"){
+    const r=peakEngine(ctx,px,tg,pkSig,maxDilt,tacMax);
+    r.engine="both";r.routeReason=route.reason;r.peakSignal=pkSig;
+    r.hl="[AUC + Peak dual] "+r.hl;
+    r.also=(r.also||"")+" AUC reduction also required — verify dose choice lowers AUC toward target.";
+    return r;
+  }
+  // "Undershoot" (manual override) → falls through to existing cascade below
+  // "AUC" (default) → falls through to existing OVEREXPOSURE/UNDEREXPOSURE logic below
+  // Stash route metadata for the render layer to surface
+  ctx.__route=route;
+  ctx.__peakSignal=pkSig;
+
+  // === OVEREXPOSURE CHECKS ===
+  if(aucOk){
+    // AUC + C0 both above target → reduce dose
+    if(auc>tg.mx&&c0ok&&c0v>tg.c0mx)return{type:"action",hl:`Overexposed. Reduce tac dose.${cD?` Current ${cD}mg/d → target ~${(cD*(tg.mx/auc)).toFixed(1)} mg/d.`:""}`,rc:"Recheck trough day 5–7 after dose change. [PK convention]",why:`AUC ${auc.toFixed(0)} above target ${tg.mx}. C0 ${c0v.toFixed(1)} above target ${tg.c0mx}. Both signals agree: reduce total exposure.`,notYet:"No augmentation changes needed — this is a dose reduction, not reshaping.",also:"Screen fasting glucose + HbA1c if sustained overexposure (NODAT risk)."};
+
+    // AUC above target + C0 normal or missing → AUC overexposure takes priority
+    if(auc>tg.mx&&(!c0ok||c0v<=tg.c0mx))return{type:"action",hl:`AUC above target${c0ok?` but C0 ${c0v.toFixed(1)} appears normal`:" (C0 not available)"}. Reduce dose — AUC takes priority.${cD?` Current ${cD}mg/d → target ~${(cD*(tg.mx/auc)).toFixed(1)} mg/d.`:""}`,rc:"Recheck trough + AUC day 5–7 after dose change. [PK convention]",why:`AUC ${auc.toFixed(0)} above target ${tg.mx}.${c0ok?` C0 ${c0v.toFixed(1)} is within range, but C0 and AUC can diverge by 3–4× for the same trough (r² 0.53–0.90 across studies) — AUC is the definitive signal here.`:" C0 not entered — AUC is the only available exposure metric and it shows overexposure."} Do not rely on C0 to override a high AUC.`,notYet:"No augmentation changes needed — this is a dose reduction.",also:"Screen fasting glucose + HbA1c if sustained overexposure (NODAT risk). Reshape curve if C2 is elevated (add diltiazem or TDS)."};
+
+    // Normal AUC + high C2 → reshape, don't reduce
+    if(auc>=tg.mn&&auc<=tg.mx&&c2v!==null&&c2v>20)return{type:"action",hl:"Normal AUC + high C2 peak. Reshape curve — do NOT reduce total dose.",rc:`${px.dilt==="none"?"Add long-acting diltiazem (SR 90 BD or CD 120 OD). Recheck day 3–5.":px.sched!=="tds"?"Consider TDS split (same dose ÷3, q8h). Recheck day 5–7.":"Curve already reshaped. Monitor — may need further PK assessment."} [PK convention]`,why:`AUC ${auc.toFixed(0)} is within target (${tg.mn}–${tg.mx}). But C2 ${c2v.toFixed(0)} is elevated. Problem is peak height, not total exposure. Reducing dose would cause underexposure.`,notYet:"Dose reduction deferred — AUC is adequate.",also:mmfAdv};
+
+    // Normal AUC + low C0 → adequate, don't chase C0 — but add formulation advice (v6.6)
+    if(auc>=tg.mn&&auc<=tg.mx&&c0ok&&c0v<tg.c0mn){
+      const cmNote=cmaxC0?` Cmax/C0 ${cmaxC0.toFixed(1)}${cmaxC0<2.5?" (flat curve — peaks acceptable).":cmaxC0<3.5?" (moderate peaks).":""}`:"";
+      const nearFloor=auc<tg.mn*1.15; // within 15% of lower target
+      const isFastOnCD=ccR&&ccR.s>=2&&(px.dilt==="cd"||px.dilt==="sr")&&px.sched==="bd";
+      const isFastNoDilt=ccR&&ccR.s>=2&&px.dilt==="none"&&px.sched==="bd";
+      let formAdv="";
+      if(isFastOnCD)formAdv=`Consider switching ${px.dilt.toUpperCase()} → IR 30 TDS for better trough lift — IR delivers stronger presystemic CYP3A4 kill. Expect C0 to rise without changing tac dose. Recheck C0 day 3–5.${px.sched==="bd"?" Also consider TDS split for tac.":""}`;
+      else if(isFastNoDilt)formAdv="Consider adding diltiazem IR 30 TDS for trough lift.";
+      else if(px.sched==="bd"&&c0v<tg.c0mn*0.6)formAdv="Consider TDS split (same dose ÷3, q8h) to raise trough floor.";
+      const fragNote=nearFloor?` AUC ${auc.toFixed(0)} is near the floor (${tg.mn}) — fragile adequacy. One missed dose or GI upset risks underexposure.`:"";
+      const rcText=formAdv?`${formAdv}${fragNote?" "+fragNote.trim():""}`:("Continue current regimen. Monitor at routine intervals."+fragNote);
+      return{type:formAdv?"action":"ok",hl:`${formAdv?"Adequate AUC but trough gap — switch to IR TDS / TDS split to raise trough.":"Adequate exposure. Normal AUC + low C0 — do NOT chase C0 upward."}`,rc:rcText,why:`AUC ${auc.toFixed(0)} is within target (${tg.mn}–${tg.mx}). C0 ${c0v.toFixed(1)} is below the C0 range (${tg.c0mn}–${tg.c0mx}), but C0 alone underestimates true exposure in this patient. AUC takes priority.${cmNote}${fragNote}`,notYet:"No dose increase needed. Trough optimization is for trough floor, not total exposure.",also:mmfAdv};
+    }
+
+    // AUC within target, no flags
+    if(auc>=tg.mn&&auc<=tg.mx){
+      // === TOXICITY-AT-TARGET PATHWAY (v6.3) ===
+      if(px.bx==="cni"){
+        // CNI toxicity with AUC within target → curve-flatten, don't reduce dose
+        const reshapeAction=px.dilt==="none"?"Add CD diltiazem 90–120 mg OD (curve-flatten — NOT IR, goal is peak reduction).":px.sched==="bd"&&!(px.dilt==="cd"||px.dilt==="sr")?"Switch diltiazem to CD formulation (curve-flatten). Consider TDS split.":px.sched==="bd"?"Consider TDS split (same dose ÷3, q8h) to reduce peak height.":"Curve already reshaped. If toxicity persists → mTORi evaluation.";
+        const cmNote2=cmaxC0?` Cmax/C0: ${cmaxC0.toFixed(1)}${cmaxC0>=3.5?" — steep curve confirms peak-driven toxicity.":" — moderate curve."}`:"";
+        return{type:"action",hl:"CNI toxicity at target AUC. Reshape curve — do NOT reduce total dose.",rc:`${reshapeAction} Recheck day 3–5. Repeat biopsy if Cr doesn't stabilize in 4–6 weeks.`,why:`AUC ${auc.toFixed(0)} is within target (${tg.mn}–${tg.mx}) but biopsy shows CNI toxicity. This is peak-driven injury, not total-exposure overload. Reducing dose would cause underexposure without fixing the peak problem.${cmNote2}`,notYet:"Dose reduction contraindicated — AUC is within target. mTORi conversion if curve-flattening fails and eGFR >40, proteinuria <1g.",also:`If toxicity persists after reshaping: mTORi gate (>3mo, wound healed). ${mmfAdv}`};
+      }
+      // Check for other flags
+      let flags=[];
+      if(ccR&&ccR.s>=2&&S.phase>0&&px.sched==="bd")flags.push("fast metabolizer phenotype — continue monitoring");
+      if(px.bx==="ifta")flags.push("established IFTA — move toward total CNI exposure reduction if eligible");
+      // v6.2: Cmax/C0 awareness
+      const cmNote2=cmaxC0?` Cmax/C0: ${cmaxC0.toFixed(1)}${cmaxC0<2.5?" — flat curve, peaks acceptable.":" — monitor peaks."}`:"";
+      if(flags.length)return{type:"ok",hl:"AUC within target. Active flags need attention.",rc:"Continue current regimen. Address flags below.",why:`AUC ${auc.toFixed(0)} within target (${tg.mn}–${tg.mx}).${cmNote2}`,notYet:"No dose change needed. Flags are for medium-term planning.",also:flags.join(" | ")};
+      return{type:"ok",hl:"Within target. Continue current regimen.",rc:"Monitor at routine intervals.",why:`AUC ${auc.toFixed(0)} within target (${tg.mn}–${tg.mx}).${c0ok?` C0 ${c0v.toFixed(1)} ${c0v>=tg.c0mn&&c0v<=tg.c0mx?"within":"check"} target.`:""}${cmNote2}`,notYet:"No changes needed.",also:""};
+    }
+  }
+
+  // === UNDEREXPOSURE PATHWAY (AUC below target, or no AUC but C0 below target) ===
+  const underexp=aucOk?auc<tg.mn:(c0ok?c0v<tg.c0mn:false);
+  if(!underexp){
+    // No exposure data at all
+    if(!aucOk&&!c0ok)return{type:"ok",hl:"No exposure data entered. Enter C0 or AUC to generate a plan.",rc:"",why:"The Plan tab needs at least C0 (trough) or AUC to generate recommendations.",notYet:"",also:""};
+    // C0 within or above target, no AUC — ok or overexposed
+    if(c0ok&&c0v>tg.c0mx){const nd=cD?cD*(c0TgtMid/c0v):null;return{type:"action",hl:`C0 ${c0v.toFixed(1)} above target (${tg.c0mn}–${tg.c0mx}).${nd!==null?` Reduce dose: ${doseHL(nd,"C0-based")}.`:(cD?` Current ${cD}mg/d — reduce dose.`:"")}`,rc:"Recheck trough day 5–7. Consider AUC for more precise assessment. [PK convention]",why:`No AUC available. C0 ${c0v.toFixed(1)} above target ${tg.c0mx}. C0-based dose adjustment is less precise than AUC — this is an approximate target.`,notYet:"AUC assessment recommended before aggressive changes.",also:""};}
+    if(c0ok&&c0v>=tg.c0mn)return{type:"ok",hl:"C0 within target. No AUC available — consider AUC for precision.",rc:"Monitor. AUC assessment recommended for better exposure characterization.",why:`C0 ${c0v.toFixed(1)} within target (${tg.c0mn}–${tg.c0mx}). Without AUC, this is an approximate assessment.`,notYet:"",also:""};
+  }
+
+  // UNDEREXPOSED — stepwise cascade, one step at a time
+  const expLabel=aucOk?`AUC ${auc.toFixed(0)} below target ${tg.mn}`:`C0 ${c0v.toFixed(1)} below target ${tg.c0mn} (no AUC available — less precise)`;
+
+  // === DUAL-HAZARD CHECK (v6.3): underexposed + biopsy CNI toxicity ===
+  // Peak-driven toxicity coexisting with trough underexposure. Dose increase alone worsens peaks.
+  if(px.bx==="cni"){
+    const dualAction=px.dilt==="none"?"Add CD diltiazem 90–120 mg OD (flattens peak + boosts trough simultaneously). Do NOT use IR here — IR maximizes peak, worsening toxicity.":px.sched==="bd"?"Consider TDS split (÷3, q8h) — distributes peaks while maintaining trough. Then reassess dose.":"Curve partially reshaped. Reassess AUC + C1.5/C2 after current optimization takes effect.";
+    return{type:"action",hl:"⚠ Dual hazard: underexposed + biopsy CNI toxicity. Reshape curve + boost — do NOT just increase dose.",rc:`${dualAction} Recheck trough + C1.5/C2 day 3–5. Repeat biopsy if Cr doesn't stabilize in 4–6 weeks.`,why:`${expLabel}. But biopsy shows CNI toxicity — this is the dual-hazard paradox (Thölking 2019): fast metabolism causes low trough (rejection risk) AND high peaks (nephrotoxicity) simultaneously. Simply increasing dose would worsen peak-driven injury. CD diltiazem is the ideal intervention here: it flattens peaks (reducing toxicity) while boosting overall bioavailability (reducing underexposure). Dose increase only AFTER curve is reshaped. Note: Thölking 2019 described the paradox; the group's own published interventions are mTORi conversion (Thölking 2020 JCM) and LCP-Tac switch (Thölking 2022 JCM). Reshape + boost with diltiazem is tool-level synthesis, not an intervention tested by the Thölking group.`,notYet:"Dose increase deferred until curve reshaped. Raw dose escalation without peak control is contraindicated when biopsy confirms peak-driven toxicity.",also:mmfAdv};
+  }
+
+  // Step 0: Brand lock + fasting
+  if(px.brand!=="yes")return{type:"action",hl:"Verify brand lock + strict fasting/timing before pharmacologic changes.",rc:"Confirm at next visit. Then reassess exposure.",why:`${expLabel}. But before adding drugs: inconsistent brand or fasting timing causes PK noise that mimics fast metabolism.`,notYet:"Pharmacologic intervention deferred until brand/fasting verified.",also:mmfAdv};
+
+  // Step: Existing azole booster check
+  if(px.booster!=="none"){const isKeto=px.booster==="keto";return{type:"action",hl:`Azole booster already active (${isKeto?"Ketoconazole":px.booster==="fluco"?"Fluconazole":"Azole"}). CYP3A interaction present — assess response.${isKeto?" ⚠ Ketoconazole: if missed/stopped, tac levels crash within 24–48h → high rejection risk.":""}`,rc:`Recheck tac trough. If still underexposed despite ${px.booster}, consider dose increase or additional intervention. [PK convention]`,why:`${expLabel}. Patient already has a CYP3A inhibitor on board. Adding diltiazem is not the next step — assess whether current booster is working first.${isKeto?" Ketoconazole is a potent CYP3A4 inhibitor — tac is now dependent on it. Abrupt discontinuation (GI illness, LFT rise, non-compliance) causes rapid tac drop and rejection. Monitor LFT monthly. Ensure patient understands the dependency. One retrospective single-center cohort (Khan E 2014, World J Nephrol, n=348): 5-year rejection 34% vs 18%, adjusted HR 2.33 (1.33–4.07); HR 3.13 (1.28–7.60) in African-American recipients (Zhang 2018 secondary analysis). The flat-PK mechanism is a post-hoc hypothesis, not directly measured. Contradictory safety data from smaller prospective RCT (El-Dahshan 2004, Egypt, mostly living donors). Consider AUC-based monitoring if ketoconazole co-administration is unavoidable.":""}`,notYet:"Diltiazem deferred — active azole interaction already present.",also:mmfAdv};}
+
+  // === PHENOTYPE BRANCH (v6.3): slow metabolizers → dose first, diltiazem at ceiling ===
+  const isSlow=ccR&&ccR.s===0&&px.sched==="bd"; // C/D ≥1.55 on BD
+  const slowNote="Slow metabolizer (C/D ≥1.55): CYP3A activity is already low — inhibiting it further with diltiazem has diminishing returns. Dose increase is more effective.";
+
+  if(isSlow){
+    // Slow path Step 1: Dose increase (before diltiazem)
+    const sTgtMid=aucOk?Math.round((tg.mn+tg.mx)/2):((tg.c0mn+tg.c0mx)/2);
+    const sCurExp=aucOk?auc:c0v;
+    const sNewDose=cD?cD*(sTgtMid/sCurExp):null;
+    if(sNewDose!==null&&sNewDose>cD&&cD<tacMax){
+      return{type:"action",hl:`Slow metabolizer — increase tac dose first: ${doseHL(sNewDose,"dose increase")}.`,rc:"Recheck trough day 5–7. [PK convention]",why:`${expLabel}. ${slowNote} ${aucOk?"Based on AUC.":"Based on C0 (less precise — consider AUC)."}${sNewDose>tacMax?` Capped at ${tacMax.toFixed(0)} mg/d (~0.3 mg/kg/d — general safety ceiling, not CPIC guidance for this phenotype). If still subtherapeutic at ceiling, diltiazem is unlocked as next step.`:""}`,notYet:"Diltiazem deferred — dose increase is first-line for slow metabolizers. Diltiazem unlocked only at dose ceiling (~0.3 mg/kg/d — general safety ceiling; CPIC's 0.3 mg/kg/d refers specifically to starting doses in CYP3A5 expressers, not maintenance in non-expressers).",also:mmfAdv};
+    }
+    // Slow path Step 2: At dose ceiling → unlock diltiazem
+    if(cD>=tacMax&&px.dilt==="none"){
+      return{type:"action",hl:`At dose ceiling (${cD}mg/d ≈ ${w?(cD/w).toFixed(2):">0.3"} mg/kg/d). Now add diltiazem: IR 30 TDS for boosting, CD/SR for curve-flattening.`,rc:"Recheck tac trough + HR/BP day 3–5. [PK convention]",why:`${expLabel}. ${slowNote} However, dose ceiling reached — diltiazem is now unlocked as the next step. Even in slow metabolizers, diltiazem can provide 10–25% additional boost.`,notYet:"TDS split, mTORi deferred until diltiazem response assessed.",also:mmfAdv?(mmfAdv+" ⚠ Check HR >60, BP stable, no AV block."):("⚠ Check HR >60, BP stable, no AV block.")};
+    }
+    // Slow path: if dose at ceiling and diltiazem already present → fall through to existing diltiazem optimization / TDS / mTORi steps below
+    if(cD>=tacMax&&px.dilt!=="none"){/* fall through to diltiazem optimization steps */}
+    // Slow path: if dose calc doesn't suggest increase (unlikely but handle) → fall through
+  }
+
+  // === FAST / INTERMEDIATE / UNKNOWN PATHWAY: diltiazem first (existing cascade) ===
+
+  // Step 1: No diltiazem → add (IR TDS preferred for boosting, CD/SR for curve-flattening)
+  if(px.dilt==="none")return{type:"action",hl:`Add diltiazem. For boosting: IR 30 mg TDS (best presystemic CYP3A4 kill). For curve-flattening: CD 90–120 mg OD.${cD?` If starting IR, no tac dose change needed initially.`:""}`,rc:"Recheck tac trough + HR/BP day 3–5. Mandatory. [PK convention]",why:`${expLabel}. Diltiazem is the first-line pharmacologic intervention. IR TDS delivers 3 high-concentration gut boluses → maximal mechanism-based CYP3A4 inactivation → highest tac bioavailability gain. CD/SR preferred only when the goal is peak reduction (CNI toxicity with high C1.5/C2). Max sparing at ${maxDilt} mg/day.`,notYet:"TDS split, dose escalation, mTORi — all deferred until diltiazem response assessed.",also:mmfAdv?(mmfAdv+" ⚠ Check HR >60, BP stable, no AV block before starting."):("⚠ Check HR >60, BP stable, no AV block before starting.")};
+
+  // Step 2: IR diltiazem present — check dose, do NOT auto-switch to long-acting (IR is preferred for boosting)
+  if(px.dilt==="ir_d"&&diltD===0)return{type:"action",hl:"IR diltiazem selected but dose not entered. Enter current diltiazem dose.",rc:"Cannot assess optimization without dose. Enter dose in Current Regimen panel.",why:`${expLabel}. IR diltiazem is present but dose is unknown. Enter dose to assess whether titration is needed.`,notYet:"All further cascade steps deferred until diltiazem dose is verified.",also:mmfAdv};
+  if(px.dilt==="ir_d"&&diltD>0&&diltD<maxDilt)return{type:"action",hl:`Increase IR diltiazem from ${diltD} → up to ${maxDilt} mg/day (e.g. ${Math.min(60,maxDilt/3)} mg TDS). IR TDS is optimal for boosting — do NOT switch to CD/SR unless peak toxicity is confirmed.`,rc:"Recheck tac trough + HR/BP day 3–5. [PK convention]",why:`${expLabel}. IR TDS delivers maximal presystemic CYP3A4 kill. Current dose ${diltD}mg/d has room to titrate. Switching to CD would reduce presystemic boosting and drop trough further.`,notYet:"TDS split, dose escalation deferred until IR diltiazem maximized.",also:mmfAdv?(mmfAdv+" ⚠ Check HR/BP tolerance at higher dose."):("⚠ Check HR/BP tolerance at higher dose.")};
+  if(px.dilt==="ir_d"&&diltD>=maxDilt){/* IR at max, fall through to TDS/dose increase steps */}
+
+  // Step 2b: Long-acting diltiazem selected but dose not entered → require dose
+  if((px.dilt==="sr"||px.dilt==="cd")&&diltD===0)return{type:"action",hl:`Long-acting diltiazem (${px.dilt.toUpperCase()}) selected but dose not entered. Enter current diltiazem dose to assess optimization status.`,rc:"Cannot determine if diltiazem is optimized without a dose. Enter dose in Current Regimen panel.",why:`${expLabel}. Diltiazem formulation is recorded but the dose is missing. The cascade cannot progress — the engine needs to know whether to titrate up (if <${maxDilt} mg/day) or move to the next step.`,notYet:"All further cascade steps deferred until diltiazem dose is verified.",also:mmfAdv};
+
+  // Step 3: Long-acting diltiazem present but < max available (v6.2: configurable ceiling)
+  if((px.dilt==="sr"||px.dilt==="cd")&&diltD>0&&diltD<maxDilt)return{type:"action",hl:`Increase diltiazem from ${diltD} → ${maxDilt} mg/day (max ${maxDilt===180?"sparing dose":"available formulation"}).`,rc:"Recheck tac trough + HR/BP day 3–5. [PK convention]",why:`${expLabel}. Diltiazem is present (${px.dilt.toUpperCase()} ${diltD}mg/d) but below the ${maxDilt} mg/day ${maxDilt===180?"plateau where sparing effect is maximized (Choong 2018)":"ceiling (configured in ⚙ settings)"}. Room to titrate.`,notYet:`TDS split, dose increase deferred until diltiazem at ${maxDilt} mg/day.`,also:mmfAdv?(mmfAdv+" ⚠ Check HR/BP tolerance at higher dose."):("⚠ Check HR/BP tolerance at higher dose.")};
+
+  // Step 4: Diltiazem optimized (≥maxDilt or present without dose entered) + BD → TDS
+  if(px.sched==="bd")return{type:"action",hl:`TDS split — same total dose ÷3, q8h.${cD?` ${(cD/3).toFixed(1)} mg q8h.`:""}`,rc:"Recheck trough day 5–7. 8h trough ≠ 12h trough — will be naturally higher, do NOT misinterpret. [PK convention]",why:`${expLabel}. Diltiazem${diltD>=maxDilt?" optimized at "+maxDilt+"mg/d":""}, schedule is still BD. TDS reduces individual dose size → smaller peaks, potentially better trough.`,notYet:"Dose escalation deferred until TDS response assessed.",also:mmfAdv};
+
+  // Step 5: Tac dose increase
+  const tgtMid=aucOk?Math.round((tg.mn+tg.mx)/2):((tg.c0mn+tg.c0mx)/2);
+  const curExp=aucOk?auc:c0v;
+  const newDose=cD?cD*(tgtMid/curExp):null;
+  if(newDose!==null&&newDose>cD){const cappedDose=Math.min(newDose,tacMax);return{type:"action",hl:`Increase tac dose: ${doseHL(newDose,"dose increase")}.`,rc:"Recheck trough day 5–7. [PK convention]",why:`${expLabel}. Diltiazem optimized, schedule optimized. Dose increase is now the appropriate next step. ${aucOk?"Based on AUC.":"Based on C0 (less precise — consider AUC)."}${newDose>tacMax?` Proportional calc suggested ${newDose.toFixed(1)} mg/d but this exceeds ~0.3 mg/kg/d (${tacMax.toFixed(0)} mg/d). Capped — if still subtherapeutic at ceiling, advance to mTORi.`:""}`,notYet:"mTORi deferred until dose response assessed. CsA switch = rescue/reference only after all optimization fails.",also:mmfAdv};}
+
+  // Step 6: mTORi if eligible — FULL GATE
+  if(px.mtor==="none"&&S.phase>0){
+    const egfr=ok(px.mtorEgfr)?pf(px.mtorEgfr):null;
+    const prot=okZ(px.mtorProt)?pf(px.mtorProt):null; // 0 is valid (no proteinuria)
+    const wound=px.mtorWound,infect=px.mtorInfect,leuko=px.mtorLeuko,ebv=px.mtorEbv;
+    const filled=[egfr!==null,prot!==null,wound!=="unk",infect!=="unk",leuko!=="unk",ebv!=="unk"];
+    const allFilled=filled.every(Boolean);
+
+    // Build inline gate HTML
+    let gH=`<div style="margin-top:8px;padding:8px;border:1px solid var(--bd);border-radius:7px;background:#f9fafb">`;
+    gH+=`<div style="font-size:10px;font-weight:700;color:var(--pri);margin-bottom:6px">mTORi Eligibility Gate</div>`;
+    gH+=`<div class="rw"><div class="fl"><label>eGFR (mL/min) <span style="font-size:7px;color:var(--t2)">required >40</span></label><input type="text" inputmode="decimal" pattern="[0-9.]*" maxlength="6" value="${px.mtorEgfr}" oninput="sMg('mtorEgfr',this.value)" placeholder=">40"></div>`;
+    gH+=`<div class="fl"><label>Proteinuria (g/d) <span style="font-size:7px;color:var(--t2)">required &lt;1</span></label><input type="text" inputmode="decimal" pattern="[0-9.]*" maxlength="6" value="${px.mtorProt}" oninput="sMg('mtorProt',this.value)" placeholder="<1"></div></div>`;
+    gH+=`<div class="rw"><div class="fl"><label>Wound healed</label><select onchange="sMg('mtorWound',this.value)"><option value="unk"${wound==="unk"?" selected":""}>—</option><option value="yes"${wound==="yes"?" selected":""}>Yes</option><option value="no"${wound==="no"?" selected":""}>No</option></select></div>`;
+    gH+=`<div class="fl"><label>Active infection</label><select onchange="sMg('mtorInfect',this.value)"><option value="unk"${infect==="unk"?" selected":""}>—</option><option value="no"${infect==="no"?" selected":""}>No</option><option value="yes"${infect==="yes"?" selected":""}>Yes</option></select></div></div>`;
+    gH+=`<div class="rw"><div class="fl"><label>Leukopenia</label><select onchange="sMg('mtorLeuko',this.value)"><option value="unk"${leuko==="unk"?" selected":""}>—</option><option value="no"${leuko==="no"?" selected":""}>No</option><option value="yes"${leuko==="yes"?" selected":""}>Yes</option></select></div>`;
+    gH+=`<div class="fl"><label>EBV status</label><select onchange="sMg('mtorEbv',this.value)"><option value="unk"${ebv==="unk"?" selected":""}>—</option><option value="neg"${ebv==="neg"?" selected":""}>Negative</option><option value="pos"${ebv==="pos"?" selected":""}>Positive</option></select></div></div>`;
+
+    if(!allFilled){
+      const missing=[];
+      if(egfr===null)missing.push("eGFR");if(prot===null)missing.push("proteinuria");
+      if(wound==="unk")missing.push("wound status");if(infect==="unk")missing.push("infection");
+      if(leuko==="unk")missing.push("leukopenia");if(ebv==="unk")missing.push("EBV");
+      gH+=`<div class="al al-w" style="margin-top:5px"><b>Incomplete:</b> ${missing.join(", ")}</div>`;
+      gH+=`</div>`;
+      return{type:"action",hl:"mTORi eligibility incomplete — complete checklist below.",rc:"",why:`${expLabel} despite optimized augmentation and dose increase. mTORi is the next cascade step, but eligibility must be confirmed first.`,notYet:"mTORi recommendation deferred until all eligibility fields are completed.",also:mmfAdv,gateHtml:gH};
+    }
+
+    // Check criteria
+    const fails=[];
+    if(egfr<=40)fails.push(`eGFR ${egfr} ≤40`);
+    if(prot>=1)fails.push(`Proteinuria ${prot}g/d ≥1`);
+    if(wound==="no")fails.push("Wound not healed");
+    if(infect==="yes")fails.push("Active infection");
+    if(leuko==="yes")fails.push("Leukopenia present");
+
+    if(fails.length>0){
+      gH+=`<div class="al al-e" style="margin-top:5px"><b>Failed:</b> ${fails.join(" · ")}</div>`;
+      gH+=`</div>`;
+      return{type:"stop",hl:`mTORi not eligible. Failed: ${fails.join(", ")}.`,rc:"Address failed criteria. Reassess eligibility when resolved.",why:`${expLabel} despite optimized augmentation and dose increase. mTORi would be the next step but eligibility criteria are not met.`,notYet:"mTORi deferred. Consider dose escalation or CsA switch if exposure remains inadequate.",also:mmfAdv,gateHtml:gH};
+    }
+
+    // All pass
+    const ebvWarn=ebv==="pos"?"<br><span style='color:var(--org)'>⚠ EBV positive — heightened PTLD surveillance required on mTORi. Monitor EBV viral load.</span>":"";
+    gH+=`<div class="al al-ok" style="margin-top:5px"><b>All criteria met ✓</b> eGFR ${egfr}, proteinuria ${prot}g/d, wound healed, no infection, no leukopenia, EBV ${ebv==="neg"?"negative":"positive"}${ebvWarn}</div>`;
+    gH+=`</div>`;
+    return{type:"action",hl:`mTORi eligible. EVR 0.75 mg BD (target 3–8) or SRL 2 mg OD (target 5–10). Get mTORi to target FIRST, then reduce tac.`,rc:"EVR: first trough day 5–7. SRL: first trough day 7–10. Then weekly ×4. CBC biweekly. Lipids + proteinuria week 4. [RCT-supported]",why:`${expLabel} despite optimized augmentation and dose increase. Eligibility confirmed: eGFR ${egfr}, proteinuria ${prot}g/d. mTORi allows CNI reduction via synergistic pathway. Tac target with mTORi: 5–10 (standard) or <5 (aggressive conversion).`,notYet:"CsA switch deferred — rescue/reference only.",also:(mmfOk?"MMF: taper and stop over 1–2 weeks once mTORi therapeutic.":mmfAdv)+(ebvWarn?" "+ebvWarn:""),gateHtml:gH};
+  }
+
+  // Step 7: All exhausted → CsA
+  return{type:"action",hl:"All core optimization exhausted. Consider CsA switch — see Tac→CsA tab.",rc:"See CsA tab for conversion protocol, dosing, and monitoring.",why:`${expLabel} despite diltiazem optimization, TDS/schedule optimization, dose increase, and mTORi${px.mtor!=="none"?" (already in place)":""}.`,notYet:"This is the rescue/reference step. Conversion protocols are heterogeneous — individualize with senior review.",also:""};
+}
+
+// ===== CR TREND MODIFIER (v6.6) =====
+function crModify(plan,cx,tg){
+  const crT=S.px.crT;
+  if(crT==="stable"||crT==="new")return plan; // no modification
+  const auc=cx.auc,c0v=cx.c0,aucOk=auc!==null,c0ok=c0v!==null;
+  const aucInTgt=aucOk&&auc>=tg.mn&&auc<=tg.mx;
+  const c0Low=c0ok&&c0v<tg.c0mn;
+  const c0InTgt=c0ok&&c0v>=tg.c0mn&&c0v<=tg.c0mx;
+
+  if(crT==="rising"){
+    const crWarn="<b>⚠ Cr rising</b> — clinical deterioration. ";
+    const bxAdvice=" Consider biopsy if no improvement in 5–7 days.";
+    // Rising + Adequate AUC + Low C0 → trough gap + deterioration
+    if(aucInTgt&&c0Low){
+      return{...plan,type:"action",hl:crWarn+"Adequate AUC but trough gap + Cr rising — switch to IR TDS / TDS split urgently to raise trough.",rc:(plan.rc||"")+` ${crWarn}Trough gap with clinical deterioration. Switch diltiazem to IR TDS and/or TDS split tac urgently to raise trough. Consider pulse steroids.${bxAdvice}`,also:(plan.also||"")};
+    }
+    // Rising + Adequate AUC + OK C0 → investigate non-PK causes
+    if(aucInTgt&&c0InTgt){
+      return{...plan,type:"action",hl:crWarn+"AUC and C0 adequate but Cr rising — investigate.",rc:`${crWarn}Exposure appears adequate. Rule out: BK nephropathy, obstruction, dehydration, drug-induced AIN, recurrent GN.${bxAdvice}`,why:(plan.why||"")+" Cr rise despite adequate exposure suggests non-PK cause.",also:(plan.also||"")};
+    }
+    // Rising + Overexposed → add CNI toxicity likely
+    if(aucOk&&auc>tg.mx){
+      return{...plan,hl:(plan.hl||"")+" Cr rising — CNI toxicity likely.",also:(plan.also||"")+" Screen fasting glucose + HbA1c (NODAT). Repeat biopsy if Cr doesn't improve after dose reduction."};
+    }
+    // Rising + Underexposed → higher urgency
+    if((aucOk&&auc<tg.mn)||(c0ok&&c0v<tg.c0mn&&!aucOk)){
+      return{...plan,hl:crWarn+(plan.hl||""),rc:(plan.rc||"")+" ⚠ Cr rising — treat underexposure urgently."+bxAdvice};
+    }
+    // Default rising: append warning
+    return{...plan,hl:(plan.hl||"")+" ⚠ Cr rising.",rc:(plan.rc||"")+" Monitor Cr trend closely."+bxAdvice};
+  }
+
+  if(crT==="falling"){
+    return{...plan,rc:(plan.rc||"")+" Cr falling — may reflect recent intervention. Avoid further changes until trend stabilizes."};
+  }
+  return plan;
+}
+
+// ===== RENDER =====
+function R(){
+  $("tabs").innerHTML=TABS.map((t,i)=>`<button class="tab${S.tab===i?" act":""}" onclick="S.tab=${i};R()">${t}</button>`).join("");
+  if(S.ts)$("tsD").textContent=S.ts.toLocaleString("en-IN",{dateStyle:"short",timeStyle:"short"});
+  // Sync is now handled by setters (sL, sD, sA, sP write to all locations)
+  // Auto-fill targets from phase settings if empty
+  if(!ok(S.da.tgtAUC)){const tg0=TGT[S.phase];S.da.tgtAUC=String(Math.round((tg0.mn+tg0.mx)/2));}
+  if(!ok(S.da.tgtC0)){const tg0=TGT[S.phase];S.da.tgtC0=String(((tg0.c0mn+tg0.c0mx)/2).toFixed(1));}
+
+  let h="";const L=S.lss,tg=TGT[S.phase];
+  const isTDS=S.px.sched==="tds";
+  const c0=ok(L.c0)?pf(L.c0):null,c1=ok(L.c1)?pf(L.c1):null,c15=ok(L.c1_5)?pf(L.c1_5):null,c2=ok(L.c2)?pf(L.c2):null,c4=ok(L.c4)?pf(L.c4):null;
+  // Priority: Indian (Mathew) > Wong > Armendáriz (v6.2 attribution fix)
+  // TDS: LSS equations not validated — suppress from Plan engine
+  const ind=!isTDS&&c0!==null&&c15!==null?Math.round((19.16+6.75*c0+3.33*c15)*10)/10:null;
+  const won=!isTDS&&c2!==null&&c4!==null?Math.round((16.2+2.4*c2+5.9*c4)*10)/10:null;
+  const sch=!isTDS&&c0!==null&&c1!==null&&c4!==null?Math.round((8.9+4*c0+1.77*c1+5.47*c4)*10)/10:null;
+  // TDS: compute raw LSS for display-only (with caveat)
+  const indRaw=c0!==null&&c15!==null?Math.round((19.16+6.75*c0+3.33*c15)*10)/10:null;
+  const wonRaw=c2!==null&&c4!==null?Math.round((16.2+2.4*c2+5.9*c4)*10)/10:null;
+  const schRaw=c0!==null&&c1!==null&&c4!==null?Math.round((8.9+4*c0+1.77*c1+5.47*c4)*10)/10:null;
+  const cr=ok(S.cd.c0)&&ok(S.cd.dose)?pf(S.cd.c0)/pf(S.cd.dose):null;
+  const cc=cr!==null?cC(cr):null;
+  const ivv=S.ipv.vals.filter(v=>ok(v)).map(pf);
+  const cv=ivv.length>=3?(()=>{const m=ivv.reduce((a,b)=>a+b,0)/ivv.length;return Math.sqrt(ivv.reduce((a,b)=>a+(b-m)**2,0)/(ivv.length-1))/m*100})():null;
+  const best=ind||won||sch||null; // v5: Indian first (null on TDS)
+  // Full measured AUC (preferred over LSS for dose adj) — ONLY if profile is complete (v6.2)
+  // TDS: compute AUC₀₋₈ separately, do NOT feed into Plan engine
+  const fullAucRaw=tA(S.fp);
+  const fullAucComplete=!isTDS&&isCompleteAUC(S.fp);
+  const fullAuc=fullAucComplete?fullAucRaw:null; // Only complete BD profiles count as AUC₀₋₁₂
+  // TDS AUC₀₋₈ (for display in Full AUC tab only)
+  const fp8pts=S.fp.filter(p=>pf(p.t)<=8); // timepoints 0–8h
+  const tdsAuc8Raw=isTDS?tA(fp8pts):null;
+  const tdsAuc8Complete=isTDS&&isCompleteAUC8(S.fp);
+  const tdsAuc8=tdsAuc8Complete?tdsAuc8Raw:null;
+  const tdsTg=tdsTarget(tg); // AUC₀₋₈ targets
+  // Cross-tab sync: best AUC → dose adj (full AUC preferred, then LSS; null on TDS)
+  const bestOverall=fullAuc||best;
+  if(bestOverall!==null)S.da.curAUC=String(bestOverall); // v6.6: forced sync — always overwrite, not write-once
+  const cx={auc:fullAuc||best,c0,c2,cd:cr,cc,cv}; // cx.auc is null on TDS → Plan uses C0 only
+  // Cmax/C0 from full profile (available even for partial) — for Plan engine (v6.2)
+  const fpFilled=S.fp.filter(p=>ok(p.c));
+  const fpCmax=fpFilled.length>=2?Math.max(...fpFilled.map(p=>pf(p.c))):null;
+  const fpC0=ok(S.fp[0].c)?pf(S.fp[0].c):null;
+  cx.cmaxC0=(fpCmax&&fpC0&&fpC0>0)?(fpCmax/fpC0):null;
+  // v6.7: absolute Cmax proxy — prefer full-profile Cmax, fall back to LSS C1.5, then C2
+  cx.cmaxAbs=fpCmax||c15||c2||null;
+  cx.c15=c15; // for router/peak engine access
+  // Cache for export (Fix 7: single source of truth)
+  // AUC/C0 ratio (v6.4): individualized C0 targeting — Van Gelder 2025, ISBA concept
+  const aucC0ratio=(cx.auc!==null&&c0!==null&&c0>0)?(cx.auc/c0):null;
+  const indivC0tgt=(aucC0ratio!==null)?{lo:(tg.mn/aucC0ratio),hi:(tg.mx/aucC0ratio)}:null;
+  _cmp={ind,won,sch,fullAuc,fullAucRaw,fullAucComplete,best,bestOverall,cr,cc,cv,c0,c15,cmaxAbs:cx.cmaxAbs,tg,aucC0ratio,indivC0tgt};
+
+  // ===== SUMMARY STRIP (mirrors Plan tab) =====
+  const plan=crModify(getPlan(cx),cx,tg);
+  {
+    const sc=plan.type==="stop"?"var(--red)":plan.type==="action"?"var(--org)":"var(--grn)";
+    const eng=plan.engine&&plan.engine!=="auc"?` <span style="background:rgba(0,0,0,0.25);padding:1px 5px;border-radius:3px;font-size:8px;font-weight:600;margin-left:4px">${plan.engine.toUpperCase()}</span>`:"";
+    h+=`<div class="sum" style="background:${sc}">${plan.hl}${eng}<div class="sl">Phase: ${TGT[S.phase].ph} · ${genoLabel()}</div></div>`;
+  }
+
+  // ===== RED-FLAG BANNER (consolidated) =====
+  {
+    const flags=[];
+    if(c0!==null&&c1!==null&&c0>c1)flags.push("C0 > C1 (timing error?)");
+    if(c0!==null&&c2!==null&&c0>c2)flags.push("C0 > C2 (timing error?)");
+    if(c0!==null&&c15!==null&&c0>c15)flags.push("C0 > C1.5 (timing error?)");
+    const aucVals2=[ind,won,sch].filter(v=>v!==null);
+    if(aucVals2.length>=2){const mx3=Math.max(...aucVals2),mn3=Math.min(...aucVals2),divR=(mx3-mn3)/mn3;if(divR>0.2)flags.push(`LSS divergence ${(divR*100).toFixed(0)}%`);else if(divR>0.15){const belowN=aucVals2.filter(v=>v<tg.mn).length;if(belowN>=Math.ceil(aucVals2.length/2))flags.push(`LSS divergence ${(divR*100).toFixed(0)}% — ${belowN}/${aucVals2.length} equations below target`);}}
+    if(S.px.absorb==="unstable")flags.push("Absorption unstable — PK data unreliable");
+    if(S.px.booster!=="none")flags.push(`Azole (advanced) active (${S.px.booster})`);
+    if(S.px.mtor!=="none"&&!okZ(S.px.evrTrough))flags.push("mTORi selected but trough not entered");
+    // Capture-limit soft warnings (v6.2)
+    if(ok(S.wt)&&(pf(S.wt)<2||pf(S.wt)>250))flags.push(`Weight ${S.wt} kg outside range (2–250)`);
+    if(ok(S.px.dose)&&(pf(S.px.dose)<0.5||pf(S.px.dose)>40))flags.push(`Tac dose ${S.px.dose} mg/d outside range (0.5–40)`);
+    if(S.px.dilt!=="none"&&ok(S.px.diltDose)&&(pf(S.px.diltDose)<30||pf(S.px.diltDose)>360))flags.push(`Dilt dose ${S.px.diltDose} mg/d outside range (30–360)`);
+    if(S.px.booster!=="none"&&ok(S.px.boosterDose)&&(pf(S.px.boosterDose)<1||pf(S.px.boosterDose)>400))flags.push(`Booster dose ${S.px.boosterDose} mg/d outside range (1–400)`);
+    if(S.px.mtor!=="none"&&ok(S.px.evrTrough)&&pf(S.px.evrTrough)>30)flags.push(`mTORi trough ${S.px.evrTrough} above range (0–30)`);
+    if(ok(S.px.mmf)&&(pf(S.px.mmf)<180||pf(S.px.mmf)>3000))flags.push(`MMF/MPS ${S.px.mmf} mg/d outside range (180–3000)`);
+    // Hct advisory (v6.4)
+    if(ok(S.px.hct)){const hv=pf(S.px.hct);if(hv<25)flags.push(`Hct ${hv}% very low — measured trough substantially underestimates true exposure. Do NOT chase low trough with dose increase during active Hct recovery — trough will overshoot`);else if(hv<30)flags.push(`Hct ${hv}% low — trough underestimates exposure (Størset 2014). Anticipate trough rise as Hct recovers. Hold dose change until Hct stabilises`);else if(hv<35&&S.phase===0)flags.push(`Hct ${hv}% borderline low (Month 0–3) — trough may rise 10–15% as Hct normalizes. Interpret borderline-low C0 with caution; avoid over-reacting`);if(hv>50)flags.push(`Hct ${hv}% — polycythemia? Verify`);}
+    if(S.px.crT==="rising")flags.push("Cr RISING — clinical deterioration, Plan urgency elevated");
+    if(flags.length>0)h+=`<div class="rf"><b>⚠ Red flags (${flags.length}):</b> ${flags.join(" · ")}</div>`;
+  }
+
+  // ===== TAB 0: PLAN =====
+  if(S.tab===0){
+    h+=ps();
+
+    // === v6.7 Engine-Selected Banner ===
+    const engineLabel={peak:"Peak reduction",auc:"AUC control",both:"AUC + Peak (dual)",undershoot:"Undershoot recovery",ipv:"IPV reduction"}[plan.engine||"auc"]||"AUC control";
+    const engineColor=plan.engine==="peak"?"#6b2fa5":plan.engine==="both"?"#b8336a":plan.engine==="undershoot"?"#c44900":"#1e4e8c";
+    const engineIcon=plan.engine==="peak"?"⬇":plan.engine==="both"?"⇵":plan.engine==="undershoot"?"⬆":"◎";
+    if(plan.routeReason||plan.peakSignal){
+      h+=`<div style="background:${engineColor};color:white;padding:8px 10px;border-radius:7px;margin-bottom:6px;font-size:10px;line-height:1.4">
+        <div style="font-weight:700;margin-bottom:2px">${engineIcon} Engine: ${engineLabel}${plan.override?` <span style="font-size:8px;opacity:0.85">(override: ${plan.override})</span>`:""}</div>
+        <div style="font-size:9px;opacity:0.95">${plan.routeReason||"Routing: default"}</div>
+        ${plan.peakSignal&&plan.peakSignal.flag?`<div style="font-size:8px;margin-top:3px;background:rgba(255,255,255,0.15);padding:3px 5px;border-radius:3px"><b>Peak signal:</b> ${plan.peakSignal.cmaxAbs?"Cmax ~"+plan.peakSignal.cmaxAbs.toFixed(0)+" ng/mL":""}${plan.peakSignal.cm?" · Cmax/C0 "+plan.peakSignal.cm.toFixed(1):""}${plan.peakSignal.veryHigh?" — very high":plan.peakSignal.high?" — high":""}${plan.peakSignal.steep?" · steep curve":""}</div>`:""}
+      </div>`;
+    } else if(plan.engine==="peak"||plan.engine==="both"){
+      h+=`<div style="background:${engineColor};color:white;padding:6px 10px;border-radius:7px;margin-bottom:6px;font-size:10px;font-weight:700">${engineIcon} Engine: ${engineLabel}</div>`;
+    }
+    // Peak-flag-only banner (engine=auc but peak signal present)
+    if(plan.engine==="auc"&&ctx.__route&&ctx.__route.peakFlag&&ctx.__peakSignal&&ctx.__peakSignal.flag){
+      h+=`<div class="al al-w" style="margin-bottom:5px;font-size:10px"><b>⚠ Peak signal present:</b> Cmax${ctx.__peakSignal.cmaxAbs?" "+ctx.__peakSignal.cmaxAbs.toFixed(0):""}${ctx.__peakSignal.cm?" · Cmax/C0 "+ctx.__peakSignal.cm.toFixed(1):""}. AUC is in target so dose reduction is not actioned, but if tremor/HTN/NODAT emerge, switch to Peak mode (override dropdown in Current Regimen).</div>`;
+    }
+    // Dilt timing audit — if dilt present but timing unknown or unsynced
+    if(S.px.dilt!=="none"){
+      if(S.px.diltTiming==="unsynced"){
+        h+=`<div class="al al-i" style="margin-bottom:5px;font-size:10px"><b>ℹ Dilt and tac are staggered.</b> Simultaneous or near-simultaneous dosing is how the interaction has been studied (Jones 2002; Susomboon 2022). Diltiazem's CYP3A inhibition is mechanism-based (Pinto 2005) and persists beyond the plasma peak, so staggered dosing is unlikely to abolish the effect — but before escalating drug or dose, consider co-dosing to match the studied regimen.</div>`;
+      } else if(S.px.diltTiming==="unk"){
+        h+=`<div class="al al-i" style="margin-bottom:5px;font-size:9px"><b>Check dilt timing:</b> Is dilt dosed in the same time window as tac? Simultaneous dosing is the studied/validated approach. Staggered dosing has not been directly tested but is unlikely to abolish the interaction at steady state. (Set "Dilt-tac timing" in Current Regimen panel.)</div>`;
+      }
+    }
+    // Multi-variable change warning — if recommendation includes BOTH tac dose change AND dilt change
+    {
+      const hl=(plan.hl||"")+(plan.rc||"");
+      const tacChange=/tac.{0,20}(dose|cut|reduce|increase|↓|↑)|mg\/d/i.test(hl);
+      const diltChange=/diltiazem|dilt.{0,20}(add|switch|escalate|SR|CD|IR|increase)|reshape curve/i.test(hl);
+      if(tacChange&&diltChange){
+        h+=`<div class="al al-w" style="margin-bottom:5px;font-size:10px"><b>⚠ Multi-variable change:</b> Recommendation affects both tac dose and diltiazem. Consider staging — change one variable, recheck day 3–5, then the other. Attribution at next recheck is cleaner with single-variable steps.</div>`;
+      }
+    }
+
+    const pc=plan.type==="stop"?"al-e":plan.type==="action"?"al-w":"al-ok";
+    // v6.8.1: LSS/AUC prompt banner when operating on C0 alone
+    if(cx.auc===null){h+=`<div class="al al-w" style="font-size:9px;margin-bottom:6px;padding:7px 9px"><b>📊 No AUC data — recommendation based on C0 only (less precise).</b> For a phenotype-calibrated estimate: go to <b>LSS tab</b> → enter C1.5 (draw 90 min post-dose) → Indian equation (Mathew 2008, 2-point, Indian-derived). Adds one extra blood draw at ₹1,000.</div>`;}
+    h+=`<div class="k"><h3>Plan: Next Action</h3>
+    <div class="al ${pc}" style="font-size:12px;padding:10px;margin-bottom:8px"><b>${plan.hl}</b></div>
+    ${plan.rc?`<div class="al al-i"><b>↻ Recheck:</b> ${plan.rc}</div>`:""}
+    ${plan.why?`<div style="margin-top:5px;font-size:9px;line-height:1.5;color:var(--t2)"><b>Why this step:</b> ${plan.why}</div>`:""}
+    ${plan.notYet?`<div style="margin-top:4px;font-size:9px;line-height:1.5;color:var(--t2)"><b>Not yet:</b> ${plan.notYet}</div>`:""}
+    ${plan.also?`<div class="al al-i" style="margin-top:5px;font-size:9px"><b>Also:</b> ${plan.also}</div>`:""}
+    ${plan.gateHtml||""}
+    </div>`;
+    // Current regimen summary
+    const pxs=S.px;
+    let regParts=[];
+    if(ok(pxs.dose))regParts.push(`Tac ${pxs.dose}mg/d ${pxs.sched.toUpperCase()} (${pxs.form.toUpperCase()})`);
+    if(pxs.dilt!=="none")regParts.push(`Dilt ${pxs.dilt==="ir_d"?"IR":pxs.dilt.toUpperCase()} ${pxs.diltDose||"?"}mg/d${pxs.diltTiming==="synced"?" (tac-synced)":pxs.diltTiming==="unsynced"?" ⚠(unsynced)":""}`);
+    if(pxs.booster!=="none")regParts.push(`${pxs.booster} ${pxs.boosterDose||"?"}mg/d`);
+    if(pxs.mtor!=="none"){let mt=`${pxs.mtor==="eve"?"EVR":"SRL"}${ok(pxs.mtorDose)?" "+pxs.mtorDose+"mg/d":""}${ok(pxs.evrTrough)?" trough "+pxs.evrTrough:""}`;regParts.push(mt);}
+    if(ok(pxs.mmf))regParts.push(`MMF ${pxs.mmf}mg/d`);
+    const toxL=toxSxList(pxs);
+    // v6.8: mTORi C/D ratio
+    const mtorCD=(ok(pxs.mtorDose)&&ok(pxs.evrTrough))?pf(pxs.evrTrough)/pf(pxs.mtorDose):null;
+    // v6.8: patient header
+    const ptHeader=(S.patientName||S.donorAge)?`<div style="font-size:10px;font-weight:700;color:var(--pri);margin-bottom:4px;padding-bottom:4px;border-bottom:1px solid var(--bd)">${S.patientName?S.patientName:"(unnamed)"}${ok(S.donorAge)?` · Donor age ${S.donorAge}y`:""} <span style="font-size:8px;color:var(--t2);font-weight:400">· ${assayLabel(S.assay)} · ${tierLabel(S.riskTier)}</span></div>`:`<div style="font-size:8px;color:var(--t2);margin-bottom:3px">${assayLabel(S.assay)} · ${tierLabel(S.riskTier)}</div>`;
+    h+=`<div class="k" style="background:var(--bg)"><h3>Current Context</h3>${ptHeader}<div style="font-size:9px;line-height:1.6">
+    ${regParts.length?`<b>Regimen:</b> ${regParts.join(" · ")}`:"<span style='color:var(--org)'>No regimen entered — expand Current Regimen panel above.</span>"}
+    ${cx.auc!==null?`<br><b>Exposure:</b> AUC ${cx.auc.toFixed(0)} µg·h/L (${fullAuc?"measured":"LSS"}) · Target ${tg.mn}–${tg.mx}`:""}
+    ${c0!==null?`<br><b>C0:</b> ${c0.toFixed(1)} ng/mL · Target ${tg.c0mn}–${tg.c0mx}`:""}
+    ${cx.cmaxAbs?`<br><b>Cmax (proxy):</b> ${cx.cmaxAbs.toFixed(1)} ng/mL${cx.cmaxAbs>=30?" <span style='color:var(--red)'>⚠ very high</span>":cx.cmaxAbs>=25?" <span style='color:var(--org)'>⚠ high (>25)</span>":""}${cx.cmaxC0?` · <b>Cmax/C0 ${cx.cmaxC0.toFixed(2)}</b>${cx.cmaxC0>=3.2?" <span style='color:var(--org)'>⚠ steep</span>":cx.cmaxC0<2.5?" <span style='color:var(--grn)'>flat</span>":""}`:""}`:`<br><b>Cmax/C0:</b> <span style="color:var(--t2)">— enter C1.5 (or later timepoint) in LSS or Full AUC tab to compute</span>`}
+    ${cr!==null?`<br><b>C/D:</b> ${cr.toFixed(2)}${S.px.sched==="bd"?` → ${cc.l}`:" (⚠ "+S.px.sched.toUpperCase()+" schedule — phenotype thresholds are BD-only)"}`:""}
+    ${mtorCD!==null?`<br><b>mTORi C/D:</b> ${mtorCD.toFixed(2)} (trough ${pxs.evrTrough} ÷ dose ${pxs.mtorDose} mg/d)`:""}
+    ${cv!==null?`<br><b>IPV:</b> CV% ${cv.toFixed(1)}%${cv>30?" ⚠ warrants investigation":""}`:""}
+    ${aucC0ratio!==null?`<br><b>AUC/C0 ratio:</b> ${aucC0ratio.toFixed(1)} → <b>Individualized C0 target: ${indivC0tgt.lo.toFixed(1)}–${indivC0tgt.hi.toFixed(1)}</b> ng/mL <span style="font-size:8px;color:var(--t2)">(= AUC target ${tg.mn}–${tg.mx} ÷ ratio ${aucC0ratio.toFixed(1)}. For trough-only visits: projected AUC = C0 × ${aucC0ratio.toFixed(1)})</span>`:""}
+    ${ok(pxs.crCurrent)?`<br><b>Cr current:</b> ${pxs.crCurrent} mg/dL`:""}
+    ${ok(S.px.hct)?`<br><b>Hct:</b> ${S.px.hct}%${pf(S.px.hct)<30?" <span style='color:var(--red)'>⚠ low — trough underestimates exposure; hold dose change until Hct stabilises</span>":pf(S.px.hct)<35&&S.phase===0?" <span style='color:var(--org)'>↑ borderline low (M0–3) — trough may rise 10–15% as Hct normalizes</span>":""}`:""}    
+    ${pxs.bx!=="none"?`<br><b>Biopsy:</b> ${pxs.bx}`:""}
+    ${pxs.aki!=="no"?`<br><b>AKI status:</b> ${pxs.aki==="recovering"?"recovering (Cr ↓)":"resolved"}${ok(pxs.akiPeakCr)?` · peak Cr ${pxs.akiPeakCr}`:""}`:""}
+    ${toxL.length?`<br><b>Tox symptoms:</b> ${toxL.join(", ")}`:""}
+    ${pxs.absorb==="unstable"?`<br><b style="color:var(--red)">⚠ Absorption unstable</b>`:""}
+    ${pxs.crT!=="stable"?`<br><b${pxs.crT==="rising"?' style="color:var(--red)"':""}>Cr trend: ${pxs.crT}</b>${pxs.crT==="rising"?" — Plan urgency elevated":pxs.crT==="falling"?" — caution, may reflect recent intervention":""}`:""}
+    ${pxs.goal!=="auto"?`<br><b>Goal override:</b> ${pxs.goal}`:""}
+    ${(()=>{const sn=S.bxSnap;if(!sn.date&&!sn.grade&&!sn.c0)return"";const dc0=ok(sn.c0)&&c0!==null?` → now ${c0.toFixed(1)} (${c0-pf(sn.c0)>=0?"+":""}${(c0-pf(sn.c0)).toFixed(1)})`:ok(sn.c0)?` → now ${c0!==null?c0.toFixed(1):"?"}`:""  ;return`<br><b>Biopsy context${sn.date?" ("+sn.date+")":""}:</b> ${sn.grade||"(recorded)"}${ok(sn.c0)?` · C0 ${sn.c0}${dc0}`:""}${ok(sn.dose)?` · dose ${sn.dose}mg/d`:""}${ok(sn.cr)?` · Cr ${sn.cr}`:""}`;})()||""}
+    </div></div>`;
+    h+=`<div class="br"><button class="btn btn-g" onclick="xWA('short')">📋 Short</button><button class="btn btn-p" onclick="xWA('detail')">📋 Detailed</button></div>`;
+  }
+
+  // ===== TAB 1: LSS =====
+  else if(S.tab===1){
+    h+=ps();
+    if(isTDS){
+      h+=`<div class="al al-e" style="margin-bottom:8px;padding:10px"><b>⚠ TDS Schedule (q8h) — LSS equations not validated.</b><br>All three LSS equations (Mathew, Wong, Armendáriz) were derived on BD (q12h) dosing. The C0 on TDS is an 8h trough, and the curve shape differs. Applying these equations will <b>overestimate AUC₀₋₁₂</b>.<br><br><b>For TDS patients:</b> Use the Full AUC tab → AUC₀₋₈ mode (trapezoidal, validated method). Or switch to BD temporarily for a PK study day.<br><br>Raw equation outputs shown below for reference only — <b>do NOT use for clinical decisions.</b></div>`;
+    }
+    // v6.6: Sample Timing Check
+    h+=`<div class="k" style="background:var(--bg)"><h3>Sample Timing Check <span style="font-size:8px;color:var(--t2);font-weight:400">(optional — enter actual draw times)</span></h3>
+    <div class="su">Enter actual draw time in minutes post-dose. Drift >10 min reduces LSS accuracy.</div>
+    <div class="rw" style="flex-wrap:wrap;gap:4px">
+    <div class="fl" style="min-width:55px;max-width:70px"><label>C0 (0 min)${timingBadge('c0')}</label><input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" value="${S.lss.at_c0}" oninput="sLt('c0',this.value)" placeholder="0" style="width:100%"></div>
+    <div class="fl" style="min-width:55px;max-width:70px"><label>C1 (60)${timingBadge('c1')}</label><input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" value="${S.lss.at_c1}" oninput="sLt('c1',this.value)" placeholder="60" style="width:100%"></div>
+    <div class="fl" style="min-width:55px;max-width:70px"><label>C1.5 (90)${timingBadge('c1_5')}</label><input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" value="${S.lss.at_c1_5}" oninput="sLt('c1_5',this.value)" placeholder="90" style="width:100%"></div>
+    <div class="fl" style="min-width:55px;max-width:70px"><label>C2 (120)${timingBadge('c2')}</label><input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" value="${S.lss.at_c2}" oninput="sLt('c2',this.value)" placeholder="120" style="width:100%"></div>
+    <div class="fl" style="min-width:55px;max-width:70px"><label>C4 (240)${timingBadge('c4')}</label><input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" value="${S.lss.at_c4}" oninput="sLt('c4',this.value)" placeholder="240" style="width:100%"></div>
+    </div>${(()=>{const tG=timingGrade();if(!tG.filled)return"";return`<div class="al al-${tG.grade==="exact"?"ok":tG.grade==="near-exact"?"w":"e"}" style="margin-top:4px;font-size:9px"><b>Timing: ${tG.grade}</b>${tG.grade==="timing-compromised"?" — LSS equation accuracy degraded. Consider repeat sampling with verified times.":tG.grade==="near-exact"?" — minor drift, results acceptable.":""}</div>`;})()}</div>`;
+    h+=`<div class="k"><h3>Indian LSS (C0 + C1.5)</h3><div class="su">AUC₀₋₁₂ = 19.16 + 6.75×C0 + 3.33×C1.5 · Mathew et al. 2008, BJCP · R²≥0.907 (2-pt); R²=0.951 (3-pt variant)<br>Derived in 29 stable Indian adults (CMC Vellore), 3–6 mo post-Tx, pred + MMF, MEIA (Abbott IMx) · <b>Study primary equation</b></div>
+    <div class="rw"><div class="fl"><label>C0 (trough) ng/mL</label><input type="text" inputmode="decimal" pattern="[0-9.]*" maxlength="6" value="${L.c0}" oninput="sL('c0',this.value)" placeholder="0.0"></div>
+    <div class="fl"><label>C1.5 (90 min) ng/mL</label><input type="text" inputmode="decimal" pattern="[0-9.]*" maxlength="6" value="${L.c1_5}" oninput="sL('c1_5',this.value)" placeholder="0.0"></div></div>
+    ${isTDS&&indRaw!==null?`<div class="rw" style="opacity:0.5">${bg("Indian AUC₀₋₁₂ (INVALID — TDS)",indRaw,"µg·h/L",{l:"Not validated for q8h",c:"var(--t2)"})}</div>`:""}
+    ${ind!==null?`<div class="rw">${bg("Indian AUC₀₋₁₂",ind,"µg·h/L",aS(ind,tg))}</div>`:""}</div>`;
+
+    h+=`<div class="k"><h3>Wong (C2 + C4)</h3><div class="su">AUC₀₋₁₂ = 16.2 + 2.4×C2 + 5.9×C4 · Wong et al. 2000, AJKD · r²=0.93 · n=18 stable Hong Kong Chinese adults<br>Derived on MEIA (Hong Kong). CMIA validated: Vadcharavivad 2016 (Thai). No Indian CMIA validation. · <b>Study primary equation</b></div>
+    <div class="rw"><div class="fl"><label>C2 (2 hr) ng/mL</label><input type="text" inputmode="decimal" pattern="[0-9.]*" maxlength="6" value="${L.c2}" oninput="sL('c2',this.value)" placeholder="0.0"></div>
+    <div class="fl"><label>C4 (4 hr) ng/mL</label><input type="text" inputmode="decimal" pattern="[0-9.]*" maxlength="6" value="${L.c4}" oninput="sL('c4',this.value)" placeholder="0.0"></div></div>
+    ${isTDS&&wonRaw!==null?`<div class="rw" style="opacity:0.5">${bg("Wong AUC₀₋₁₂ (INVALID — TDS)",wonRaw,"µg·h/L",{l:"Not validated for q8h",c:"var(--t2)"})}</div>`:""}
+    ${won!==null?`<div class="rw">${bg("Wong AUC₀₋₁₂",won,"µg·h/L",aS(won,tg))}</div>`:""}
+    ${c2!==null?`<div class="al al-${c2<=20?"ok":c2<=30?"w":"e"}"><b>C2: ${c2C(c2).l}</b></div>`:""}</div>`;
+
+    h+=`<div class="k"><h3>Armendáriz (C0 + C1 + C4) <span class="ref-tag">Exploratory / Reference</span></h3><div class="su">AUC₀₋₁₂ = 8.90 + 4.0×C0 + 1.77×C1 + 5.47×C4 · Armendáriz et al. 2005, TDM · r²=0.965 · n=27 (14 derivation / 13 validation)<br>Derived in Spanish adults (Barcelona), MEIA. Widely miscited as "Scholten." Not a study-primary equation.</div>
+    <div class="rw"><div class="fl"><label>C0 ng/mL</label><input type="text" inputmode="decimal" pattern="[0-9.]*" maxlength="6" value="${L.c0}" oninput="sL('c0',this.value)" placeholder="0.0"></div>
+    <div class="fl"><label>C1 (1 hr) ng/mL</label><input type="text" inputmode="decimal" pattern="[0-9.]*" maxlength="6" value="${L.c1}" oninput="sL('c1',this.value)" placeholder="0.0"></div>
+    <div class="fl"><label>C4 (4 hr) ng/mL</label><input type="text" inputmode="decimal" pattern="[0-9.]*" maxlength="6" value="${L.c4}" oninput="sL('c4',this.value)" placeholder="0.0"></div></div>
+    ${isTDS&&schRaw!==null?`<div class="rw" style="opacity:0.5">${bg("Armendáriz AUC₀₋₁₂ (INVALID — TDS)",schRaw,"µg·h/L",{l:"Not validated for q8h",c:"var(--t2)"})}</div>`:""}
+    ${sch!==null?`<div class="rw">${bg("Armendáriz AUC₀₋₁₂",sch,"µg·h/L",aS(sch,tg))}</div>`:""}</div>`;
+
+    if(ind!==null||won!==null||sch!==null){
+      // PK sanity checks
+      let pkWarn="";
+      if(c0!==null&&c1!==null&&c0>c1)pkWarn+=`<div class="al al-w"><b>⚠ C0 > C1:</b> Trough higher than 1-hour level. Check sample timing — C0 should be the lowest point in the dosing interval.</div>`;
+      if(c0!==null&&c2!==null&&c0>c2)pkWarn+=`<div class="al al-w"><b>⚠ C0 > C2:</b> Trough higher than 2-hour level. Likely timing error or mislabeled sample.</div>`;
+      if(c0!==null&&c15!==null&&c0>c15)pkWarn+=`<div class="al al-w"><b>⚠ C0 > C1.5:</b> Trough higher than 90-min level. Verify sample collection times.</div>`;
+      // Divergence flag
+      const aucVals=[ind,won,sch].filter(v=>v!==null);
+      let divWarn="";
+      if(aucVals.length>=2){const mx2=Math.max(...aucVals),mn2=Math.min(...aucVals);if((mx2-mn2)/mn2>0.2)divWarn=`<div class="al al-w"><b>⚠ LSS divergence >${((mx2-mn2)/mn2*100).toFixed(0)}%:</b> Equations disagree (${mn2.toFixed(0)}–${mx2.toFixed(0)}). Possible input error, or patient PK doesn't fit validation population. Consider full AUC if available.</div>`;}
+      // Range validation
+      let rangeWarn="";
+      if(c0!==null&&(c0>50||c0<0.5))rangeWarn+=`<div class="al al-e"><b>⚠ C0 = ${c0}:</b> Outside expected range (0.5–50 ng/mL). Verify value.</div>`;
+      if(c2!==null&&c2>80)rangeWarn+=`<div class="al al-e"><b>⚠ C2 = ${c2}:</b> Unusually high. Verify value.</div>`;
+      h+=`<div class="k" style="background:var(--bg)"><h3>Comparison</h3><div class="rw" style="margin-top:5px">
+      ${ind!==null?bg("Indian",ind,"",aS(ind,tg)):""}${won!==null?bg("Wong",won,"",aS(won,tg)):""}${sch!==null?bg("Armendáriz*",sch,"",aS(sch,tg)):""}
+      </div><div style="font-size:8px;color:var(--t2)">*Exploratory comparator only (miscited as "Scholten")</div>${(()=>{const sp=[{t:0,c:c0||0}];if(c1!==null)sp.push({t:1,c:c1});if(c15!==null)sp.push({t:1.5,c:c15});if(c2!==null)sp.push({t:2,c:c2});if(c4!==null)sp.push({t:4,c:c4});return sp.filter(p=>p.c>0).length>=2?pkSpark(sp,tg.c0mn,tg.c0mx):"";})()}${reliabilityCard(cx,tg,[],ind,won,sch)}${c0!==null?c0PhaseCheck(c0,tg,best!==null&&best>=tg.mn&&best<=tg.mx):""}${rangeWarn}${pkWarn}${divWarn}${(()=>{const av=[ind,won,sch].filter(v=>v!==null);if(av.length>=2){const mx4=Math.max(...av),mn4=Math.min(...av);const divR4=(mx4-mn4)/mn4;if(divR4<=0.15)return`<div class="al al-ok" style="font-size:9px"><b>Equations converge (within 15%).</b> Indian (Mathew) preferred — derived in Indian cohort, CMIA context closest to your practice.</div>`;if(divR4>0.15&&divR4<=0.20){const belowN=av.filter(v=>v<tg.mn).length;if(belowN>=Math.ceil(av.length/2))return`<div class="al al-w" style="font-size:9px"><b>Best equation for this patient:</b> Use Indian (Mathew) as primary — Indian-derived, 2-point, R²≥0.907. Wong as cross-check. <b>Note: ${belowN}/${av.length} equations below target (${(divR4*100).toFixed(0)}% divergence)</b> — borderline adequacy. Consider full AUC for definitive assessment.</div>`;return`<div class="al al-w" style="font-size:9px"><b>Best equation for this patient:</b> Use Indian (Mathew) as primary — Indian-derived, 2-point, R²≥0.907. Wong as cross-check. If divergence persists, consider full AUC.</div>`;}if(ind!==null&&won!==null)return`<div class="al al-w" style="font-size:9px"><b>Best equation for this patient:</b> Use Indian (Mathew) as primary — Indian-derived, 2-point, R²≥0.907. Wong as cross-check. If divergence persists, consider full AUC.</div>`;}if(ind!==null&&av.length===1)return`<div class="al al-i" style="font-size:9px"><b>Single equation available (Mathew).</b> Add C2+C4 for Wong cross-validation, or C1+C4 for Armendáriz.</div>`;return""})()}${aucC0ratio!==null?`<div class="al al-i" style="font-size:9px;margin-top:3px"><b>AUC/C0 ratio: ${aucC0ratio.toFixed(1)}</b> → Individualized C0 target: <b>${indivC0tgt.lo.toFixed(1)}–${indivC0tgt.hi.toFixed(1)} ng/mL</b>${c0!==null&&c0>=indivC0tgt.lo&&c0<=indivC0tgt.hi?` <span style="color:var(--grn)">✓ C0 ${c0.toFixed(1)} is within individualized range — population C0 target (${tg.c0mn}–${tg.c0mx}) does not apply.</span>`:c0!==null&&c0<indivC0tgt.lo?` <span style="color:var(--org)">C0 ${c0.toFixed(1)} is below even the individualized target.</span>`:""} (for trough-only visits: projected AUC = C0 × ${aucC0ratio.toFixed(1)}). <span style="color:var(--t2)">Ratio is moderately stable intra-individually (Woillard 2023, n=1,325, Pearson r≈0.33; endorsed by van Gelder 2025 review). Experimental feature — no outcome RCT tests individualized C0 targeting. Recalculate after formulation, diltiazem, or major clinical changes. Use alongside AUC, not instead of.</span></div>`:""}${rISummary(cx)}<div class="br"><button class="btn btn-g" onclick="xWA('short')">📋 Short</button><button class="btn btn-p" onclick="xWA('detail')">📋 Detailed</button></div></div>`;}
+
+    // TDS: show raw comparison with caveat if BD comparison didn't render
+    if(isTDS&&(indRaw!==null||wonRaw!==null||schRaw!==null)){
+      h+=`<div class="k" style="background:#fff8e1;border-color:#ffe082"><h3 style="color:#e65100">Reference Only — TDS (Not Validated)</h3><div class="rw" style="margin-top:5px;opacity:0.6">
+      ${indRaw!==null?bg("Indian",indRaw,"",{l:"INVALID",c:"var(--t2)"}):""}${wonRaw!==null?bg("Wong",wonRaw,"",{l:"INVALID",c:"var(--t2)"}):""}${schRaw!==null?bg("Armendáriz",schRaw,"",{l:"INVALID",c:"var(--t2)"}):""}
+      </div><div style="font-size:8px;color:var(--red)">These values are derived from BD-validated equations applied to TDS data. They overestimate AUC₀₋₁₂. Use Full AUC tab → AUC₀₋₈ mode instead.</div>${c0!==null?c0PhaseCheck(c0,tg):""}<div class="al al-i" style="font-size:8px"><b>8h trough on TDS ≈ 15–25% higher than 12h trough on BD.</b> C0 target for TDS is not the same as BD C0 target.</div>${rISummary(cx)}<div class="br"><button class="btn btn-g" onclick="xWA('short')">📋 Short</button><button class="btn btn-p" onclick="xWA('detail')">📋 Detailed</button></div></div>`;
+    }
+
+    const gd=genoStartDose(ok(S.wt)?pf(S.wt):null);
+    if(gd)h+=`<div class="k" style="background:var(--bg)"><h3>Genotype-Adjusted Starting Dose (CPIC-informed)</h3><div style="font-size:10px"><b>${gd.lo}–${gd.hi} mg/day</b> — ${gd.note}<br><span style="font-size:8px;color:var(--t2)">TDM required after initiation. Genotype informs starting dose only — does not replace monitoring.</span></div></div>`;
+  }
+
+  // ===== TAB 1: Full AUC =====
+  else if(S.tab===2){
+    h+=ps();
+    if(isTDS){
+      // === TDS MODE: AUC₀₋₈ ===
+      const fpShow=S.fp.filter(p=>pf(p.t)<=8);
+      h+=`<div class="k"><h3>Full 8-Hour PK Profile (TDS Mode)</h3><div class="su">Linear-log trapezoidal rule · AUC₀₋₈ for one q8h dosing interval<br>Schedule is TDS (q8h) — 12-hour profile not applicable. LSS equations suppressed.</div>
+      <div class="al al-i" style="margin-bottom:5px"><b>TDS monitoring:</b> Draw all samples within one dosing interval (e.g. 7am dose → samples at T=0 through T=8h = 3pm pre-dose). AUC₀₋₈ × 3 ≈ daily exposure.</div>
+      <div class="g2">${fpShow.map(p=>{const idx=S.fp.indexOf(p);return`<div class="tp"><span>T=${p.t}h</span><input type="text" inputmode="decimal" pattern="[0-9.]*" maxlength="6" value="${p.c}" oninput="sF(${idx},this.value)" placeholder="ng/mL"></div>`;}).join("")}</div>`;
+      const fpWarn8=fpShow.filter(p=>ok(p.c)&&pf(p.c)>100).map(p=>`T=${p.t}h: ${p.c}`);
+      if(fpWarn8.length)h+=`<div class="al al-e"><b>⚠ Concentration >100 ng/mL:</b> ${fpWarn8.join(", ")}. Verify.</div>`;
+      if(tdsAuc8Raw!==null){
+        if(tdsAuc8Complete){
+          h+=`<div style="margin-top:8px">${bg("AUC₀₋₈",tdsAuc8Raw,"µg·h/L",aS(tdsAuc8Raw,tdsTg))}</div>`;
+          const dailyExp=tdsAuc8Raw*3;
+          h+=`<div class="rw" style="margin-top:5px">${bg("Daily Exposure (×3)",dailyExp,"µg·h/24h",{l:"",c:"var(--pri)"})}</div>`;
+          h+=`<div class="al al-i"><b>Target AUC₀₋₈:</b> ${tdsTg.mn}–${tdsTg.mx} µg·h/L (= AUC₀₋₁₂ target ${tg.mn}–${tg.mx} × ⅔)<br><b>8h trough advisory:</b> C0 on TDS is ~15–25% higher than BD C0. Do not apply BD trough targets directly.</div>`;
+        }else{
+          const lastTP8=lastFilledTP(fpShow);
+          h+=`<div style="margin-top:8px">${bg("Partial AUC₀₋"+lastTP8.toFixed(0),tdsAuc8Raw,"µg·h/L",{l:"Incomplete — add timepoints for valid AUC₀₋₈",c:"var(--red)"})}</div>`;
+        }
+        const fl8=fpShow.filter(p=>ok(p.c)),cs8=fl8.map(p=>pf(p.c)),ts8=fl8.map(p=>pf(p.t)),mx8=Math.max(...cs8),mi8=cs8.indexOf(mx8);
+        const cv08=ok(S.fp[0].c)?pf(S.fp[0].c):null;
+        const c8v=S.fp[8]&&ok(S.fp[8].c)?pf(S.fp[8].c):null;
+        const cmaxC0r8=cv08&&cv08>0?(mx8/cv08):null;
+        h+=`<div class="pk"><b>Derived PK:</b><div class="pkg"><div>Cmax: <b>${mx8.toFixed(1)}</b></div><div>Tmax: <b>${ts8[mi8]}h</b></div><div>C0 (8h): <b>${cv08!==null?cv08.toFixed(1):"—"}</b></div><div>C8: <b>${c8v!==null?c8v.toFixed(1):"—"}</b></div>${cmaxC0r8?`<div>Cmax/C0: <b>${cmaxC0r8.toFixed(1)}</b>${cmaxC0r8<2.5?' <span style="color:var(--grn)">flat</span>':cmaxC0r8<3.5?' <span style="color:var(--org)">moderate</span>':' <span style="color:var(--red)">steep</span>'}</div>`:""}</div></div>`;
+      }
+      h+=`<div class="al al-w" style="margin-top:5px"><b>Plan engine uses C0 only on TDS.</b> AUC₀₋₈ is for PK assessment — not fed into Plan engine (no validated TDS LSS equations exist).</div>`;
+      h+=`<div class="br"><button class="btn btn-o" onclick="S.fp.forEach(p=>p.c='');R()">Clear</button>${tdsAuc8Raw!==null?`<button class="btn btn-g" onclick="xWA('short')">📋 Short</button><button class="btn btn-p" onclick="xWA('detail')">📋 Detailed</button>`:""}</div></div>`;
+    }else{
+      // === BD MODE: AUC₀₋₁₂ (original) ===
+      const fv=tA(S.fp);
+      h+=`<div class="k"><h3>Full 12-Hour PK Profile</h3><div class="su">Linear-log trapezoidal rule · Linear for ascending, log for descending segments<br>For PK study validation</div>
+      <div class="g2">${S.fp.map((p,i)=>`<div class="tp"><span>T=${p.t}h</span><input type="text" inputmode="decimal" pattern="[0-9.]*" maxlength="6" value="${p.c}" oninput="sF(${i},this.value)" placeholder="ng/mL"></div>`).join("")}</div>`;
+      const fpWarn=S.fp.filter(p=>ok(p.c)&&pf(p.c)>100).map(p=>`T=${p.t}h: ${p.c}`);
+      if(fpWarn.length)h+=`<div class="al al-e"><b>⚠ Concentration >100 ng/mL:</b> ${fpWarn.join(", ")}. Verify — unusual for tacrolimus.</div>`;
+      if(fv!==null){
+        const isFull=isCompleteAUC(S.fp);
+        const lastTP=lastFilledTP(S.fp);
+        if(isFull){h+=`<div style="margin-top:8px">${bg("Measured AUC₀₋₁₂",fv,"µg·h/L",aS(fv,tg))}</div>`;}
+        else{h+=`<div style="margin-top:8px">${bg("Partial AUC₀₋"+lastTP.toFixed(0),fv,"µg·h/L",{l:"NOT AUC₀₋₁₂ — do not compare to targets",c:"var(--red)"})}</div>`;
+        h+=`<div class="al al-e"><b>⚠ Incomplete profile:</b> Only T=0 to T=${lastTP}h filled. Not AUC₀₋₁₂. Add timepoints ≥8h, or use LSS equations.</div>`;}
+        const fl=S.fp.filter(p=>ok(p.c)),cs=fl.map(p=>pf(p.c)),ts2=fl.map(p=>pf(p.t)),mx=Math.max(...cs),mi=cs.indexOf(mx);
+        const cv0=ok(S.fp[0].c)?pf(S.fp[0].c):null,c12=ok(S.fp[10].c)?pf(S.fp[10].c):null;
+        const cmaxC0r=cv0&&cv0>0?(mx/cv0):null;
+        h+=`<div class="pk"><b>Derived PK:</b><div class="pkg"><div>Cmax: <b>${mx.toFixed(1)}</b></div><div>Tmax: <b>${ts2[mi]}h</b></div><div>C0: <b>${cv0!==null?cv0.toFixed(1):"—"}</b></div><div>C12: <b>${c12!==null?c12.toFixed(1):"—"}</b></div>${cmaxC0r?`<div>Cmax/C0: <b>${cmaxC0r.toFixed(1)}</b>${cmaxC0r<2.5?' <span style="color:var(--grn)">flat</span>':cmaxC0r<3.5?' <span style="color:var(--org)">moderate</span>':' <span style="color:var(--red)">steep</span>'}</div>`:""}</div></div>`;
+        // v6.6: PK sparkline
+        h+=pkSpark(fl.map(p=>({t:pf(p.t),c:pf(p.c)})),tg.c0mn,tg.c0mx);
+        if(isFull)h+=rISummary({...cx,auc:fv});
+        else h+=`<div class="al al-w" style="margin-top:5px"><b>Plan engine uses LSS AUC</b> (not partial). Partial profile is for visual PK assessment only.</div>`;
+      }
+      h+=`<div class="br"><button class="btn btn-o" onclick="S.fp.forEach(p=>p.c='');R()">Clear</button>${fv!==null?`<button class="btn btn-g" onclick="xWA('short')">📋 Short</button><button class="btn btn-p" onclick="xWA('detail')">📋 Detailed</button>`:""}</div></div>`;
+    }
+  }
+
+  // ===== TAB 2: C/D =====
+  else if(S.tab===3){
+    const CD=S.cd;
+    h+=ps();
+    h+=`<div class="k"><h3>Tacrolimus C/D Ratio</h3><div class="su">C/D = C0 (ng/mL) ÷ Total Daily Dose (mg/day) · Most meaningful at month ≥3<br><span style="color:var(--org)">Working thresholds from published literature. Numeric cutoff origins not validated across all assay platforms or populations.</span></div>
+    <div class="rw"><div class="fl"><label>Tac C0 (trough) ng/mL</label><input type="text" inputmode="decimal" pattern="[0-9.]*" maxlength="6" value="${CD.c0}" oninput="sD('c0',this.value)" placeholder="0.0"></div>
+    <div class="fl"><label>Total Daily Dose mg</label><input type="text" inputmode="decimal" pattern="[0-9.]*" maxlength="6" value="${CD.dose}" oninput="sD('dose',this.value)" placeholder="0.0"></div></div>
+    ${cr!==null?`${rV(CD.c0,0.5,100,"C0")}${rV(CD.dose,0.5,40,"Daily dose")}${c0PhaseCheck(pf(CD.c0),tg,best!==null&&best>=tg.mn&&best<=tg.mx)}${bg("C/D Ratio",cr.toFixed(2),"ng/mL per mg",{l:S.px.sched==="bd"?cc.l:"See caution below",c:S.px.sched==="bd"?cc.c:"var(--t2)"})}
+    ${S.px.sched!=="bd"?`<div class="al al-e"><b>⚠ Schedule is ${S.px.sched.toUpperCase()} (${S.px.sched==="tds"?"q8h":"OD"}):</b> C/D thresholds (≥1.55 / 1.05 / 0.8) are validated for BD (q12h) trough only. ${S.px.sched==="tds"?"An 8h trough is systematically higher than a 12h trough — applying these cutoffs will misclassify the phenotype.":"OD/ER trough timing differs from standard BD — cutoffs are not directly transferable."} <b>Phenotype classification suppressed.</b> Use AUC-based assessment instead.</div>`:`<div class="al al-${cc.s===0?"ok":cc.s===1?"w":"e"}"><b>${cc.l}</b> — ${cc.a}</div>`}${rISummary(cx)}
+    <div class="br"><button class="btn btn-g" onclick="xWA('short')">📋 Short</button><button class="btn btn-p" onclick="xWA('detail')">📋 Detailed</button></div>`:""}</div>`;
+    h+=`<div class="k"><h3>C/D Classification</h3><table><thead><tr><th>C/D</th><th>Class</th><th>India % (approx)</th></tr></thead><tbody>
+    <tr><td>≥1.55</td><td>Slow</td><td>~40–50%</td></tr><tr><td>1.05–1.54</td><td>Intermediate</td><td>~25–30%</td></tr>
+    <tr><td>&lt;1.05</td><td>Fast</td><td>~15–20%</td></tr><tr><td>&lt;0.8</td><td>Very Rapid</td><td>~5–10%</td></tr></tbody></table></div>`;}
+
+  // ===== TAB 3: Dose Adj =====
+  else if(S.tab===4){
+    const DA=S.da,nd=ok(DA.curDose)&&ok(DA.curAUC)&&ok(DA.tgtAUC)?pf(DA.curDose)*(pf(DA.tgtAUC)/pf(DA.curAUC)):null;
+    h+=ps();
+
+    // === Plan-engine cascade gate: check if dose adjustment is premature ===
+    const cascadePending=plan.type==="action"&&(
+      plan.hl.includes("diltiazem")||plan.hl.includes("TDS split")||
+      plan.hl.includes("Brand lock")||plan.hl.includes("brand lock")||
+      plan.hl.includes("IR diltiazem")||plan.hl.includes("Azole booster")||
+      plan.hl.includes("dose not entered"));
+    if(cascadePending){
+      h+=`<div class="al al-e" style="margin-bottom:8px;padding:10px;font-size:11px"><b>⚠ Cascade not exhausted — dose adjustment is premature.</b><br><span style="font-size:10px">Plan engine recommends: <b>${plan.hl.split('.')[0]}.</b><br>Complete cascade optimization before calculating a new dose. Dose numbers below are raw calculations only — they do not account for the effect of pending cascade steps.</span><br><span style="font-size:8px;color:var(--t2)">→ See Plan tab for the recommended next step.</span></div>`;
+    }
+
+    // v6.6 Fix 5: Guard when Plan says adequate but Dose Adj shows increase
+    if(plan.type==="ok"){
+      h+=`<div class="al al-ok" style="margin-bottom:8px;padding:10px;font-size:11px"><b>Plan engine reports adequate exposure.</b> Dose adjustment below is a raw calculation — verify it is clinically warranted before acting. AUC ${bestOverall!==null?bestOverall.toFixed(0)+"µg·h/L":"not computed"} is within target (${tg.mn}–${tg.mx}).</div>`;
+    }
+    // v6.6 Fix 5b: Flag when editable curAUC disagrees with computed AUC
+    if(bestOverall!==null&&ok(DA.curAUC)&&Math.abs(pf(DA.curAUC)-bestOverall)/bestOverall>0.15){
+      h+=`<div class="al al-e" style="margin-bottom:5px;font-size:10px"><b>⚠ Current AUC field (${DA.curAUC}) differs from computed AUC (${bestOverall.toFixed(1)}) by ${(Math.abs(pf(DA.curAUC)-bestOverall)/bestOverall*100).toFixed(0)}%.</b> Dose calculation below uses the field value, which may be stale or manually entered. Use Quick Fill below to sync.</div>`;
+    }
+
+    // Current augmentation context
+    const augCtx=[];
+    if(S.px.dilt!=="none")augCtx.push(`Dilt ${(S.px.dilt==="ir_d"?"IR":S.px.dilt.toUpperCase())} ${S.px.diltDose||"?"}mg/d`);
+    if(S.px.booster!=="none")augCtx.push(`${S.px.booster} ${S.px.boosterDose||"?"}mg/d`);
+    if(S.px.mtor!=="none")augCtx.push(`${S.px.mtor==="eve"?"EVR":"SRL"}${ok(S.px.evrTrough)?" trough "+S.px.evrTrough:""}`);
+    if(augCtx.length)h+=`<div class="al al-i" style="margin-bottom:5px"><b>Current augmentation:</b> ${augCtx.join(" · ")}. Dose adjustment below is for tac only — augmentation changes require separate evaluation via cascade.</div>`;
+    else h+=`<div class="al al-w" style="margin-bottom:5px"><b>No augmentation recorded.</b> If tac dose alone is insufficient, consider the intervention cascade (diltiazem, TDS, mTORi) before repeated dose escalation.</div>`;
+
+    // === Option B: Post-optimization estimate (v6.6 Fix 1+2) ===
+    // Source from computed values, not editable DA fields. Suppress when Plan says adequate.
+    const diltDAdj=ok(S.px.diltDose)?pf(S.px.diltDose):0;
+    const diltSubopt=(S.px.dilt==="none"||(S.px.dilt!=="none"&&diltDAdj<maxDilt));
+    const curC0adj=c0!==null?c0:(ok(S.da.curC0)?pf(S.da.curC0):null);
+    const curAUCadj=bestOverall!==null?bestOverall:(ok(S.da.curAUC)?pf(S.da.curAUC):null);
+    if(diltSubopt&&(curC0adj||curAUCadj)&&plan.type!=="ok"){
+      // Phenotype-aware boost estimate (v6.3)
+      const phenoBoost=(()=>{
+        if(!cc)return{lo:S.px.dilt==="none"?0.25:0.10,hi:S.px.dilt==="none"?0.50:0.35,label:"unknown phenotype — default range"};
+        if(cc.s>=2)return{lo:S.px.dilt==="none"?0.30:0.15,hi:S.px.dilt==="none"?0.50:0.35,label:"fast/very rapid — higher CYP3A4 activity to inhibit"}; // fast/very rapid
+        if(cc.s===1)return{lo:S.px.dilt==="none"?0.25:0.10,hi:S.px.dilt==="none"?0.40:0.30,label:"intermediate — moderate expected response"};
+        return{lo:S.px.dilt==="none"?0.10:0.05,hi:S.px.dilt==="none"?0.25:0.15,label:"slow metabolizer — minimal CYP3A4 to inhibit, diminishing returns"}; // slow
+      })();
+      const boostLo=phenoBoost.lo;
+      const boostHi=phenoBoost.hi;
+      const boostCtx=S.px.dilt==="none"?"adding diltiazem":"optimizing diltiazem to "+maxDilt+"mg/d";
+      let estH=`<div class="k" style="background:#fffde7;border-color:#ffe082"><h3 style="color:#e65100">Post-Optimization Estimate</h3>`;
+      estH+=`<div class="su">Projected exposure after ${boostCtx}. Based on ${phenoBoost.label} (${(boostLo*100).toFixed(0)}–${(boostHi*100).toFixed(0)}% boost). <b>Individual variation is 10–100% — this is an estimate, not a prediction.</b></div>`;
+      if(curC0adj){
+        const projC0lo=curC0adj*(1+boostLo),projC0hi=curC0adj*(1+boostHi);
+        estH+=`<div class="rw">${bg("Projected C0 (low est.)",projC0lo,"ng/mL",aS(projC0lo,{mn:tg.c0mn,mx:tg.c0mx}))}${bg("Projected C0 (high est.)",projC0hi,"ng/mL",aS(projC0hi,{mn:tg.c0mn,mx:tg.c0mx}))}</div>`;
+        // Residual gap
+        const tgtC0mid=(tg.c0mn+tg.c0mx)/2;
+        if(projC0hi<tg.c0mn){
+          const residualDose=ok(S.da.curDose)?(pf(S.da.curDose)*(tgtC0mid/projC0hi)).toFixed(1):null;
+          estH+=`<div class="al al-w"><b>Even with max boost, C0 may remain below target.</b> Residual dose increase likely needed${residualDose?` (~${residualDose} mg/d after optimization)`:""}. But optimize diltiazem first — actual boost may exceed estimate.</div>`;
+        } else if(projC0lo>=tg.c0mn){
+          estH+=`<div class="al al-ok"><b>Diltiazem optimization alone may achieve target C0.</b> No dose increase may be needed. Optimize first, then reassess.</div>`;
+        } else {
+          estH+=`<div class="al al-i"><b>Projected C0 spans the target range.</b> Optimize diltiazem first. Dose increase may or may not be needed — reassess after optimization.</div>`;
+        }
+      }
+      if(curAUCadj){
+        const projAUClo=curAUCadj*(1+boostLo),projAUChi=curAUCadj*(1+boostHi);
+        estH+=`<div class="rw">${bg("Projected AUC (low)",projAUClo,"µg·h/L",aS(projAUClo,tg))}${bg("Projected AUC (high)",projAUChi,"µg·h/L",aS(projAUChi,tg))}</div>`;
+      }
+      // v6.7: Projected Cmax — diltiazem RAISES absolute Cmax (inhibits clearance)
+      // Ratio (Cmax/C0) may flatten, but absolute peak rises with AUC.
+      const currentCmax=cx.cmaxAbs;
+      if(currentCmax){
+        const projCmaxLo=currentCmax*(1+boostLo*0.6); // peak rises ~60% of AUC boost proportion
+        const projCmaxHi=currentCmax*(1+boostHi*0.6);
+        const peakWarn=(projCmaxHi>=25)?"var(--red)":(projCmaxHi>=22?"var(--org)":"var(--grn)");
+        estH+=`<div style="margin-top:6px;padding:6px;background:#fff3e0;border-left:3px solid #ff9800;border-radius:4px">
+          <div style="font-size:9px;font-weight:700;color:#e65100;margin-bottom:3px">⚠ Cmax will RISE, not fall</div>
+          <div style="font-size:8px;color:var(--t2);margin-bottom:4px">Diltiazem inhibits clearance — absolute Cmax rises with AUC. Ratio (Cmax/C0) may flatten because trough rises more than peak, but the peak number increases. If peak toxicity (tremor, HTN, NODAT, neurotox) is the concern, diltiazem escalation is the WRONG lever.</div>
+          <div class="rw">${bg("Projected Cmax (low)",projCmaxLo,"ng/mL",{l:projCmaxLo>=25?"above 25":projCmaxLo>=22?"borderline":"acceptable",c:projCmaxLo>=25?"var(--red)":projCmaxLo>=22?"var(--org)":"var(--grn)"})}${bg("Projected Cmax (high)",projCmaxHi,"ng/mL",{l:projCmaxHi>=25?"above 25":projCmaxHi>=22?"borderline":"acceptable",c:peakWarn})}</div>
+          <div style="font-size:8px;margin-top:3px;color:var(--t2)">Current Cmax proxy: ${currentCmax.toFixed(1)} ng/mL. Peak-reduction levers: (a) cut tac dose, (b) TDS split. Dilt is an AUC/trough lever, not a peak lever.</div>
+        </div>`;
+      }
+      estH+=`<div style="font-size:8px;color:var(--t2);margin-top:3px">Boost estimate adjusted by metabolizer phenotype: fast/very rapid 30–50%, intermediate 25–40%, slow 10–25% (new start). IR TDS achieves higher end; CD OD achieves lower end. ${evTag("exp")}<br><b>⚠ Percentages are illustrative, not empirically validated.</b> Only two datasets stratify by CYP3A5 (Li 2011: SR 90 mg/d → expresser ↑38% vs non-expresser ↑19%; Susomboon 2022: low-dose IR → non-expresser ↑44% vs expresser ↑25%, NS). No published IR-vs-SR/CD head-to-head study. Individual response varies widely — confirm by tac response.</div></div>`;
+      h+=estH;
+    } else if(diltSubopt&&plan.type==="ok"&&curAUCadj){
+      h+=`<div class="al al-ok" style="margin-bottom:5px"><b>AUC within target (${curAUCadj.toFixed(0)} µg·h/L).</b> Post-optimization estimate suppressed — diltiazem optimization is for C0 floor or safety margin, not for underexposure correction. See Plan tab.</div>`;
+    }
+    h+=`<div class="k"><h3>AUC-Based Dose Adjustment</h3><div class="su">New Dose = Current Dose × (Target AUC ÷ Current AUC) · Linear PK assumption</div>
+    <div class="rw"><div class="fl"><label>Current Daily Dose (mg)</label><input type="text" inputmode="decimal" pattern="[0-9.]*" maxlength="6" value="${DA.curDose}" oninput="sA('curDose',this.value)" placeholder="0.0"></div></div>
+    <div class="rw"><div class="fl"><label>Current AUC (µg·h/L)</label><input type="text" inputmode="decimal" pattern="[0-9.]*" maxlength="6" value="${DA.curAUC}" oninput="sA('curAUC',this.value)" placeholder="0.0"></div>
+    <div class="fl"><label>Target AUC (µg·h/L)</label><input type="text" inputmode="decimal" pattern="[0-9.]*" maxlength="6" value="${DA.tgtAUC}" oninput="sA('tgtAUC',this.value)" placeholder="${tg.mn}–${tg.mx}"></div></div>
+    ${rV(DA.curDose,0.5,40,"Daily dose")}${rV(DA.curAUC,10,500,"Current AUC")}${rV(DA.tgtAUC,10,500,"Target AUC")}
+    ${nd!==null?`<div class="rw">${bg("New Dose",nd,"mg/day",{l:`${S.px.sched==="tds"?(nd/3).toFixed(1)+" mg TDS":S.px.sched==="od"?nd.toFixed(1)+" mg OD":(nd/2).toFixed(1)+" mg BD"}`,c:nd>pf(DA.curDose)?"var(--org)":"var(--grn)"})}</div>
+    ${ok(S.wt)?`<div class="al al-i"><b>${(nd/pf(S.wt)).toFixed(3)} mg/kg/day</b></div>`:""}
+    ${nd>pf(DA.curDose)*1.5?`<div class="al al-e"><b>Caution:</b> >50% increase — consider nonlinearity risk. Stepwise adjustment preferred.</div>`:nd>pf(DA.curDose)*1.3?`<div class="al al-w"><b>Caution:</b> >30% increase — consider stepwise over 2 visits.</div>`:""}
+    ${(()=>{const mx=ok(S.wt)?Math.min(pf(S.wt)*0.3,30):30;return nd>mx?`<div class="al al-e"><b>⚠ Exceeds typical max (~${mx.toFixed(0)} mg/d ≈ 0.3 mg/kg/d).</b> Cap dose and reassess — proportional adjustment unreliable at this extreme. Consider advancing cascade (mTORi, CsA switch).</div>`:""})()}
+    <div class="al al-i" style="font-size:8px">Recheck trough day 5–7 after dose change ${evTag("pk")}</div>`:
+    `<div class="al al-i" style="margin-top:5px">Enter current dose + AUC + target AUC to calculate. Target auto-filled from phase settings — adjust if needed.</div>`}</div>`;
+    // CASCADE-AWARE SUGGESTIONS: before blindly increasing dose, suggest augmentation
+    if(nd!==null&&nd>pf(DA.curDose)*1.15){
+      let sug=[];
+      const diltD=ok(S.px.diltDose)?pf(S.px.diltDose):0;
+      if(S.px.dilt==="none"&&S.px.booster==="none")sug.push("Add diltiazem (IR 30 TDS for boosting, CD/SR for curve-flattening) — may boost levels 25–50%");
+      if(S.px.dilt==="ir_d")sug.push("Increase IR diltiazem dose if < max — IR TDS is optimal for boosting");
+      if(S.px.dilt!=="none"&&diltD>0&&diltD<maxDilt)sug.push(`Increase diltiazem (current ${diltD}mg/d, max ${maxDilt}mg/d)`);
+      if(S.px.sched==="bd"&&nd>pf(DA.curDose)*1.3)sug.push("Consider TDS split (same dose ÷3, q8h) — lowers peaks, may improve trough on same total dose");
+      if(S.px.mtor==="none"&&S.phase>0)sug.push("Consider mTORi + reduced tac (month 3+ if eligible)");
+      if(sug.length)h+=`<div class="al al-w"><b>Before increasing tac to ${nd.toFixed(1)} mg/day, consider:</b><br>${sug.map((s,i)=>`${i+1}. ${s}`).join("<br>")}<br><span style="font-size:8px;color:var(--t2)">Optimize augmentation first. Then increase dose if still needed.</span></div>`;
+    }
+    h+=`<div class="k" style="background:var(--bg)"><h3>Quick Fill</h3>${bestOverall!==null||ok(S.px.dose)?`<div class="br">${fullAuc!==null?`<button class="btn btn-p" onclick="S.da.curAUC='${fullAuc}';S.da.curDose=S.da.curDose||'${S.px.dose||""}';R()">Full AUC ${fullAuc}</button>`:""}${best!==null&&fullAuc===null?`<button class="btn btn-p" onclick="S.da.curAUC='${best}';S.da.curDose=S.da.curDose||'${S.px.dose||""}';R()">LSS AUC ${best}</button>`:""}${best!==null&&fullAuc!==null?`<button class="btn btn-o" onclick="S.da.curAUC='${best}';R()">LSS AUC ${best}</button>`:""}${ok(S.px.dose)?`<button class="btn btn-o" onclick="S.da.curDose='${S.px.dose}';R()">Dose ${S.px.dose}mg</button>`:""}</div>`:`<div style="font-size:9px;color:var(--t2)">Enter data in LSS or Full AUC tab first, or enter Tac dose in Current Regimen panel — Quick Fill buttons will appear here.</div>`}</div>`;
+    // C0-based dose adjustment — suppress when AUC is available
+    const DA2=S.da;
+    const aucFilled=ok(DA2.curAUC);
+    const nd2=!aucFilled&&ok(DA2.curDose)&&ok(DA2.curC0)&&ok(DA2.tgtC0)?pf(DA2.curDose)*(pf(DA2.tgtC0)/pf(DA2.curC0)):null;
+    if(aucFilled){
+      h+=`<div class="k" style="opacity:0.5"><h3>C0-Based Dose Adjustment</h3><div class="al al-i"><b>AUC data available above.</b> C0-based adjustment is not recommended when AUC is known — C0–AUC correlation is imperfect (r² 0.53–0.90). Using C0 here would give a conflicting dose target.</div></div>`;
+    } else {
+    h+=`<div class="k"><h3>C0-Based Dose Adjustment</h3><div class="su">New Dose = Current Dose × (Target C0 ÷ Current C0) · Simpler but less precise than AUC method<br>Use when AUC is not available. C0–AUC correlation varies (r² 0.53–0.90 across populations); C0 alone is less reliable early post-transplant and in fast metabolizers.</div>
+    <div class="rw"><div class="fl"><label>Current C0 (ng/mL)</label><input type="text" inputmode="decimal" pattern="[0-9.]*" maxlength="6" value="${DA2.curC0}" oninput="sA('curC0',this.value)" placeholder="0.0"></div>
+    <div class="fl"><label>Target C0 (ng/mL)</label><input type="text" inputmode="decimal" pattern="[0-9.]*" maxlength="6" value="${DA2.tgtC0}" oninput="sA('tgtC0',this.value)" placeholder="${tg.c0mn}–${tg.c0mx}"></div></div>
+    ${c0PhaseCheck(ok(DA2.curC0)?pf(DA2.curC0):null,tg)}
+    ${nd2!==null?`<div class="rw">${bg("New Dose",nd2,"mg/day",{l:`${S.px.sched==="tds"?(nd2/3).toFixed(1)+" mg TDS":S.px.sched==="od"?nd2.toFixed(1)+" mg OD":(nd2/2).toFixed(1)+" mg BD"}`,c:nd2>pf(DA2.curDose)?"var(--org)":"var(--grn)"})}</div>
+    ${(()=>{const mx=ok(S.wt)?Math.min(pf(S.wt)*0.3,30):30;return nd2>mx?`<div class="al al-e"><b>⚠ Exceeds typical max (~${mx.toFixed(0)} mg/d ≈ 0.3 mg/kg/d).</b> Cap dose. Consider advancing cascade.</div>`:""})()}
+    <div class="al al-w" style="font-size:8px">C0-based adjustment is less precise than AUC-based. Recheck trough day 5–7. ${evTag("pk")}</div>`:
+    ok(DA2.curC0)||ok(DA2.tgtC0)?"":`<div class="al al-i" style="margin-top:3px;font-size:9px">No AUC? Enter current and target C0 here for a simpler dose estimate.</div>`}</div>`;
+    }
+    // C0-based cascade suggestions
+    if(!aucFilled&&nd2!==null&&nd2>pf(DA2.curDose)*1.15){
+      let sug2=[];
+      const diltD2=ok(S.px.diltDose)?pf(S.px.diltDose):0;
+      if(S.px.dilt==="none"&&S.px.booster==="none")sug2.push("Add diltiazem (IR TDS for boosting)");
+      if(S.px.dilt==="ir_d")sug2.push("Increase IR diltiazem if below max");
+      if(S.px.dilt!=="none"&&diltD2>0&&diltD2<maxDilt)sug2.push(`Increase diltiazem (current ${diltD2}, max ${maxDilt}mg/d)`);
+      if(S.px.sched==="bd")sug2.push("Consider TDS split");
+      if(sug2.length)h+=`<div class="al al-w"><b>Before escalating dose:</b> ${sug2.join(" · ")}</div>`;
+    }}
+
+  // ===== TAB 4: IPV =====
+  else if(S.tab===5){
+    h+=`<div class="k"><h3>Intra-Patient Variability (IPV)</h3><div class="su"><b>Why it matters:</b> High variability in tac trough levels over time — even if average is in range — is an independent risk factor for graft loss, rejection, and de novo DSA.<br>CV% = (SD ÷ Mean) × 100 · Preferred: ≥6 dose-corrected troughs over stable period<br>IPV measured at ≥1 year post-transplant is more predictive than early values. Early IPV is often noise from dose titration.</div>`;
+    S.ipv.vals.forEach((v,i)=>{h+=`<div class="ie"><span style="font-size:9px;color:var(--t2);min-width:16px">${i+1}.</span><input type="text" inputmode="decimal" pattern="[0-9.]*" maxlength="6" value="${v}" oninput="sI(${i},this.value)" placeholder="C0"><button class="rm" onclick="rM(${i})">×</button></div>`;});
+    h+=`<div class="br"><button class="btn btn-o" onclick="S.ipv.vals.push('');R()">+ Add</button></div>`;
+    if(cv!==null){
+      const m=ivv.reduce((a,b)=>a+b,0)/ivv.length,sd=Math.sqrt(ivv.reduce((a,b)=>a+(b-m)**2,0)/(ivv.length-1));
+      const cs2=cv>30?{l:"Warrants investigation",c:"var(--red)"}:cv>20?{l:"Moderate",c:"var(--org)"}:{l:"Acceptable",c:"var(--grn)"};
+      h+=`<div style="margin-top:8px">${bg("IPV (CV%)",cv,"%",cs2)}</div>`;
+      h+=`<div class="pk"><b>Stats:</b> Mean ${m.toFixed(1)} · SD ${sd.toFixed(1)} · n=${ivv.length} · Range ${Math.min(...ivv).toFixed(1)}–${Math.max(...ivv).toFixed(1)}${ivv.length<6?` · <span style="color:var(--org)">⚠ <6 values — interpret with caution</span>`:""}</div>`;
+      if(cv>30)h+=`<div class="al al-w"><b>CV% >30%:</b> Screening trigger — investigate adherence, absorption variability, drug interactions, formulation switches. This is not a definitive diagnosis. ${evTag("exp")}</div>`;
+      if(cv>30&&cc&&cc.s>=2&&S.px.sched==="bd")h+=`<div class="al al-i"><b>High IPV + Fast Metabolizer:</b> Consider ER tacrolimus or formulation locking.<br><span style="font-size:8px">• <b>Envarsus (MeltDose/LCPT):</b> Genuinely reduces IPV — flatter PK curve, higher bioavailability. Preferred if available.<br>• <b>Advagraf (standard ER):</b> OD convenience but does NOT reliably reduce IPV vs IR in all studies. Consider only for adherence benefit.</span></div>`;
+      h+=`<div class="br"><button class="btn btn-g" onclick="xWA('short')">📋 Short</button><button class="btn btn-p" onclick="xWA('detail')">📋 Detailed</button></div>`;}
+    h+=`</div>`;}
+
+  // ===== TAB 5: Biopsy =====
+  else if(S.tab===6){
+    const bxCtx=S.px.bx;
+    const bxHL=n=>bxCtx===n?'style="border:2px solid var(--acc)"':"";
+    const bxAr=n=>bxCtx===n?" ← relevant":"";
+    const bxOpen=n=>bxCtx===n?"":" hidden";
+    const bxLabel={none:"",cni:"CNI toxicity",tcmr:"Borderline / TCMR",mixed:"Mixed lesion",ifta:"IFTA / chronicity"};
+    // v6.9: Biopsy snapshot card
+    const snap=S.bxSnap;
+    const snapHas=snap.date||snap.grade||snap.c0||snap.dose;
+    // Delta calculations vs current values
+    const dc0=ok(snap.c0)&&c0!==null?c0-pf(snap.c0):null;
+    const ddose=ok(snap.dose)&&ok(S.px.dose)?pf(S.px.dose)-pf(snap.dose):null;
+    const dcr=ok(snap.cr)&&ok(S.px.crCurrent)?pf(S.px.crCurrent)-pf(snap.cr):null;
+    const daucPct=ok(snap.auc)&&cx.auc!==null?((cx.auc-pf(snap.auc))/pf(snap.auc)*100):null;
+    const fmtD=(v,unit,pos)=>v===null?"":`${v>=0?"+":""}${v.toFixed(1)} ${unit}${pos&&v<0?` <span style="color:var(--red)">↓</span>`:pos&&v>0?` <span style="color:var(--grn)">↑</span>`:""}`;
+    h+=`<div class="k" style="border:2px solid #90caf9"><h3>📷 Biopsy Snapshot</h3><div class="su">Record tac context at time of biopsy — saved to this device. Compare against current values.</div>
+    <div class="rw">
+      <div class="fl"><label>Date</label><input type="text" value="${snap.date}" oninput="S.bxSnap.date=this.value" placeholder="e.g. Jan 2025"></div>
+      <div class="fl"><label>Grade / finding</label><input type="text" value="${snap.grade}" oninput="S.bxSnap.grade=this.value" placeholder="e.g. Banff IIA, ci1 ah1" maxlength="60"></div>
+    </div>
+    <div class="rw">
+      <div class="fl"><label>Tac C0 at biopsy (ng/mL)</label><input type="text" inputmode="decimal" pattern="[0-9.]*" value="${snap.c0}" oninput="S.bxSnap.c0=this.value" placeholder="0.0" maxlength="5"></div>
+      <div class="fl"><label>Tac dose at biopsy (mg/d)</label><input type="text" inputmode="decimal" pattern="[0-9.]*" value="${snap.dose}" oninput="S.bxSnap.dose=this.value" placeholder="0" maxlength="5"></div>
+      <div class="fl"><label>AUC at biopsy (µg·h/L)</label><input type="text" inputmode="decimal" pattern="[0-9.]*" value="${snap.auc}" oninput="S.bxSnap.auc=this.value" placeholder="opt" maxlength="5"></div>
+    </div>
+    <div class="rw">
+      <div class="fl"><label>Cr at biopsy (mg/dL)</label><input type="text" inputmode="decimal" pattern="[0-9.]*" value="${snap.cr}" oninput="S.bxSnap.cr=this.value" placeholder="0.0" maxlength="5"></div>
+      <div class="fl" style="flex:2"><label>Notes (optional)</label><input type="text" value="${snap.notes}" oninput="S.bxSnap.notes=this.value" placeholder="adequacy, indication, centre…" maxlength="200"></div>
+    </div>
+    ${snapHas?`<div class="al al-ok" style="margin-top:5px;font-size:9px"><b>Snapshot:</b> ${snap.date?snap.date+' · ':''}${snap.grade||'(no grade)'}${ok(snap.c0)?' · C0 '+snap.c0+' ng/mL':''}${ok(snap.dose)?' · dose '+snap.dose+' mg/d':''}${ok(snap.auc)?' · AUC '+snap.auc:''}${ok(snap.cr)?' · Cr '+snap.cr+' mg/dL':''}
+    ${(dc0!==null||ddose!==null||dcr!==null)?`<br><b>Δ since biopsy:</b> ${dc0!==null?`C0 ${fmtD(dc0,'ng/mL',true)}`:''}${ddose!==null?` · dose ${fmtD(ddose,'mg/d',true)}`:''}${dcr!==null?` · Cr ${fmtD(dcr,'mg/dL',false)} (${dcr<0?'improved':'worsened'})`:''}${daucPct!==null?` · AUC ${daucPct>=0?'+':''}${daucPct.toFixed(0)}%`:''}</b>`:''}</div>`:'<div class="al al-i" style="font-size:9px;margin-top:5px">No snapshot saved yet — fill fields above and press Save.</div>'}
+    <div class="br" style="margin-top:6px"><button class="btn btn-p" onclick="saveBxSnap()">💾 Save snapshot</button><button class="btn btn-o" onclick="clearBxSnap()">Clear</button></div></div>`;
+    h+=`<div class="k"><h3>Biopsy-Guided Management</h3><div class="su">Decision matrix based on Banff lesion findings. Evidence grade shown per scenario.<br><span style="color:var(--org)">No differentiated protocol biopsy timing evidence exists for fast metabolizers / high-IPV patients specifically. Below is extrapolated from general transplant population data.</span></div>
+    ${bxCtx!=="none"?`<div class="al al-i"><b>Recent biopsy:</b> ${bxLabel[bxCtx]} — relevant box highlighted and expanded below.</div>`:""}</div>`;
+
+    // Box 1: CNI toxicity only
+    h+=`<div class="bx" ${bxHL("cni")}><div class="bx-h" onclick="this.nextElementSibling.classList.toggle('hidden')">1. CNI Toxicity Only (ah, isometric vacuolization)${bxAr("cni")} <span>▼</span></div><div class="bx-b${bxOpen("cni")}">
+    <div class="act-line"><b>If eGFR >40 + proteinuria <1g/d + ci/ct ≤2:</b></div>
+    <div class="act-line">→ mTORi conversion (EVR 3–8 or SRL 5–10 + low-dose tac) ${evTag("rct")}</div>
+    <div class="act-line">→ CONCEPT / SPIESSER: superior eGFR with mTORi conversion vs CNI continuation</div>
+    <div class="act-line"><b>If criteria not met:</b></div>
+    <div class="act-line">→ CNI dose reduction OR curve flattening (TDS / diltiazem) ${evTag("exp")}</div>
+    <div class="act-line"><b>ah1 alone, no significant IFTA:</b> early and arrestable. Flatten peak, repeat biopsy 6–12 months.</div>
+    <div class="act-line"><b>ah2–3 + IFTA:</b> structural injury — move from peak reshaping to total CNI exposure reduction.</div>
+    </div></div>`;
+
+    // Box 2: Borderline / subclinical TCMR
+    h+=`<div class="bx" ${bxHL("tcmr")}><div class="bx-h" onclick="this.nextElementSibling.classList.toggle('hidden')">2. Borderline / Subclinical TCMR${bxAr("tcmr")} <span>▼</span></div><div class="bx-b${bxOpen("tcmr")}">
+    <div class="act-line"><b>Do NOT minimize CNI.</b> Under-treatment of subclinical rejection drives late graft failure. ${evTag("exp")}</div>
+    <div class="act-line">→ Optimize exposure: if underexposed, increase tac / fix PK issue</div>
+    <div class="act-line">→ If AUC-guided: ensure target-range exposure before attributing tubulitis to rejection</div>
+    <div class="act-line">→ Reassess biopsy + clinical trend at 3–6 months</div>
+    </div></div>`;
+
+    // Box 3: Mixed lesion
+    h+=`<div class="bx" ${bxHL("mixed")}><div class="bx-h" onclick="this.nextElementSibling.classList.toggle('hidden')">3. Mixed: CNI Toxicity + Active Rejection${bxAr("mixed")} <span>▼</span></div><div class="bx-b${bxOpen("mixed")}">
+    <div class="act-line"><b>Management priority: treat rejection FIRST.</b> ${evTag("exp")}</div>
+    <div class="act-line">→ Do NOT reduce CNI while alloimmune injury is active</div>
+    <div class="act-line">→ Once rejection controlled, then shift to CNI minimization/curve flattening</div>
+    <div class="act-line" style="color:var(--org)">⚠ Major RCTs (CONCEPT, SPIESSER) excluded high-immunological-risk and recent-rejection patients. This scenario relies on expert practice logic, not RCT data.</div>
+    </div></div>`;
+
+    // Box 4: IFTA / chronicity
+    h+=`<div class="bx" ${bxHL("ifta")}><div class="bx-h" onclick="this.nextElementSibling.classList.toggle('hidden')">4. Established IFTA (ci/ct)${bxAr("ifta")} <span>▼</span></div><div class="bx-b${bxOpen("ifta")}">
+    <div class="act-line"><b>Structural injury — partially or fully irreversible.</b></div>
+    <div class="act-line">→ ci/ct ≤2 + eGFR >40 + low proteinuria: mTORi conversion may still help ${evTag("rct")}</div>
+    <div class="act-line">→ ci/ct >2 or eGFR <40: conversion rarely halts decline ${evTag("exp")}</div>
+    <div class="act-line">→ "Too late" threshold: ~1 year post-transplant with established IFTA — structural damage has bypassed the reversible vasoconstrictive phase</div>
+    <div class="act-line">→ Move from peak reshaping toward total CNI exposure reduction + mTORi if eligible</div>
+    </div></div>`;
+
+    h+=`<div class="k" style="background:var(--bg)"><h3>What This Tab Does NOT Decide</h3><div style="font-size:9px;line-height:1.6;color:var(--t2)">
+    Does not diagnose rejection. Does not replace biopsy interpretation. Does not replace senior review in early unstable graft dysfunction. Does not validate mTORi use if wounds/proteinuria/infection are present. Does not override clinical status.</div></div>`;
+  }
+
+  // ===== TAB 6: Tac→CsA =====
+  else if(S.tab===7){
+    const w=ok(S.wt)?pf(S.wt):null;
+    const px6=S.px;
+    // Current tac context summary
+    const tacCtx=[];
+    if(ok(px6.dose))tacCtx.push(`Tac ${px6.dose}mg/d ${px6.sched.toUpperCase()} (${px6.form.toUpperCase()})`);
+    if(px6.dilt!=="none")tacCtx.push(`Dilt ${px6.dilt==="ir_d"?"IR":px6.dilt.toUpperCase()} ${px6.diltDose||"?"}mg/d`);
+    if(px6.booster!=="none")tacCtx.push(`${px6.booster} ${px6.boosterDose||"?"}mg/d`);
+    if(px6.mtor!=="none")tacCtx.push(`${px6.mtor==="eve"?"EVR":"SRL"}${ok(px6.evrTrough)?" trough "+px6.evrTrough:""}`);
+    const lastC0=ok(S.cd.c0)?S.cd.c0:ok(S.lss.c0)?S.lss.c0:null;
+    if(lastC0)tacCtx.push(`Last C0: ${lastC0}`);
+    const cdRatio=ok(S.cd.c0)&&ok(S.cd.dose)?`C/D ${(pf(S.cd.c0)/pf(S.cd.dose)).toFixed(2)}`:null;
+    if(cdRatio)tacCtx.push(cdRatio);
+
+    h+=`<div class="k"><h3>Tac → CsA Conversion <span class="ref-tag">Reference / Rescue Only</span></h3><div class="su">For CYP3A5 extensive metabolizers who failed tac optimization, or tac toxicity (neuro/NODAT), or BK nephropathy.<br><b>This is reference information for a rescue context — not routine pathway logic.</b></div>
+    ${tacCtx.length?`<div class="al al-i" style="margin-bottom:5px"><b>Current regimen:</b> ${tacCtx.join(" · ")}</div>`:`<div class="al al-w" style="margin-bottom:5px"><b>No regimen data entered.</b> Fill the Current Regimen panel for context.</div>`}
+    <div class="rw"><div class="fl"><label>Indication</label><select onchange="sC('reason',this.value)">
+    <option value="rescue"${S.csa.reason==="rescue"?" selected":""}>Failed tac optimization</option>
+    <option value="toxicity"${S.csa.reason==="toxicity"?" selected":""}>Tac toxicity (neuro/NODAT)</option>
+    <option value="bk"${S.csa.reason==="bk"?" selected":""}>BK nephropathy</option></select></div>
+    <div class="fl"><label>IFTA (%)</label><input type="text" inputmode="decimal" pattern="[0-9]*" maxlength="4" value="${S.csa.ifta}" oninput="sC('ifta',this.value)" placeholder="e.g. 30"></div></div>`;
+    if(w){
+      const tacD=ok(px6.dose)?pf(px6.dose):null;
+      if(tacD){
+        const isEnv=px6.form==="env";
+        const mult=isEnv?21.43:30;
+        const csaCalc=tacD*mult;
+        h+=`<div class="rw">${bg("Reference CsA Dose",csaCalc.toFixed(0),`mg/day (${isEnv?"21×":"30×"} rule: ${tacD}mg tac × ${mult})`,{l:`${(csaCalc/2).toFixed(0)} mg BD`,c:"var(--pri)"})}</div>`;
+        if(isEnv)h+=`<div class="al al-i"><b>Envarsus/MeltDose detected</b> — using 21× multiplier (higher bioavailability than IR/Advagraf).</div>`;
+      }else{
+        h+=`<div class="rw">${bg("Reference CsA Dose",`${(w*6).toFixed(0)}–${(w*12).toFixed(0)}`,`mg/day (~9 ± 3 mg/kg/day, divided BID)`,{l:`${(w*9/2).toFixed(0)} mg BD (at ~9 mg/kg/d)`,c:"var(--pri)"})}</div>`;
+      }
+
+      const note=S.csa.reason==="rescue"?"Target higher C0 initially — patient was underimmunosuppressed on tac.":S.csa.reason==="toxicity"?"Target lower C0 — switching for toxicity. Expect metabolic shift: NODAT remission possible, but monitor lipids/urate.":"Target lower C0 — BK requires reduced IS. Balance viral clearance vs rejection.";
+      h+=`<div class="al al-i"><b>Protocol:</b><br>• Stop tac → 12–24h washout (no overlap — additive nephrotoxicity risk)<br>• Start CsA divided BID<br>• CYP3A5 expressers: increase starting dose 1.5–2×<br>• First C0/C2: day 3–7. Use LC-MS/MS if available — immunoassays overread in expressers.<br>• ${note}<br>• <b>30× rule is for IR/standard ER (Advagraf). If converting from Envarsus/MeltDose, use ~21× multiplier</b> (higher bioavailability).<br>• <b>Conversion protocols are heterogeneous — individualize.</b> ${evTag("exp")}</div>`;
+      h+=`<div class="k" style="margin-top:7px;background:var(--bg)"><h3>CsA Target Ranges</h3><table><thead><tr><th>Phase</th><th>C0 (ng/mL)</th><th>C2 (ng/mL)</th></tr></thead><tbody>${CsaT.map(t=>`<tr><td>${t.ph}</td><td>${t.c0mn}–${t.c0mx}</td><td>${t.c2mn}–${t.c2mx}</td></tr>`).join("")}</tbody></table><div style="font-size:8px;color:var(--t2);margin-top:3px">C2 is preferred over C0 for CsA monitoring — highest inter-individual variability is in the 0–4h absorption phase.</div></div>`;
+      if(ok(S.csa.ifta)&&pf(S.csa.ifta)>=30)h+=`<div class="al al-w"><b>IFTA ≥30%:</b> Limited nephron reserve. Consider whether conversion can realistically help vs palliation.</div>`;
+      h+=`<div class="al al-i" style="margin-top:5px"><b>CYP3A5 note:</b> CYP3A5 polymorphism affects CsA metabolism too — expressers generate more secondary metabolites (AM19, AM1c9) which cause localized renal vasoconstriction via endothelin. Systemic C0 may appear therapeutic while intra-renal injury continues. Monitor eGFR trend, not just trough.</div>`;
+    }else h+=`<div class="al al-w"><b>Enter weight above</b> for dose reference.</div>`;
+    h+=`</div>`;}
+
+  // ===== TAB 7: Reference =====
+  else if(S.tab===8){
+    h+=`<div class="k"><h3>AUC Targets (your center)</h3><div class="su">Editable via ⚙ settings. Targets vary by center — no universal standard.</div><table><thead><tr><th>Phase</th><th>AUC₀₋₁₂</th><th>C0</th></tr></thead><tbody>${TGT.map(t=>`<tr><td><b>${t.ph}</b></td><td>${t.mn}–${t.mx}</td><td>${t.c0mn}–${t.c0mx}</td></tr>`).join("")}</tbody></table></div>`;
+    h+=`<div class="k"><h3>AUC Interpretation</h3><table><thead><tr><th>Finding</th><th>Action</th></tr></thead><tbody>
+    <tr><td><b>High AUC + High C0</b></td><td>↓ Dose</td></tr><tr><td><b>High AUC + Low C0</b></td><td>↓ Dose + reshape</td></tr>
+    <tr><td><b>Normal AUC + High C2</b></td><td>Reshape only (do NOT ↓ dose)</td></tr><tr><td><b>Low AUC + Low C0</b></td><td>↑ Dose + cascade</td></tr>
+    <tr><td><b>Normal AUC + Low C0</b></td><td>Adequate — do NOT chase C0</td></tr></tbody></table></div>`;
+
+    h+=`<div class="k"><h3>Diltiazem Guide</h3><table><thead><tr><th>Parameter</th><th>Guidance</th></tr></thead><tbody>
+    <tr><td><b>IR TDS</b></td><td><b>Best for boosting.</b> 3 high-concentration gut boluses → maximal presystemic CYP3A4 kill. Start: 30 mg TDS.</td></tr>
+    <tr><td><b>CD OD</b></td><td><b>Best for curve-flattening.</b> Steady hepatic inhibition, blunts Cmax. Start: 90–120 mg OD.</td></tr>
+    <tr><td><b>SR BD</b></td><td>Middle-ground. Acceptable for boosting + moderate peak control. Start: 90 mg BD.</td></tr>
+    <tr><td><b>IR → CD switch</b></td><td><b>Expect trough DROP.</b> CD has weaker presystemic gut CYP3A4 inactivation — reduced first-pass boosting. Recheck C0 day 3–5. May need 15–25% tac dose increase to compensate.</td></tr>
+    <tr><td><b>Max sparing dose</b></td><td>180 mg/day. Above this: diminishing/paradoxical returns (Choong 2018).</td></tr>
+    <tr><td><b>Non-linearity</b></td><td>120→240 mg = 2.7× AUC increase. Titrate cautiously.</td></tr>
+    <tr><td><b>Why IR beats CD for boosting</b></td><td>CYP3A4 inhibition is mechanism-based (suicide). Gut wall CYP3A4 recovery t½ ~23h (Simcyp default); hepatic t½ ~36h in vitro, up to 70–140h in vivo. IR TDS delivers 3 inactivation hits (q8h gap). CD delivers 1 slow trickle — lower gut lumen Cmax = less efficient enzyme kill. Hepatic inhibition is comparable. Note: IR-vs-SR/CD head-to-head comparison in tacrolimus PK has not been directly studied.</td></tr>
+    <tr><td><b>Key principle</b></td><td>Choose formulation by clinical goal: BOOST (IR TDS) vs RESHAPE (CD OD). Confirm effect by tac PK response — interpatient variability is substantial.</td></tr>
+    </tbody></table></div>`;
+
+    h+=`<div class="k"><h3>Fast Metabolizer — Diltiazem Formulation Protocol</h3><div class="su">C/D &lt;1.05 · Decision tree for formulation selection and escalation</div>
+    <div style="font-size:10px;line-height:1.8">
+    <div style="background:#e3f2fd;border-radius:5px;padding:6px 8px;margin-bottom:5px"><b>START:</b> Diltiazem IR 30 mg TDS + Tac (dose per target)</div>
+    <div style="background:#f8f9fb;border-radius:5px;padding:6px 8px;margin-bottom:5px"><b>MONITOR:</b> Cr trend + C0 + C1.5 (minimum). AUC if available.</div>
+    <div style="background:#e8f5e9;border-radius:5px;padding:6px 8px;margin-bottom:5px"><b>Cr STABLE + AUC in target →</b> Continue IR TDS. No change.</div>
+    <div style="background:#ffeef0;border-radius:5px;padding:6px 8px;margin-bottom:5px"><b>Cr RISING →</b> <span style="color:var(--red)">MANDATORY:</span> C0 + C1.5 (or C2) + biopsy BEFORE any formulation change.</div>
+    </div>
+    <table style="margin-top:5px"><thead><tr><th>Biopsy finding</th><th>Action</th><th>Rationale</th></tr></thead><tbody>
+    <tr><td><b>Rejection / TCMR</b></td><td>Do NOT switch to CD. ↑ Tac dose ± ↑ IR diltiazem dose. Pulse steroids if indicated.</td><td>CD will drop trough → worsen rejection. Need more boost, not less.</td></tr>
+    <tr><td><b>CNI toxicity + normal AUC + high C1.5/C2</b></td><td>Switch IR → CD (curve-flatten). Expect trough drop: recheck C0 day 3–5. Consider preemptive tac ↑ 15–25%.</td><td>Peak-driven toxicity. CD blunts Cmax while maintaining hepatic inhibition.</td></tr>
+    <tr><td><b>CNI toxicity persists on CD</b></td><td>mTORi gate: &gt;3mo, eGFR &gt;40, proteinuria &lt;1g, wound healed, no infection. If eligible: add EVR/SRL + reduce tac. MMF ≥1440 throughout.</td><td>Curve-flattening alone insufficient. Need total CNI reduction with mTORi cover.</td></tr>
+    <tr><td><b>Mixed (rejection + CNI)</b></td><td>Treat rejection FIRST. CD switch DEFERRED until rejection controlled.</td><td>Rejection kills grafts faster than toxicity. CD switch risks trough drop during active rejection.</td></tr>
+    </tbody></table>
+    <div style="font-size:8px;color:var(--t2);margin-top:5px"><b>Dual problem (fast metabolizer + peak toxicity + low trough):</b> CD for diltiazem + TDS split for tacrolimus (q8h distributes peaks while maintaining trough). Or SR BD as middle-ground. ${evTag("exp")}</div>
+    </div>`;
+
+    h+=`<div class="k"><h3>Intervention Cascade</h3><div class="su">Underexposure pathway — one step at a time. Matches Plan engine logic.</div><div style="font-size:10px;line-height:1.7">
+    <div><b>1.</b> Brand lock + strict fasting/timing</div>
+    <div><b>2.</b> Diltiazem by goal: <b>IR 30 mg TDS</b> for boosting (best presystemic CYP3A4 kill); <b>CD 90–120 OD</b> or <b>SR 90 BD</b> for curve-flattening (peak reduction). Recheck tac trough + HR/BP day 3–5.</div>
+    <div><b>3.</b> If diltiazem already present: titrate up to max available (${maxDilt} mg/day) before advancing. IR patients: increase IR dose, do NOT auto-switch to CD/SR unless peak toxicity confirmed on biopsy.</div>
+    <div><b>4.</b> TDS split (÷3, q8h) — 8h trough will be higher than 12h; do not misinterpret</div>
+    <div><b>5.</b> Tac dose increase (capped at ~0.3 mg/kg/day)</div>
+    <div><b>6.</b> mTORi + reduced tac (EVR 3–8 / SRL 5–10; gate: &gt;3mo, eGFR &gt;40, proteinuria &lt;1g, wound healed, no active infection, EBV status known)</div>
+    <div><b>7.</b> ER tacrolimus for high IPV: <b>Envarsus (MeltDose/LCPT)</b> preferred — genuinely reduces IPV, flatter curve, higher bioavailability. Advagraf (standard ER) is OD convenience only — does not reliably reduce IPV vs IR.</div>
+    <div style="color:var(--t2);font-size:9px;margin-top:3px"><b>Parallel (all steps):</b> MMF ≥1440 MPS (or ≥2g MMF) — ensure baseline before escalating CNI strategy</div>
+    <div style="color:var(--t2);font-size:9px"><b>Advanced (reference only):</b> Ketoconazole 50–100mg (monitor LFT, interaction fragility, rejection risk if missed) · Tac→CsA switch (see tab)</div>
+    </div></div>`;
+
+    h+=`<div class="k"><h3>LSS Equations</h3><div style="font-size:9px;line-height:1.7">
+    <div><b>Indian:</b> 19.16 + 6.75×C0 + 3.33×C1.5 <span style="color:var(--t2)">Mathew et al. 2008 BJCP R²≥0.907 (2-pt) / 0.951 (3-pt) · MEIA · CMC Vellore n=29 · Study primary</span></div>
+    <div><b>Wong:</b> 16.2 + 2.4×C2 + 5.9×C4 <span style="color:var(--t2)">Wong et al. 2000 AJKD r²=0.93 · MEIA · n=18 HK Chinese · CMIA validated (Thai 2016) · Study primary</span></div>
+    <div><b>Armendáriz:</b> 8.90 + 4.0×C0 + 1.77×C1 + 5.47×C4 <span style="color:var(--t2)">Armendáriz et al. 2005 TDM r²=0.965 · n=27 Spanish · MEIA · Widely miscited as "Scholten" · Exploratory</span></div>
+    <div style="margin-top:4px;font-size:8px;color:var(--org)">All equations derived on MEIA (now discontinued). Most Indian centers use CMIA — no Indian CMIA validation exists for any equation. Cross-equation convergence strengthens confidence; divergence warrants investigation.</div></div></div>`;
+
+    h+=`<div class="k"><h3>CYP3A5 Starting Dose (CPIC-informed)</h3><div class="su">Adapt per center. TDM required after initiation — genotype informs starting dose only.</div><table><thead><tr><th>Genotype</th><th>Phenotype</th><th>Starting dose</th></tr></thead><tbody>
+    <tr><td>*1/*1</td><td>Expressor</td><td>0.20–0.30 mg/kg/day (2–3× of 0.10 standard; CPIC cap 0.3)</td></tr>
+    <tr><td>*1/*3</td><td>Heterozygous</td><td>0.15–0.20 mg/kg/day (1.5–2× of 0.10 standard)</td></tr>
+    <tr><td>*3/*3</td><td>Non-expressor</td><td>0.10–0.15 mg/kg/day (standard)</td></tr></tbody></table></div>`;
+
+    h+=`<div class="k"><h3>Tacrolimus Formulation Conversion</h3><div class="su">For switching between IR, Advagraf, and Envarsus. All conversions require TDM within 3–5 days.</div><table><thead><tr><th>From</th><th>To</th><th>Factor</th><th>CYP3A5 Note</th></tr></thead><tbody>
+    <tr><td>IR (Prograf)</td><td>Advagraf (std ER)</td><td>1:1 (same mg/day)</td><td>No PK advantage in fast metabolizers. OD convenience only.</td></tr>
+    <tr><td>IR (Prograf)</td><td>Envarsus (MeltDose)</td><td><b>1:0.7</b> (expressors)<br>1:0.8 (non-expressors)</td><td>ASERTAA: Envarsus attenuates Cmax excess in CYP3A5 expressors (33% → 11%). Preferred for fast metabolizers. ${evTag("rct")}</td></tr>
+    <tr><td>Advagraf</td><td>Envarsus</td><td>~1:0.7</td><td>Limited data. Recheck trough day 3–5.</td></tr>
+    <tr><td>Envarsus</td><td>IR (Prograf)</td><td>1:1.3–1.4</td><td>Reverse of above. Expect trough DROP. May need dose increase.</td></tr>
+    </tbody></table>
+    <div style="font-size:8px;color:var(--t2);margin-top:4px"><b>Key point:</b> Advagraf ≠ Envarsus. Advagraf is standard ER (same bioavailability as IR). Envarsus uses MeltDose technology → ~30% higher bioavailability → lower dose needed. Do not conflate them.</div></div>`;
+
+    h+=`<div class="k"><h3>AUC/C0 Ratio — Individualized C0 Targeting</h3><div class="su">Van Gelder 2025 (BJCP) · ISBA/Leiden concept · Ratio stable intra-individually over time</div><div style="font-size:10px;line-height:1.7">
+    <div><b>Concept:</b> AUC/C0 ratio is patient-specific and stable. Once measured, it converts any future trough into a projected AUC.</div>
+    <div><b>Formula:</b> Individualized C0 target = Target AUC ÷ AUC/C0 ratio</div>
+    <div><b>Example:</b> AUC = 135, C0 = 8.5 → ratio = 15.9. Target AUC 120 → individualized C0 = 120 ÷ 15.9 = <b>7.5 ng/mL</b></div>
+    <div><b>When to use:</b> Trough-only visits after at least one LSS/AUC measurement. Replaces population C0 target with patient-specific target.</div>
+    <div><b>When to recalculate:</b> After formulation switch, diltiazem start/stop, major Hct shift, or any PK-altering change.</div>
+    <div><b>Works with:</b> LSS AUC (Mathew) or Full AUC (trapezoidal). Both are acceptable denominators.</div>
+    </div></div>`;}
+
+  $("ct").innerHTML=h;_rs();
+  // v6.7: Sync static panel inputs (checkboxes + selects outside #ct) with S.px state
+  try{
+    const cbs={tx_tremor:"toxTremor",tx_htn:"toxHtn",tx_nodat:"toxNodat",tx_gi:"toxGi",tx_neuro:"toxNeuro"};
+    Object.keys(cbs).forEach(id=>{const el=$(id);if(el)el.checked=!!S.px[cbs[id]];});
+  }catch(e){}
+  updateFieldVis();
+}
+
+// LSS↔Full AUC mapping: LSS field → fp index
+const LF={c0:0,c1:2,c1_5:3,c2:4,c4:6};
+const FL={0:'c0',2:'c1',3:'c1_5',4:'c2',6:'c4'};
+
+function sL(k,v){_sv();S.lss[k]=v;
+  if(k==='c0'){S.cd.c0=v;S.da.curC0=v;}
+  if(LF[k]!==undefined)S.fp[LF[k]].c=v; // LSS→Full AUC
+  R();}
+function sD(k,v){_sv();S.cd[k]=v;
+  if(k==='c0'){S.lss.c0=v;S.da.curC0=v;S.fp[0].c=v;}
+  if(k==='dose'){S.da.curDose=v;S.px.dose=v;}
+  R();}
+function sF(i,v){_sv();S.fp[i].c=v;
+  if(FL[i]!==undefined){S.lss[FL[i]]=v;if(i===0){S.cd.c0=v;S.da.curC0=v;}} // Full AUC→LSS
+  R();}
+function sA(k,v){_sv();S.da[k]=v;
+  if(k==='curC0'){S.lss.c0=v;S.cd.c0=v;S.fp[0].c=v;}
+  if(k==='curDose'){S.cd.dose=v;S.px.dose=v;}
+  R();}
+function sI(i,v){_sv();S.ipv.vals[i]=v;R();}
+function sC(k,v){_sv();S.csa[k]=v;R();}
+function sMg(k,v){_sv();S.px[k]=v;R();}
+function sPtx(k,v){S.px[k]=v;R();}
+function rM(i){S.ipv.vals.splice(i,1);if(S.ipv.vals.length<3)S.ipv.vals.push("");R();}
+updateFieldVis();
+// v6.9: sync all selectors to saved state on load
+(function(){
+  const as=$("assaySel");if(as)as.value=S.assay;
+  const rs=$("riskSel");if(rs)rs.value=S.riskTier;
+  const an=$("assayNote");if(an)an.textContent=assayLabel(S.assay)+" · "+tierLabel(S.riskTier);
+})();
+R();
+</script>
+</body>
+</html>
