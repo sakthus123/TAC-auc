@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#1B4F72">
-<title>Tac AUC Calculator v6.9</title>
+<title>Tac AUC Calculator v6.13.2</title>
 <style>
 :root{--pri:#1B4F72;--acc:#2E75B6;--grn:#27ae60;--org:#f39c12;--red:#e74c3c;--dkr:#8e1600;--bg:#f4f6f8;--cd:#fff;--bd:#e0e3e8;--tx:#1a1a2e;--t2:#6b7280;--inp:#fff;}
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -96,13 +96,17 @@ td{padding:4px 6px;border-bottom:1px solid var(--bd)}tr:nth-child(even){backgrou
 </head>
 <body>
 <div class="c">
-<div class="hd"><h1>Tacrolimus AUC Calculator</h1><p>v6.9 · Priority-routed · AUC/Peak/Undershoot engines · Clinical Decision Support</p></div>
+<div class="hd"><h1>Tacrolimus AUC Calculator</h1><p>v6.13.2 · Priority-routed · Case library + autosave · Clinical Decision Support</p></div>
 
 <div class="gb">
 <label>Wt(kg):</label><input type="text" inputmode="decimal" pattern="[0-9.]*" id="wt" placeholder="60" maxlength="5" oninput="S.wt=this.value;R()">
 <label>CYP3A5:</label><select id="geno" onchange="S.geno=this.value;R()"><option value="unk">Unknown</option><option value="11">*1/*1 Expressor</option><option value="13">*1/*3 Hetero</option><option value="33">*3/*3 Non-expr</option></select>
-<button class="gear" onclick="openSet()">⚙</button>
+<button class="gear" onclick="openSet()" title="Settings">⚙</button>
+<button class="gear" onclick="openCaseSave()" title="Save case">💾</button>
+<button class="gear" onclick="openCaseLoad()" title="Load case">📂</button>
+<button class="gear" onclick="newCase()" title="New patient">🆕</button>
 <span class="ts" id="tsD"></span>
+<span class="ts" id="autoSaveTs" style="color:var(--t2)"></span>
 </div>
 
 <div class="gb">
@@ -125,7 +129,7 @@ td{padding:4px 6px;border-bottom:1px solid var(--bd)}tr:nth-child(even){backgrou
 <div class="f"><label>mTORi</label><select onchange="sP('mtor',this.value)"><option value="none">None</option><option value="eve">Everolimus</option><option value="sir">Sirolimus</option></select></div>
 <div class="f" id="mtorTroughRow"><label>mTORi trough</label><input type="text" inputmode="decimal" pattern="[0-9.]*" value="" oninput="sP('evrTrough',this.value)" placeholder="ng/mL" maxlength="5"></div>
 <div class="f" id="mtorDoseRow"><label>mTORi dose (mg/d)</label><input type="text" inputmode="decimal" pattern="[0-9.]*" value="" oninput="sP('mtorDose',this.value)" placeholder="0" maxlength="5"></div>
-<div class="f"><label>MMF/MPS (mg/d)</label><input type="text" inputmode="decimal" pattern="[0-9.]*" value="" oninput="sP('mmf',this.value)" placeholder="0" maxlength="5"></div>
+<div class="f"><label>MMF/MPS (mg/d)</label><input id="topMmfInput" type="text" inputmode="decimal" pattern="[0-9.]*" value="" oninput="sMDose(this.value)" placeholder="0" maxlength="5"></div>
 <div class="f"><label>Brand locked?</label><select onchange="sP('brand',this.value)"><option value="no">No</option><option value="yes">Yes</option></select></div>
 <div class="f"><label>Absorption</label><select onchange="sP('absorb',this.value)"><option value="ok">Stable</option><option value="unstable">Unstable (D/V/malabsorption)</option></select></div>
 <div class="f"><label>Hct (%)</label><input type="text" inputmode="decimal" pattern="[0-9.]*" value="" oninput="sP('hct',this.value)" placeholder="e.g. 35" maxlength="4"></div>
@@ -147,7 +151,7 @@ td{padding:4px 6px;border-bottom:1px solid var(--bd)}tr:nth-child(even){backgrou
 
 <div class="tabs" id="tabs"></div>
 <div id="ct"></div>
-<div class="ft">Clinical decision support tool · Targets locally configurable per assay platform (switch in top bar) · Not a substitute for clinical judgment</div>
+<div class="ft">Clinical decision support tool · Targets configurable per assay platform × risk tier; diltiazem ceiling configurable · Not a substitute for clinical judgment</div>
 </div>
 
 <div class="modal-bg" id="setModal"><div class="modal">
@@ -157,10 +161,25 @@ td{padding:4px 6px;border-bottom:1px solid var(--bd)}tr:nth-child(even){backgrou
 <div class="mbr"><button class="btn btn-o" onclick="resetSet()">Reset defaults</button><button class="btn btn-p" onclick="saveSet()">Save</button></div>
 </div></div>
 
+<div class="modal-bg" id="caseSaveModal"><div class="modal">
+<h3>💾 Save Case</h3>
+<div style="font-size:9px;color:var(--org);margin-bottom:8px;padding:5px 7px;background:#fff8e1;border:1px solid #ffe082;border-radius:5px">⚠ Saved locally in this browser only. Avoid full identifiers (MRN, full names) if this is a shared device.</div>
+<div style="font-size:10px;color:var(--t2);margin-bottom:4px">Label (defaults to patient name or timestamp):</div>
+<input type="text" id="caseSaveLabel" maxlength="60" style="width:100%;padding:6px 8px;border:1px solid var(--bd);border-radius:5px;font-size:12px;margin-bottom:8px" placeholder="e.g. Kumar POD 45">
+<div class="mbr"><button class="btn btn-o" onclick="closeCaseSave()">Cancel</button><button class="btn btn-p" onclick="saveCaseConfirm()">Save</button></div>
+</div></div>
+
+<div class="modal-bg" id="caseLoadModal"><div class="modal">
+<h3>📂 Saved Cases</h3>
+<div style="font-size:9px;color:var(--org);margin-bottom:8px;padding:5px 7px;background:#fff8e1;border:1px solid #ffe082;border-radius:5px">⚠ Stored in browser localStorage only. Cleared if browser data is wiped.</div>
+<div id="caseLoadBody" style="max-height:50vh;overflow-y:auto"></div>
+<div class="mbr" style="flex-wrap:wrap;gap:6px"><button class="btn btn-o" onclick="exportAllCases()">📤 Export all</button><button class="btn btn-o" onclick="document.getElementById('caseImportFile').click()">📥 Import</button><input type="file" id="caseImportFile" accept=".json,application/json" style="display:none" onchange="importCasesFile(this)"><button class="btn btn-p" onclick="closeCaseLoad()">Close</button></div>
+</div></div>
+
 <div class="toast" id="toast"></div>
 
 <script>
-const TABS=["Plan","LSS","Full AUC","C/D Ratio","Dose Adj","IPV","Biopsy","Tac→CsA","Reference"];
+const TABS=["Plan","LSS","Full AUC","C/D Ratio","Dose Adj","IPV","Biopsy","Tac→CsA","MMF/MPA","Reference"];
 // v6.8: Per-platform target tables. CMIA/ECLIA/CLIA share identical defaults (immunoassays cross-react with metabolites → read higher than LC-MS/MS).
 // LC-MS/MS defaults are ~18% lower (Bazin 2010 CMIA slope 1.20; Saitman 2016 −18.5% LC-MS/MS bias). User-editable per platform.
 // v6.9: Per-platform × per-risk-tier target tables. 4 platforms × 3 tiers = 12 target arrays.
@@ -193,6 +212,8 @@ const DEF_TGT_PLATFORMS={
 };
 const TP=["0","0.5","1","1.5","2","3","4","6","8","10","12"];
 const CsaT=[{ph:"Month 1–3",c0mn:200,c0mx:300,c2mn:800,c2mx:1000},{ph:"Month 4–12",c0mn:100,c0mx:250,c2mn:400,c2mx:600},{ph:">1 Year",c0mn:100,c0mx:150,c2mn:400,c2mx:600}];
+// v6.10: MMF/MPA default target (IATDMCT 2021 consensus, Bergan PMID 33711005)
+const DEF_MMF_TGT={mn:30,mx:60};
 
 let TGT_PLATFORMS=JSON.parse(JSON.stringify(DEF_TGT_PLATFORMS));
 let maxDilt=180;
@@ -229,6 +250,16 @@ let S={tab:0,phase:0,wt:"",geno:"unk",patientName:"",donorAge:"",assay:"CMIA",ri
     aki:"no",akiPeakCr:"",diltTiming:"unk",
     toxTremor:false,toxHtn:false,toxNodat:false,toxGi:false,toxNeuro:false,
     goal:"auto"},
+  // v6.10: MMF/MPA module namespace (dose lives in S.px.mmf — shared with top bar)
+  mmf:{form:"MMF",scenarios:[],cni:"Tac",
+    conc:{c0:"",c05:"",c1:"",c15:"",c3:"",c4:"",c8:""},
+    bk:{plasmaCopies:"",weeksSustained:""},
+    cmv:{stage:""},
+    wbc:"",anc:"",
+    gi:{severity:""},
+    flashMsg:"",flashUntil:0,
+    auc:null,eqUsed:null},
+  mmfTgt:JSON.parse(JSON.stringify(DEF_MMF_TGT)),
   waOpt:false,ts:null};
 
 // Load saved preferences
@@ -236,6 +267,182 @@ try{const a=localStorage.getItem("tacAssay");if(a&&TGT_PLATFORMS[a]){S.assay=a;}
 try{const r=localStorage.getItem("tacRiskTier");if(r&&["low","std","high"].includes(r))S.riskTier=r;}catch(e){}
 try{const bx=localStorage.getItem("tacBxSnapshot");if(bx)S.bxSnap=JSON.parse(bx);}catch(e){}
 TGT=TGT_PLATFORMS[S.assay][S.riskTier]; // apply after loading preferences
+
+// ===== v6.13.0: FULL-CASE AUTOSAVE + NAMED CASE LIBRARY =====
+// A. Autosave: serialize S to tacCurrentCase on every R()
+// B. Named library: tacCase_<id> entries, index in tacCaseIndex, max 50 FIFO
+const CASE_MAX=50;
+const DEFAULT_S_SNAPSHOT=JSON.stringify(S); // captured before any restore — used by newCase()
+
+function _saveSnapshot(){
+  try{
+    const snap=JSON.stringify(S);
+    localStorage.setItem("tacCurrentCase",snap);
+    const el=$("autoSaveTs");
+    if(el){const now=new Date();el.textContent="· Saved "+now.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"});}
+  }catch(e){/* quota or disabled — silent */}
+}
+
+function _restoreSnapshot(){
+  try{
+    const raw=localStorage.getItem("tacCurrentCase");
+    if(!raw)return false;
+    const saved=JSON.parse(raw);
+    // defensive merge: start from current S (has all default keys), overlay saved values
+    S=_mergeDeep(S,saved);
+    // re-apply platform targets after restoration (user may have changed assay/risk mid-session)
+    if(TGT_PLATFORMS[S.assay]&&TGT_PLATFORMS[S.assay][S.riskTier])TGT=TGT_PLATFORMS[S.assay][S.riskTier];
+    return true;
+  }catch(e){
+    try{localStorage.removeItem("tacCurrentCase");}catch(_){}
+    return false;
+  }
+}
+
+function _mergeDeep(target,source){
+  if(source===null||typeof source!=="object")return source;
+  if(Array.isArray(source))return source.slice();
+  const out=Array.isArray(target)?target.slice():Object.assign({},target||{});
+  for(const k in source){
+    if(source[k]!==null&&typeof source[k]==="object"&&!Array.isArray(source[k])){
+      out[k]=_mergeDeep(target&&target[k]?target[k]:{},source[k]);
+    }else{
+      out[k]=source[k];
+    }
+  }
+  return out;
+}
+
+function _caseIndex(){
+  try{const raw=localStorage.getItem("tacCaseIndex");return raw?JSON.parse(raw):[];}catch(e){return [];}
+}
+function _writeCaseIndex(idx){try{localStorage.setItem("tacCaseIndex",JSON.stringify(idx));}catch(e){}}
+
+function openCaseSave(){
+  const lbl=S.patientName||("Case "+new Date().toLocaleString("en-IN",{dateStyle:"short",timeStyle:"short"}));
+  $("caseSaveLabel").value=lbl;
+  $("caseSaveModal").classList.add("show");
+  setTimeout(()=>$("caseSaveLabel").focus(),50);
+}
+function closeCaseSave(){$("caseSaveModal").classList.remove("show");}
+function saveCaseConfirm(){
+  const label=($("caseSaveLabel").value||"").trim()||("Case "+Date.now());
+  const id=String(Date.now());
+  try{
+    localStorage.setItem("tacCase_"+id,JSON.stringify(S));
+    let idx=_caseIndex();
+    idx.unshift({id,label,savedAt:new Date().toISOString()});
+    // FIFO eviction
+    while(idx.length>CASE_MAX){
+      const drop=idx.pop();
+      try{localStorage.removeItem("tacCase_"+drop.id);}catch(e){}
+    }
+    _writeCaseIndex(idx);
+    closeCaseSave();
+    sT("Case saved: "+label);
+  }catch(e){sT("Save failed — storage full?");}
+}
+
+function openCaseLoad(){renderCaseList();$("caseLoadModal").classList.add("show");}
+function closeCaseLoad(){$("caseLoadModal").classList.remove("show");}
+function renderCaseList(){
+  const idx=_caseIndex();
+  const body=$("caseLoadBody");
+  if(!idx.length){body.innerHTML=`<div style="font-size:10px;color:var(--t2);text-align:center;padding:16px">No saved cases yet. Use 💾 on the top bar to save the current case.</div>`;return;}
+  body.innerHTML=idx.map(c=>{
+    const when=new Date(c.savedAt).toLocaleString("en-IN",{dateStyle:"short",timeStyle:"short"});
+    const safeLabel=c.label.replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    return `<div style="display:flex;align-items:center;gap:6px;padding:6px 4px;border-bottom:1px solid var(--bd)">
+      <div style="flex:1;min-width:0"><div style="font-size:11px;font-weight:600;color:var(--tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${safeLabel}</div><div style="font-size:8px;color:var(--t2)">${when}</div></div>
+      <button class="btn btn-p" style="padding:4px 8px;font-size:10px" onclick="loadCase('${c.id}')">Load</button>
+      <button class="btn btn-o" style="padding:4px 8px;font-size:10px" onclick="deleteCase('${c.id}')">×</button>
+    </div>`;
+  }).join("");
+}
+function loadCase(id){
+  try{
+    const raw=localStorage.getItem("tacCase_"+id);
+    if(!raw){sT("Case not found");return;}
+    const loaded=JSON.parse(raw);
+    S=_mergeDeep(S,loaded);
+    if(TGT_PLATFORMS[S.assay]&&TGT_PLATFORMS[S.assay][S.riskTier])TGT=TGT_PLATFORMS[S.assay][S.riskTier];
+    closeCaseLoad();
+    // sync selectors
+    const as=$("assaySel");if(as)as.value=S.assay;
+    const rs=$("riskSel");if(rs)rs.value=S.riskTier;
+    const an=$("assayNote");if(an)an.textContent=assayLabel(S.assay)+" · "+tierLabel(S.riskTier);
+    const w=$("wt");if(w)w.value=S.wt||"";
+    const g=$("geno");if(g)g.value=S.geno||"unk";
+    const p=$("ptName");if(p)p.value=S.patientName||"";
+    const d=$("donorAge");if(d)d.value=S.donorAge||"";
+    R();
+    sT("Case loaded");
+  }catch(e){sT("Load failed — corrupt data");}
+}
+function deleteCase(id){
+  if(!confirm("Delete this case?"))return;
+  try{localStorage.removeItem("tacCase_"+id);}catch(e){}
+  const idx=_caseIndex().filter(c=>c.id!==id);
+  _writeCaseIndex(idx);
+  renderCaseList();
+  sT("Case deleted");
+}
+function newCase(){
+  if(!confirm("Clear current case? (Saved cases in library are not affected.)"))return;
+  try{S=JSON.parse(DEFAULT_S_SNAPSHOT);}catch(e){}
+  // re-read platform/risk prefs
+  try{const a=localStorage.getItem("tacAssay");if(a&&TGT_PLATFORMS[a])S.assay=a;}catch(e){}
+  try{const r=localStorage.getItem("tacRiskTier");if(r&&["low","std","high"].includes(r))S.riskTier=r;}catch(e){}
+  TGT=TGT_PLATFORMS[S.assay][S.riskTier];
+  // sync DOM inputs
+  ["wt","geno","ptName","donorAge"].forEach(id=>{const el=$(id);if(el)el.value=id==="geno"?"unk":"";});
+  const as=$("assaySel");if(as)as.value=S.assay;
+  const rs=$("riskSel");if(rs)rs.value=S.riskTier;
+  R();
+  sT("New case started");
+}
+function exportAllCases(){
+  const idx=_caseIndex();
+  if(!idx.length){sT("No cases to export");return;}
+  const dump={version:"v6.13.2",exportedAt:new Date().toISOString(),cases:idx.map(c=>{
+    try{return{meta:c,data:JSON.parse(localStorage.getItem("tacCase_"+c.id))};}catch(e){return null;}
+  }).filter(x=>x)};
+  const blob=new Blob([JSON.stringify(dump,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;a.download="tac-cases-"+new Date().toISOString().slice(0,10)+".json";
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  sT("Exported "+dump.cases.length+" cases");
+}
+function importCasesFile(inputEl){
+  const f=inputEl.files&&inputEl.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=function(){
+    try{
+      const dump=JSON.parse(r.result);
+      if(!dump||!Array.isArray(dump.cases)){sT("Invalid file format");return;}
+      let idx=_caseIndex();
+      let added=0;
+      dump.cases.forEach(c=>{
+        if(!c||!c.meta||!c.data)return;
+        const newId=String(Date.now()+Math.floor(Math.random()*1000)+added);
+        try{
+          localStorage.setItem("tacCase_"+newId,JSON.stringify(c.data));
+          idx.unshift({id:newId,label:(c.meta.label||"Imported")+" (imported)",savedAt:c.meta.savedAt||new Date().toISOString()});
+          added++;
+        }catch(e){}
+      });
+      while(idx.length>CASE_MAX){const drop=idx.pop();try{localStorage.removeItem("tacCase_"+drop.id);}catch(e){}}
+      _writeCaseIndex(idx);
+      renderCaseList();
+      sT("Imported "+added+" cases");
+    }catch(e){sT("Import failed — invalid JSON");}
+    inputEl.value="";
+  };
+  r.readAsText(f);
+}
+// ===== END v6.13.0 CASE LIBRARY =====
 
 let _cmp={};
 
@@ -562,7 +769,7 @@ function xWA(mode){
     const sn=S.bxSnap;
     if(sn.date||sn.grade||sn.c0){t+=`\n*Biopsy context${sn.date?" ("+sn.date+")":""}:*\n`;if(sn.grade)t+=`Finding: ${sn.grade}\n`;if(ok(sn.c0))t+=`C0 at biopsy: ${sn.c0} ng/mL\n`;if(ok(sn.dose))t+=`Dose at biopsy: ${sn.dose} mg/d\n`;if(ok(sn.auc))t+=`AUC at biopsy: ${sn.auc} µg·h/L\n`;if(ok(sn.cr))t+=`Cr at biopsy: ${sn.cr} mg/dL\n`;if(sn.notes)t+=`Notes: ${sn.notes}\n`;}
   }
-  t+=`\n_Tac AUC Calculator v6.9_`;
+  t+=`\n_Tac AUC Calculator v6.13.2_`;
   navigator.clipboard.writeText(t).then(()=>sT(mode==="detail"?"Detailed report copied":"Short handoff copied")).catch(()=>{const a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);sT("Copied");});
   $("tsD").textContent=S.ts.toLocaleString("en-IN",{dateStyle:"short",timeStyle:"short"});
 }
@@ -1131,6 +1338,85 @@ function R(){
   if(S.tab===0){
     h+=ps();
 
+    // === v6.11.2: MMF/MPA recommendation banner — one-line actionable summary per active scenario ===
+    if(S.mmf&&S.mmf.scenarios&&S.mmf.scenarios.length>0){
+      const mmfDose=pf(S.px.mmf)||0;
+      const mmfIncr=S.mmf.form==='EC-MPS'?180:250;
+      const mmfAtMin=mmfDose>0&&mmfDose<=mmfIncr;
+      const mmfReduce=(pct)=>{if(!mmfDose||mmfAtMin)return null;const raw=mmfDose*(1-pct/100);return Math.round(raw/mmfIncr)*mmfIncr;};
+      const summaries=[];
+      // CMV summary
+      if(S.mmf.scenarios.includes('CMV')){
+        const stage=S.mmf.cmv&&S.mmf.cmv.stage;
+        if(stage==='DNAemia'){
+          const n50=mmfReduce(50),n25=mmfReduce(25);
+          summaries.push(`<b>CMV DNAemia:</b> ${mmfAtMin?`HOLD MMF (already at min ${mmfDose})`:mmfDose?`MMF ${mmfDose} → ${n25} mg (25%) or → ${n50} mg (50%)`:'Enter MMF dose'} + VGCV 900 mg BID. Tac unchanged.`);
+        } else if(stage==='Syndrome'){
+          const n50=mmfReduce(50);
+          summaries.push(`<b>CMV syndrome/disease:</b> ${mmfAtMin?'HOLD MMF':mmfDose?`MMF ${mmfDose} → ${n50} mg or hold`:'Reduce or hold MMF'} + VGCV 900 mg BID. Consider tac reduction if severe.`);
+        } else if(stage==='Refractory'){
+          summaries.push(`<b>CMV refractory:</b> Hold MMF + switch to maribavir 400 mg BID. Do NOT increase tac.`);
+        } else if(stage==='Prophylaxis'){
+          summaries.push(`<b>CMV prophylaxis:</b> Letermovir 480 mg OD OR VGCV 900 mg OD (eGFR-adjusted).`);
+        } else {
+          summaries.push(`<b>CMV:</b> <span style="color:var(--t2)">Select CMV stage in MMF/MPA tab.</span>`);
+        }
+      }
+      // BK summary
+      if(S.mmf.scenarios.includes('BK')){
+        const bkVal=pf(S.mmf.bk&&S.mmf.bk.plasmaCopies);
+        const weeks=pf(S.mmf.bk&&S.mmf.bk.weeksSustained);
+        const n50=mmfReduce(50);
+        if(!bkVal){
+          summaries.push(`<b>BK:</b> <span style="color:var(--t2)">Enter plasma BK in MMF/MPA tab.</span>`);
+        } else if(bkVal<1000){
+          summaries.push(`<b>BK low-level (${bkVal.toLocaleString()} c/mL):</b> Monthly monitoring. No IS change.`);
+        } else if(bkVal<10000){
+          const probable=weeks&&weeks>=3;
+          summaries.push(`<b>BK ${probable?'probable BKVN':'moderate DNAemia'} (${bkVal.toLocaleString()} c/mL${weeks?`, ${weeks}wk`:''}):</b> ${probable?(mmfAtMin?'HOLD MMF':mmfDose?`MMF ${mmfDose} → ${n50} mg. Tac unchanged at Step 1.`:'Reduce MMF 50%. Tac unchanged.'):'Repeat PCR 2–3 wk before intervening.'}`);
+        } else {
+          summaries.push(`<b>🔴 BK presumptive BKVN (${bkVal.toLocaleString()} c/mL):</b> ${mmfAtMin?'HOLD MMF':mmfDose?`MMF ${mmfDose} → ${n50} mg`:'Reduce MMF 50%'} + tac C0 target 5–7 ng/mL (25–50% reduction). <b>Do NOT start FQ.</b>`);
+        }
+      }
+      // Leukopenia summary
+      if(S.mmf.scenarios.includes('Leuk')){
+        const tlc=pf(S.mmf.tlc),neuPct=pf(S.mmf.neuPct),ancDir=pf(S.mmf.anc);
+        const ancCalc=(ok(S.mmf.tlc)&&ok(S.mmf.neuPct)&&tlc>=500&&tlc<=50000&&neuPct>=0&&neuPct<=100)?Math.round(tlc*neuPct/100):null;
+        const anc=ok(S.mmf.anc)?ancDir:ancCalc;
+        if(anc===null||anc<=0){
+          summaries.push(`<b>Leukopenia:</b> <span style="color:var(--t2)">Enter ANC (or TLC + %Neu) in MMF/MPA tab.</span>`);
+        } else if(anc>1300){
+          summaries.push(`<b>Leukopenia (ANC ${anc}):</b> Above FDA trigger — no MMF change.`);
+        } else if(anc>=1000){
+          summaries.push(`<b>Leukopenia (ANC ${anc}):</b> Borderline — screen myelotoxic drugs, monitor. No routine MMF reduction.`);
+        } else if(anc>=500){
+          const n50=mmfReduce(50);
+          summaries.push(`<b>Leukopenia (ANC ${anc}):</b> ${mmfAtMin?'HOLD MMF':mmfDose?`MMF ${mmfDose} → ${n50} mg or short hold ≤6d`:'Reduce or short hold MMF'}. Hold VGCV. Tac unchanged.`);
+        } else {
+          summaries.push(`<b>🔴 Severe neutropenia (ANC ${anc} &lt;500):</b> HOLD MMF + hold VGCV + G-CSF. Tac unchanged. VGCV restart at 50% when ANC &gt;750.`);
+        }
+      }
+      // GI summary
+      if(S.mmf.scenarios.includes('GI')){
+        const sev=S.mmf.gi&&S.mmf.gi.severity;
+        if(sev==='mild'){
+          summaries.push(`<b>GI mild:</b> Rule out infection → split MMF to QID + food → PPI. Avoid dose reduction.`);
+        } else if(sev==='mod'){
+          const ecEquiv=mmfDose?Math.round(mmfDose*0.72/180)*180:null;
+          summaries.push(`<b>GI moderate:</b> Split + food → convert to EC-MPS${ecEquiv?` ${ecEquiv} mg`:' (equimolar)'} → dose reduction last. Tac unchanged.`);
+        } else if(sev==='severe'){
+          summaries.push(`<b>GI severe:</b> Hold MMF ≤6d → EC-MPS convert OR switch to azathioprine/mTORi. <b>Avoid rechallenge &lt;50%</b> (Tierce). Tac unchanged.`);
+        } else {
+          summaries.push(`<b>GI:</b> <span style="color:var(--t2)">Select severity in MMF/MPA tab.</span>`);
+        }
+      }
+      h+=`<div style="background:#fef3e0;border:1px solid #f0a856;border-radius:7px;padding:8px 10px;margin-bottom:6px;font-size:10px;line-height:1.5">
+        <div style="font-weight:700;color:var(--pri);margin-bottom:4px">ℹ MMF/MPA recommendations (summary)</div>
+        ${summaries.map(s=>`<div style="margin-bottom:3px">• ${s}</div>`).join('')}
+        <div style="font-size:9px;color:var(--t2);margin-top:4px;padding-top:4px;border-top:1px dashed var(--bd)">See MMF/MPA tab for full recommendations + citations + safety warnings. Tac recommendations below remain the primary plan — confirm no conflict.</div>
+      </div>`;
+    }
+
     // === v6.7 Engine-Selected Banner ===
     const engineLabel={peak:"Peak reduction",auc:"AUC control",both:"AUC + Peak (dual)",undershoot:"Undershoot recovery",ipv:"IPV reduction"}[plan.engine||"auc"]||"AUC control";
     const engineColor=plan.engine==="peak"?"#6b2fa5":plan.engine==="both"?"#b8336a":plan.engine==="undershoot"?"#c44900":"#1e4e8c";
@@ -1143,6 +1429,10 @@ function R(){
       </div>`;
     } else if(plan.engine==="peak"||plan.engine==="both"){
       h+=`<div style="background:${engineColor};color:white;padding:6px 10px;border-radius:7px;margin-bottom:6px;font-size:10px;font-weight:700">${engineIcon} Engine: ${engineLabel}</div>`;
+    }
+    // v6.13.1: Priority-routing novelty disclaimer (Claim B1 / PATCH 14)
+    if(plan.routeReason||plan.engine==="peak"||plan.engine==="both"||plan.engine==="undershoot"){
+      h+=`<div style="font-size:8px;color:var(--t2);margin:-3px 0 6px 2px;line-height:1.4">Context-dependent routing between AUC-first and Cmax-first decisions is a novel tool-level integration. No KDIGO, IATDMCT, CPIC, or commercial MIPD platform (Hoffert 2024 <i>Clin Pharmacokinet</i>; Lloberas 2025 <i>Transpl Int</i>) implements priority switching on clinical context.</div>`;
     }
     // Peak-flag-only banner (engine=auc but peak signal present)
     if(plan.engine==="auc"&&ctx.__route&&ctx.__route.peakFlag&&ctx.__peakSignal&&ctx.__peakSignal.flag){
@@ -1344,7 +1634,8 @@ function R(){
     <div class="br"><button class="btn btn-g" onclick="xWA('short')">📋 Short</button><button class="btn btn-p" onclick="xWA('detail')">📋 Detailed</button></div>`:""}</div>`;
     h+=`<div class="k"><h3>C/D Classification</h3><table><thead><tr><th>C/D</th><th>Class</th><th>India % (approx)</th></tr></thead><tbody>
     <tr><td>≥1.55</td><td>Slow</td><td>~40–50%</td></tr><tr><td>1.05–1.54</td><td>Intermediate</td><td>~25–30%</td></tr>
-    <tr><td>&lt;1.05</td><td>Fast</td><td>~15–20%</td></tr><tr><td>&lt;0.8</td><td>Very Rapid</td><td>~5–10%</td></tr></tbody></table></div>`;}
+    <tr><td>&lt;1.05</td><td>Fast</td><td>~15–20%</td></tr><tr><td>&lt;0.8</td><td>Very Rapid</td><td>~5–10%</td></tr></tbody></table>
+    <div style="font-size:8px;color:var(--t2);margin-top:5px;line-height:1.45"><b>Provenance:</b> Thresholds derived from Thölking 2014/2016 on BD (q12h) tacrolimus troughs. Not validated on TDS, OD, or Envarsus. No Indian CMIA-specific validation published. Applied as clinical heuristic.</div></div>`;}
 
   // ===== TAB 3: Dose Adj =====
   else if(S.tab===4){
@@ -1613,13 +1904,524 @@ function R(){
       h+=`<div class="al al-i"><b>Protocol:</b><br>• Stop tac → 12–24h washout (no overlap — additive nephrotoxicity risk)<br>• Start CsA divided BID<br>• CYP3A5 expressers: increase starting dose 1.5–2×<br>• First C0/C2: day 3–7. Use LC-MS/MS if available — immunoassays overread in expressers.<br>• ${note}<br>• <b>30× rule is for IR/standard ER (Advagraf). If converting from Envarsus/MeltDose, use ~21× multiplier</b> (higher bioavailability).<br>• <b>Conversion protocols are heterogeneous — individualize.</b> ${evTag("exp")}</div>`;
       h+=`<div class="k" style="margin-top:7px;background:var(--bg)"><h3>CsA Target Ranges</h3><table><thead><tr><th>Phase</th><th>C0 (ng/mL)</th><th>C2 (ng/mL)</th></tr></thead><tbody>${CsaT.map(t=>`<tr><td>${t.ph}</td><td>${t.c0mn}–${t.c0mx}</td><td>${t.c2mn}–${t.c2mx}</td></tr>`).join("")}</tbody></table><div style="font-size:8px;color:var(--t2);margin-top:3px">C2 is preferred over C0 for CsA monitoring — highest inter-individual variability is in the 0–4h absorption phase.</div></div>`;
       if(ok(S.csa.ifta)&&pf(S.csa.ifta)>=30)h+=`<div class="al al-w"><b>IFTA ≥30%:</b> Limited nephron reserve. Consider whether conversion can realistically help vs palliation.</div>`;
-      h+=`<div class="al al-i" style="margin-top:5px"><b>CYP3A5 note:</b> CYP3A5 polymorphism affects CsA metabolism too — expressers generate more secondary metabolites (AM19, AM1c9) which cause localized renal vasoconstriction via endothelin. Systemic C0 may appear therapeutic while intra-renal injury continues. Monitor eGFR trend, not just trough.</div>`;
+      h+=`<div class="al al-i" style="margin-top:5px"><b>CYP3A5 note (CsA-specific):</b> In cyclosporine, CYP3A5 expressers generate higher AUC of secondary metabolites <b>AM19</b> (+47.4%) and <b>AM1c9</b> (+51.3%) vs non-expressers (Dai 2013, <i>Transplantation</i> 95:821–827, PMID 23354298; n=24 healthy volunteers). These metabolites have been linked to endothelin release and localized renal vasoconstriction (Copeland & Yatscoff 1992, <i>Transplantation</i> 53:640–642). Systemic C0 may appear therapeutic while intra-renal injury continues — monitor eGFR trend, not just trough.<br><span style="color:var(--t2);font-size:9px">⚠ These findings are specific to <b>cyclosporine</b>. No analogous nephrotoxic metabolites have been established for tacrolimus — the tacrolimus "nephrotoxicity paradox" (CYP3A5*1 expressers developing CNIT despite target trough/AUC; Kuypers 2010, Metalidis 2011) is correlative and mechanistically hypothesized, not proven via metabolite biology.</span></div>`;
     }else h+=`<div class="al al-w"><b>Enter weight above</b> for dose reference.</div>`;
     h+=`</div>`;}
 
-  // ===== TAB 7: Reference =====
+  // ===== TAB 8: MMF/MPA (v6.10) =====
   else if(S.tab===8){
+    h+=`<div class="k"><h3>MMF / MPA Module</h3><div class="su" style="font-size:10px;line-height:1.5">Mycophenolate dosing rules (Tier 1) + MPA drug-level monitoring (Tier 2). Scope: adult KTR. Not validated for pediatric, pregnancy, or CsA co-therapy.</div></div>`;
+
+    // --- Section A: Context ---
+    h+=`<div class="k"><h3>Context</h3>
+    <div style="background:var(--cd);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;margin-bottom:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+      <label style="font-size:10px;font-weight:600;color:var(--t2);white-space:nowrap">Formulation</label>
+      <select onchange="sM('form',this.value)" style="padding:5px 7px;border:1px solid var(--bd);border-radius:5px;font-size:12px;background:var(--inp);color:var(--tx);outline:none;font-family:inherit;-webkit-appearance:none;appearance:none;padding-right:16px">
+        <option value="MMF"${S.mmf.form==='MMF'?' selected':''}>MMF (mofetil)</option>
+        <option value="EC-MPS"${S.mmf.form==='EC-MPS'?' selected':''}>EC-MPS (Myfortic)</option>
+      </select>
+      <label style="font-size:10px;font-weight:600;color:var(--t2);white-space:nowrap">Total daily dose (mg/day)</label>
+      <input type="text" inputmode="numeric" pattern="[0-9]*" oninput="sMDose(this.value)" value="${S.px.mmf}" placeholder="2000" maxlength="5" style="width:70px;padding:5px 7px;border:1px solid var(--bd);border-radius:5px;font-size:12px;background:var(--inp);color:var(--tx);outline:none;font-family:inherit">
+      <label style="font-size:10px;font-weight:600;color:var(--t2);white-space:nowrap">CNI co-therapy</label>
+      <select onchange="sM('cni',this.value)" style="padding:5px 7px;border:1px solid var(--bd);border-radius:5px;font-size:12px;background:var(--inp);color:var(--tx);outline:none;font-family:inherit">
+        <option value="Tac"${S.mmf.cni==='Tac'?' selected':''}>Tacrolimus</option>
+        <option value="CsA"${S.mmf.cni==='CsA'?' selected':''}>Cyclosporine</option>
+        <option value="mTORi"${S.mmf.cni==='mTORi'?' selected':''}>mTORi (EVR/SRL)</option>
+        <option value="None"${S.mmf.cni==='None'?' selected':''}>None</option>
+      </select>
+    </div>
+    <div style="font-size:10px;color:var(--t2);margin:6px 0 4px">Active scenarios (select all that apply):</div>
+    <div style="background:var(--cd);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;margin-bottom:8px;display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+      <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:10px;font-weight:600;color:var(--t2)"><input type="checkbox" ${S.mmf.scenarios.includes('CMV')?'checked':''} onchange="sMsc('CMV',this.checked)"> CMV (active/Rx)</label>
+      <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:10px;font-weight:600;color:var(--t2)"><input type="checkbox" ${S.mmf.scenarios.includes('BK')?'checked':''} onchange="sMsc('BK',this.checked)"> BK DNAemia</label>
+      <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:10px;font-weight:600;color:var(--t2)"><input type="checkbox" ${S.mmf.scenarios.includes('Leuk')?'checked':''} onchange="sMsc('Leuk',this.checked)"> Leukopenia</label>
+      <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:10px;font-weight:600;color:var(--t2)"><input type="checkbox" ${S.mmf.scenarios.includes('GI')?'checked':''} onchange="sMsc('GI',this.checked)"> GI intolerance</label>
+    </div>
+    ${S.mmf.cni==='CsA'?`<div class="al al-w" style="font-size:10px;margin-top:6px">⚠ CsA co-therapy reduces MPA exposure ~30–40% via MRP2 inhibition. Mathew/Pawinski/Jia equations not validated with CsA. Interpret MPA AUC with caution.</div>`:''}
+    ${S.mmf.flashMsg&&Date.now()<S.mmf.flashUntil?(S.mmf.flashMsg.indexOf('⚠')>=0?`<div class="al al-w" style="font-size:10px;margin-top:6px">${S.mmf.flashMsg}</div>`:`<div class="al al-i" style="font-size:10px;margin-top:6px;background:#e8f5e9;border-color:#27ae60;color:#1e6b3a">${S.mmf.flashMsg}</div>`):''}
+    </div>`;
+
+    // --- Section B: Dosing rules engine (v6.10.4) ---
+    if(S.mmf.scenarios.length>0){
+      const curDose=pf(S.px.mmf)||0;
+      const incr=S.mmf.form==='EC-MPS'?180:250; // formulation-appropriate rounding (250 mg MMF capsule, 180 mg EC-MPS tablet)
+      const atMin=curDose>0&&curDose<=incr;
+      const dz=(pct)=>{if(!curDose)return null;const raw=curDose*(1-pct/100);const rounded=Math.round(raw/incr)*incr;return rounded;};
+      // v6.11.1: dose display as "X → Y mg/day" (Option C) with actual-% annotation when rounding drifts
+      const dzLabel=(pct)=>{
+        if(!curDose)return `→ reduce by ${pct}%`;
+        if(atMin)return `<span style="color:var(--red);font-weight:600">⚠ Already at minimum ${incr} mg — HOLD rather than reduce</span>`;
+        const n=dz(pct);
+        const reduction=curDose-n;
+        if(reduction===0)return `<span style="color:var(--red);font-weight:600">⚠ ${pct}% rounds to no change at ${curDose} mg — consider hold</span>`;
+        const actual=Math.round((reduction/curDose)*100);
+        const annot=Math.abs(actual-pct)>5?` <span style="color:var(--t2)">(actual ${actual}%)</span>`:'';
+        return `${curDose} → <b>${n} mg/day</b>${annot}`;
+      };
+      // v6.11.1: dzPair — show both 25% and 50% as bullets; collapse to single bullet if both round to same dose
+      const dzPair=()=>{
+        if(!curDose||atMin)return '';
+        const n50=dz(50), n25=dz(25);
+        if(n50===n25){
+          // Both options collapse to same dose → single line
+          const reduction=curDose-n50;
+          if(reduction===0)return `<span style="color:var(--red);font-weight:600">⚠ Neither 25% nor 50% achievable at ${curDose} mg — consider hold</span>`;
+          const actual=Math.round((reduction/curDose)*100);
+          return `&nbsp;&nbsp;• ${curDose} → <b>${n50} mg/day</b> <span style="color:var(--t2)">(actual ${actual}% — 25% and 50% both round here)</span>`;
+        }
+        return `&nbsp;&nbsp;• 50% option: ${dzLabel(50)}<br>&nbsp;&nbsp;• 25% option: ${dzLabel(25)}`;
+      };
+      // v6.11.0: safety threshold warning — reused across all branches where ≥50% MMF reduction or hold recommended
+      const safetyWarn=`<div class="al al-w" style="font-size:9px;margin-top:5px;border-left:3px solid var(--red)"><b>⚠ Safety threshold:</b> MMF reduction ≥50% or cumulative hold &gt;6 days → independent predictor of acute rejection (Zafrani 2009 AJT PMID 19538494; Vanhove 2013 Transpl Int PMID 23746202) and 2× graft-loss risk (Tierce 2006 AJT PMID 16313325). Reinstate as soon as clinical threat resolves.</div>`;
+      // v6.11.0: pull current tac C0 from whichever tab is populated (LSS > C/D > full profile C0)
+      const tacC0=ok(S.lss.c0)?pf(S.lss.c0):(ok(S.cd.c0)?pf(S.cd.c0):(S.fp[0]&&ok(S.fp[0].c)?pf(S.fp[0].c):null));
+      const tacDose=pf(S.px.dose)||0;
+      const tacLow=tacC0!==null&&tacC0<5;
+
+      h+=`<div class="k"><h3>Dosing Rules</h3>`;
+
+      // --- CMV branch ---
+      if(S.mmf.scenarios.includes('CMV')){
+        h+=`<div style="border-left:3px solid var(--acc);padding:6px 10px;margin-bottom:8px;background:#f8fafb">
+        <div style="font-weight:700;color:var(--pri);margin-bottom:4px">CMV Management</div>
+        <div style="font-size:10px;margin-bottom:4px">CMV stage:
+          <select onchange="sMk('cmv','stage',this.value)" style="padding:3px 6px;font-size:11px">
+            <option value=""${S.mmf.cmv.stage===''?' selected':''}>— select —</option>
+            <option value="DNAemia"${S.mmf.cmv.stage==='DNAemia'?' selected':''}>Low-grade DNAemia (no disease)</option>
+            <option value="Syndrome"${S.mmf.cmv.stage==='Syndrome'?' selected':''}>CMV syndrome / end-organ disease</option>
+            <option value="Refractory"${S.mmf.cmv.stage==='Refractory'?' selected':''}>Refractory / resistant</option>
+            <option value="Prophylaxis"${S.mmf.cmv.stage==='Prophylaxis'?' selected':''}>D+/R− prophylaxis (de novo)</option>
+          </select>
+        </div>`;
+        if(S.mmf.cmv.stage==='DNAemia'){
+          h+=`<div style="font-size:10px;line-height:1.5">
+          ${atMin?`<b>→ MMF already at minimum (${curDose} mg):</b> <span style="color:var(--red);font-weight:600">HOLD MMF</span> rather than reduce further.<br>`:`<b>→ Reduce MMF (range 25–50%):</b><br>${dzPair()}<br>`}
+          <b>→ Maintain CNI target</b> — tac reduction NOT routine at this stage<br>
+          <b>→ Preemptive antiviral:</b> VGCV 900 mg BID (eGFR-adjusted) until 2 consecutive negative PCRs<br>
+          <span style="color:var(--org);font-size:9px">⚠ <b>Institutional practice — not guideline-quantified.</b> Kotton 2025 Fourth Intl Consensus (PMID 40200403) and AST IDCOP Razonable/Humar 2019 (PMID 30817026) say "reduce immunosuppression" without specifying %. 25–50% is practice pattern, not guideline.</span>
+          </div>
+          ${safetyWarn}`;
+        } else if(S.mmf.cmv.stage==='Syndrome'){
+          h+=`<div style="font-size:10px;line-height:1.5">
+          ${atMin?`<b>→ MMF already at minimum (${curDose} mg):</b> <span style="color:var(--red);font-weight:600">HOLD MMF</span><br>`:`<b>→ Reduce or hold MMF:</b> ${dzLabel(50)} or hold entirely (especially in severe/refractory disease)<br>`}
+          <b>→ VGCV treatment dose</b> 900 mg BID (eGFR-adjusted), duration to clearance<br>
+          ${tacC0!==null?`<b>→ Tac:</b> current C0 ${tacC0} ng/mL, dose ${tacDose} mg/day. ${tacLow?`<span style="color:var(--red);font-weight:600">Already at low exposure — do NOT reduce further</span>`:'Consider reduction to C0 ~4–6 ng/mL if severe disease (institutional — not quantified in guideline)'}<br>`:`<b>→ Consider tac reduction</b> if severe disease (institutional — no specific % in guideline)<br>`}
+          <b>→ Reinstate MMF</b> at 50% when viremia clearing, full dose at clearance<br>
+          <span style="color:var(--org);font-size:9px">⚠ <b>Not guideline-quantified.</b> Kotton 2025 (PMID 40200403) and AST IDCOP 2019 (PMID 30817026) recommend "cautious reduction" without specific %. Practice pattern from Myhre 2011 Transplantation (PMID 21804443) and BTS UK 2022/23.</span>
+          </div>
+          ${safetyWarn}`;
+        } else if(S.mmf.cmv.stage==='Refractory'){
+          h+=`<div style="font-size:10px;line-height:1.5">
+          ${atMin?`<b>→ MMF already at minimum (${curDose} mg):</b> <span style="color:var(--red);font-weight:600">HOLD MMF</span><br>`:`<b>→ Hold MMF</b> (practice in refractory disease, per Myhre 2011 observational data)<br>`}
+          <b>→ Switch VGCV → maribavir 400 mg BID</b> (if available)<br>
+          <b>→ Do NOT increase CNI</b>${tacC0!==null?` — current tac C0 ${tacC0} ng/mL`:''}<br>
+          <span style="color:var(--t2)">Evidence: Avery SOLSTICE CID 2022 — kidney subgroup 59.5% vs 34.4% clearance at wk 8. PMID 34864943 ${evTag("rct")}</span><br>
+          <span style="color:var(--org);font-size:9px">⚠ Only 18.7% maintained clearance at wk 20; resistance emerges in 26% — monitor closely</span>
+          </div>
+          ${safetyWarn}`;
+        } else if(S.mmf.cmv.stage==='Prophylaxis'){
+          h+=`<div style="font-size:10px;line-height:1.5">
+          <b>Option 1: Letermovir 480 mg OD + acyclovir</b> (lower myelosuppression)<br>
+          <b>Option 2: VGCV 900 mg OD</b> (eGFR-adjusted, standard care)<br>
+          <span style="color:var(--t2)">Evidence: Limaye JAMA 2023 non-inferior; leukopenia/neutropenia 26% vs 64% wk 28. PMID 37279999 ${evTag("rct")}</span>
+          </div>`;
+        } else {
+          h+=`<div style="font-size:10px;color:var(--t2)">Select CMV stage to see recommendations.</div>`;
+        }
+        h+=`</div>`;
+      }
+
+      // --- BK branch ---
+      if(S.mmf.scenarios.includes('BK')){
+        const bkVal=pf(S.mmf.bk.plasmaCopies);
+        const weeksRaw=pf(S.mmf.bk.weeksSustained);
+        const weeks=ok(S.mmf.bk.weeksSustained)?weeksRaw:null;
+
+        h+=`<div style="border-left:3px solid var(--acc);padding:6px 10px;margin-bottom:8px;background:#f8fafb">
+        <div style="font-weight:700;color:var(--pri);margin-bottom:4px">BK DNAemia Management</div>
+        <div style="font-size:10px;margin-bottom:6px">
+          <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+            <label>Plasma BK (c/mL)</label>
+            <input type="text" inputmode="numeric" pattern="[0-9]*" value="${S.mmf.bk.plasmaCopies}" oninput="sMk('bk','plasmaCopies',this.value)" placeholder="45000" maxlength="9" style="width:90px;padding:3px 6px;font-size:11px">
+            <label>Duration (weeks sustained)</label>
+            <input type="text" inputmode="numeric" pattern="[0-9]*" value="${S.mmf.bk.weeksSustained}" oninput="sMk('bk','weeksSustained',this.value)" placeholder="3" maxlength="3" style="width:55px;padding:3px 6px;font-size:11px">
+          </div>
+        </div>`;
+
+        if(ok(bkVal)){
+          if(bkVal<1000){
+            h+=`<div style="font-size:10px;line-height:1.5;background:#e8f5e9;padding:6px 8px;border-radius:5px">
+            <b>🟢 Low-level DNAemia (&lt;1,000 c/mL)</b><br>
+            → Continue monthly monitoring until negative × 3<br>
+            → No immunosuppression change<br>
+            <span style="color:var(--t2)">Kotton 2024 Second Intl Consensus BK PMID 38605438 ${evTag("exp")}</span>
+            </div>`;
+          } else if(bkVal>=1000&&bkVal<10000){
+            if(weeks===null||weeks<3){
+              h+=`<div style="font-size:10px;line-height:1.5;background:#fff8e1;padding:6px 8px;border-radius:5px">
+              <b>🟡 Moderate DNAemia (${bkVal.toLocaleString()} c/mL), duration unclear</b><br>
+              → <b>Repeat PCR in 2–3 weeks</b> before intervening<br>
+              → If sustained ≥3 wk → probable BKVN (see below)<br>
+              → Screen for concurrent rejection if Cr rising<br>
+              <span style="color:var(--t2)">Kotton 2024 PMID 38605438; Hirsch 2019 AST PMID 30859620 ${evTag("exp")}</span>
+              </div>`;
+            } else {
+              h+=`<div style="font-size:10px;line-height:1.5;background:#ffeef0;padding:6px 8px;border-radius:5px">
+              <b>🟠 PROBABLE BKVN — sustained ${weeks} wk at ${bkVal.toLocaleString()} c/mL</b><br>
+              → <b>Step 1 — Reduce MMF 50%:</b> ${dzLabel(50)}<br>
+              → <b>Tac NOT reduced</b> at this step (antimetabolite first per Kotton 2024)${tacC0!==null?` — current C0 ${tacC0} ng/mL`:''}<br>
+              → Recheck BK PCR + Cr in 2 weeks<br>
+              → If BK persists/rises at recheck → Step 2: reduce tac 25%<br>
+              → Consider biopsy if Cr rising<br>
+              <span style="color:var(--t2)">Kotton 2024 Table 6 PMID 38605438 ${evTag("exp")}</span>
+              </div>
+              ${safetyWarn}`;
+            }
+          } else { // >=10000
+            // Presumptive BKVN — the ONE scenario where guideline explicitly recommends paired MMF + tac reduction
+            const tacSuggest=tacDose?Math.max(Math.round(tacDose*0.75*2)/2,0.5):null; // 25% reduction, round to 0.5 mg
+            h+=`<div style="font-size:10px;line-height:1.5;background:#ffeef0;padding:6px 8px;border-radius:5px">
+            <b>🔴 PRESUMPTIVE BKVN (${bkVal.toLocaleString()} c/mL)</b><br>
+            → <b>MMF 50% reduction:</b> ${dzLabel(50)}<br>
+            → <b>Tac 25–50% reduction (paired):</b> ${tacC0!==null?(tacLow?`<span style="color:var(--red);font-weight:600">⚠ C0 already ${tacC0} ng/mL (&lt;5) — do NOT reduce tac further; rejection risk outweighs BK</span>`:`current C0 ${tacC0} ng/mL, dose ${tacDose} mg/day → target C0 5–7 ng/mL${tacSuggest?`; suggest ~${tacSuggest} mg/day`:''}`):`Current tac dose ${tacDose||'?'} mg/day. Target C0 5–7 ng/mL.`}<br>
+            → Recheck BK PCR + Cr in 2 weeks, tac C0 day 5–7 after dose change<br>
+            → Consider biopsy to exclude concurrent rejection<br>
+            <span style="color:var(--t2)">Kotton 2024 Table 6 — paired MMF 50% + CNI 25–50%. PMID 38605438 ${evTag("exp")}</span>
+            </div>
+            ${safetyWarn}`;
+          }
+          // FQ hard-block only when intervention is under consideration
+          if(bkVal>=1000){
+            h+=`<div class="al al-e" style="font-size:9px;margin-top:5px;background:#ffeef0;border-color:var(--red);color:var(--dkr)"><b>⛔ Do NOT start fluoroquinolone for BK.</b> Levofloxacin RCT negative (29% vs 33%, HR 0.91), ↑resistance 1.75× (Knoll JAMA 2014 PMID 25399012). ${evTag("rct")}</div>`;
+          }
+        } else {
+          h+=`<div style="font-size:10px;color:var(--t2)">Enter plasma BK value to see recommendation.</div>`;
+        }
+        h+=`</div>`;
+      }
+
+      // --- Leukopenia branch ---
+      if(S.mmf.scenarios.includes('Leuk')){
+        // v6.11.2: always-on 3-field layout — TLC (cells/µL) + %Neu + ANC, with cross-check
+        const tlcVal=pf(S.mmf.tlc);
+        const neuPctVal=pf(S.mmf.neuPct);
+        const ancDirect=pf(S.mmf.anc);
+        const tlcOK=ok(S.mmf.tlc)&&tlcVal>=500&&tlcVal<=50000;
+        const tlcOutOfRange=ok(S.mmf.tlc)&&(tlcVal<500||tlcVal>50000);
+        const neuPctOK=ok(S.mmf.neuPct)&&neuPctVal>=0&&neuPctVal<=100;
+        const ancCalc=(tlcOK&&neuPctOK)?Math.round(tlcVal*neuPctVal/100):null;
+        // v6.11.3: threshold-aware cross-check — warn if direct & calc fall on opposite sides of a decision threshold, OR |diff| > 300
+        let ancDiscrepancy=null;
+        if(ok(S.mmf.anc)&&ancDirect>0&&ancCalc!==null&&ancCalc>0){
+          const diff=Math.abs(ancDirect-ancCalc);
+          // Decision thresholds: 500 (severe), 1000 (neutropenia), 1300 (FDA CellCept trigger)
+          const tier=(x)=>x<500?0:x<1000?1:x<1300?2:3;
+          const tierCalc=tier(ancCalc),tierDirect=tier(ancDirect);
+          const crossesThreshold=tierCalc!==tierDirect;
+          const largeDiff=diff>300;
+          if(crossesThreshold||largeDiff){
+            const pctDiff=Math.round((diff/ancCalc)*100);
+            ancDiscrepancy={direct:ancDirect,calc:ancCalc,pct:pctDiff,diff:diff,crossesThreshold,largeDiff};
+          }
+        }
+        // Decision value: direct ANC wins if entered; else calculated
+        const ancVal=ok(S.mmf.anc)?ancDirect:ancCalc;
+
+        h+=`<div style="border-left:3px solid var(--acc);padding:6px 10px;margin-bottom:8px;background:#f8fafb">
+        <div style="font-weight:700;color:var(--pri);margin-bottom:4px">Leukopenia Management</div>
+        <div style="font-size:10px;margin-bottom:6px">
+          <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+            <label>TLC (cells/µL)</label>
+            <input type="text" inputmode="numeric" pattern="[0-9]*" value="${S.mmf.tlc||''}" oninput="sM('tlc',this.value)" placeholder="4000" maxlength="6" style="width:75px;padding:3px 6px;font-size:11px;${tlcOutOfRange?'border-color:var(--red);background:#fff0f0':''}">
+            <label>Neutrophil %</label>
+            <input type="text" inputmode="decimal" pattern="[0-9.]*" value="${S.mmf.neuPct||''}" oninput="sM('neuPct',this.value)" placeholder="60" maxlength="5" style="width:55px;padding:3px 6px;font-size:11px">
+            <label>ANC (cells/µL)</label>
+            <input type="text" inputmode="numeric" pattern="[0-9]*" value="${S.mmf.anc}" oninput="sM('anc',this.value)" placeholder="${ancCalc!==null?ancCalc:'800'}" maxlength="5" style="width:75px;padding:3px 6px;font-size:11px">
+            ${ancCalc!==null&&!ok(S.mmf.anc)?`<span style="background:#e8f5e9;padding:3px 8px;border-radius:4px;font-size:10px;color:#1e6b3a;font-weight:600">Calculated ANC = ${ancCalc}</span>`:''}
+          </div>
+          <div style="font-size:8px;color:var(--t2);margin-top:3px">Enter TLC + %Neu to auto-calculate ANC, OR enter ANC directly. Direct entry overrides calculation. TLC range: 500–50,000 cells/µL. Formula assumes %Neu is consolidated (segs + bands).</div>
+          ${tlcOutOfRange?`<div class="al al-w" style="font-size:9px;margin-top:4px">⚠ TLC ${tlcVal} outside plausible range (500–50,000). Verify units — should be absolute count like 4000, not 4.0.</div>`:''}
+          ${ancDiscrepancy?`<div class="al al-w" style="font-size:9px;margin-top:4px">⚠ <b>Discrepancy:</b> Entered ANC (${ancDiscrepancy.direct}) differs from calculated (${ancDiscrepancy.calc}) by ${ancDiscrepancy.diff} cells (${ancDiscrepancy.pct}%). ${ancDiscrepancy.crossesThreshold?'<b>Values fall on opposite sides of a decision threshold (500/1000/1300 cells/µL)</b> — would change the recommendation. ':''}${ancDiscrepancy.largeDiff&&!ancDiscrepancy.crossesThreshold?'Absolute gap &gt;300 cells suggests CBC inconsistency. ':''}Verify CBC report — check %neutrophil value or whether immature granulocytes are included.</div>`:''}
+        </div>`;
+
+        if(ancVal!==null&&ancVal>0){
+          if(ancVal>1300){
+            h+=`<div style="font-size:10px;background:#e8f5e9;padding:6px 8px;border-radius:5px;line-height:1.5">
+            <b>🟢 ANC ${ancVal} — above FDA CellCept trigger (ANC ≥1300)</b><br>
+            → No MMF change indicated. Most cohorts observe no intervention at this tier.<br>
+            <span style="color:var(--t2)">CellCept FDA PI; Zafrani 2009 AJT PMID 19538494 ${evTag("exp")}</span>
+            </div>`;
+          } else if(ancVal>=1000){
+            h+=`<div style="font-size:10px;line-height:1.5;background:#fff8e1;padding:6px 8px;border-radius:5px">
+            <b>🟡 ANC ${ancVal} — borderline (below FDA trigger 1300)</b><br>
+            → <b>No tiered % reduction published</b> for this range<br>
+            → Screen for VGCV/TMP-SMX/other myelotoxic drug contribution (often the driver, not MMF)<br>
+            → Monitor — recheck in 3–7 days<br>
+            → Consider MMF reduction ONLY if ANC trending down or concurrent risk (sepsis, dose escalation)<br>
+            <span style="color:var(--t2)">CellCept FDA PI; Zafrani 2009 PMID 19538494; Baradaran 2022 PMID 36068976 ${evTag("exp")}</span>
+            </div>`;
+          } else if(ancVal>=500){
+            h+=`<div style="font-size:10px;line-height:1.5;background:#ffeef0;padding:6px 8px;border-radius:5px">
+            <b>🟠 ANC ${ancVal} — neutropenia</b><br>
+            → <b>Reduce or temporarily hold MMF</b> (no specific % published)<br>
+            &nbsp;&nbsp;Options: ${dzLabel(50)} OR short hold (≤6 days)<br>
+            → Hold VGCV if on it (FDA Valcyte: "avoid if ANC &lt;500" — prudent to reduce/hold here too)<br>
+            → Screen CMV/parvovirus/marrow; hold/switch TMP-SMX to dapsone<br>
+            → <b>Tac NOT reduced</b> for isolated leukopenia (not a primary driver)<br>
+            <span style="color:var(--t2)">Zafrani 2009 AJT PMID 19538494; Vanhove 2013 Transpl Int PMID 23746202 ${evTag("exp")}</span>
+            </div>
+            ${safetyWarn}`;
+          } else {
+            h+=`<div style="font-size:10px;line-height:1.5;background:#ffeef0;padding:6px 8px;border-radius:5px;color:var(--dkr)">
+            <b>🔴 ANC ${ancVal} &lt;500 — severe neutropenia</b><br>
+            → <b>HOLD MMF</b> (FDA label: "interrupt or reduce" at ANC &lt;1300; hold at &lt;500)<br>
+            → <b>Hold VGCV</b> (FDA Valcyte label: avoid if ANC &lt;500). Restart at <b>50% dose when ANC &gt;750</b><br>
+            → Hold/switch TMP-SMX to dapsone<br>
+            → <b>G-CSF</b> until ANC &gt;1000 (expert opinion, no RCT)<br>
+            → <b>Tac NOT reduced</b> for isolated neutropenia<br>
+            → Resume MMF at 50% when ANC &gt;1000; full dose at &gt;1500<br>
+            <span style="color:var(--t2)">CellCept FDA PI; Valcyte FDA PI; Zafrani 2009 PMID 19538494; Baradaran 2022 PMID 36068976 ${evTag("exp")}</span>
+            </div>
+            ${safetyWarn}`;
+          }
+        } else {
+          h+=`<div style="font-size:10px;color:var(--t2)">Enter ANC to see recommendation.</div>`;
+        }
+        h+=`</div>`;
+      }
+
+      // --- GI branch ---
+      if(S.mmf.scenarios.includes('GI')){
+        h+=`<div style="border-left:3px solid var(--acc);padding:6px 10px;margin-bottom:8px;background:#f8fafb">
+        <div style="font-weight:700;color:var(--pri);margin-bottom:4px">GI Intolerance Management</div>
+        <div style="font-size:10px;margin-bottom:6px">Severity:
+          <select onchange="sMk('gi','severity',this.value)" style="padding:3px 6px;font-size:11px">
+            <option value=""${S.mmf.gi.severity===''?' selected':''}>— select —</option>
+            <option value="mild"${S.mmf.gi.severity==='mild'?' selected':''}>Mild (dyspepsia only)</option>
+            <option value="mod"${S.mmf.gi.severity==='mod'?' selected':''}>Moderate (diarrhea, weight loss)</option>
+            <option value="severe"${S.mmf.gi.severity==='severe'?' selected':''}>Severe (hospitalization, sustained weight loss)</option>
+          </select>
+        </div>`;
+        if(S.mmf.gi.severity==='mild'){
+          h+=`<div style="font-size:10px;line-height:1.5">
+          <b>→ Step 1:</b> Rule out infection (C. difficile, CMV colitis) and drug causes (laxatives, antibiotics)<br>
+          <b>→ Step 2:</b> Split MMF to TDS or QID dosing (same total) + take with food<br>
+          <b>→ Step 3:</b> PPI trial if dyspepsia-predominant<br>
+          → <b>Avoid MMF dose reduction at this stage</b> (rejection risk)<br>
+          → Tac NOT reduced — tac doesn't drive GI toxicity<br>
+          <span style="color:var(--t2)">Expert opinion; stepwise approach ${evTag("exp")}</span>
+          </div>`;
+        } else if(S.mmf.gi.severity==='mod'){
+          const ecEquiv=curDose?Math.round(curDose*0.72/180)*180:null;
+          h+=`<div style="font-size:10px;line-height:1.5">
+          <b>→ Step 1:</b> Split MMF to QID + food (if not already tried)<br>
+          <b>→ Step 2:</b> <b>Convert to EC-MPS at equimolar dose</b>${ecEquiv?` → EC-MPS ${ecEquiv} mg/day`:' (MMF 1000 mg ≡ EC-MPS 720 mg)'}<br>
+          <b>→ Step 3 (last resort):</b> MMF reduction ${dzLabel(25)} if conversion fails<br>
+          → Tac NOT reduced — tac held constant in PROGIS and all conversion trials<br>
+          <span style="color:var(--org);font-size:9px">⚠ <b>EC-MPS superiority NOT proven.</b> Langone PROGIS (PMID 21245794) primary GSRS endpoint NOT met (62% vs 55%, p=0.15); only indigestion subscale favored EC-MPS. Open-label data (Bolin 2007 PMID 18091520; Chan 2006 PMID 16699457) support. Frame as patient-preference option.</span>
+          </div>`;
+        } else if(S.mmf.gi.severity==='severe'){
+          h+=`<div style="font-size:10px;line-height:1.5">
+          <b>→ Hold MMF (≤6 days if possible)</b><br>
+          <b>→ Investigate concurrent causes:</b> CMV colitis, C. difficile, MMF-induced colitis on biopsy<br>
+          <b>→ Rechallenge strategy:</b><br>
+          &nbsp;&nbsp;• First preference: <b>convert to EC-MPS</b> at equimolar dose<br>
+          &nbsp;&nbsp;• Second preference: <b>switch to azathioprine or mTORi</b> (if eligible)<br>
+          &nbsp;&nbsp;• <b>Avoid MMF rechallenge &lt;50% of original</b> — Tierce 2006 (PMID 16313325) retrospective: ≥50% reduction → 2× graft-loss risk; Langone MORE (PMID 22861144): any MPA change → 2.6× BPAR at 1yr<br>
+          → Tac NOT reduced for GI symptoms<br>
+          <span style="color:var(--t2)">Tierce 2006 AJT; Langone MORE 2013; Pelletier 2003 PMID 12780668 ${evTag("exp")}</span>
+          </div>
+          ${safetyWarn}`;
+        } else {
+          h+=`<div style="font-size:10px;color:var(--t2)">Select severity to see recommendation.</div>`;
+        }
+        h+=`</div>`;
+      }
+
+      h+=`</div>`;
+    }
+
+    // --- Section C: MPA LSS calculator (v6.12.1) ---
+    // Mathew 2010 (CMC Vellore, Indian, MMF+tac, MEIA — PDF-verified):
+    //   5-pt (PRIMARY): AUC = −0.2677 + 3.0326·C0 + 0.7353·C0.5 + 0.5545·C1 + 0.7171·C1.5 + 3.6757·C3  [ICC 0.98]
+    //   4-pt:            AUC =  0.3546 + 0.9297·C0.5 + 1.2872·C1.5 + 3.6416·C3 + 2.9424·C4           [ICC 0.97]
+    //   3-pt:            AUC = −0.5754 + 1.0664·C0.5 + 1.4692·C1.5 + 4.7313·C3                       [ICC 0.96]
+    // Jia 2017 (Shanghai, Chinese, EC-MPS+tac, EMIT — PDF-verified):
+    //   4-pt (PRIMARY): AUC = 3.132 + 5.337·C0 + 0.735·C3 + 1.783·C4 + 3.065·C8  [R²=0.959 model, R²=0.873 validation, precision 13.4%]
+    //   3-pt:           AUC = 6.629 + 8.029·C0 + 0.592·C3 + 1.786·C4              [R²=0.910 model, R²=0.573 validation — weaker, use only if C8 unavailable]
+    const mc=S.mmf.conc;
+    const c0=pf(mc.c0), c05=pf(mc.c05), c1=pf(mc.c1), c15=pf(mc.c15), c3=pf(mc.c3), c4=pf(mc.c4), c8=pf(mc.c8);
+    const isEcmps = S.mmf.form==='EC-MPS';
+
+    // Equation selection — auto by formulation + entered timepoints
+    let mpaAuc=null, eqName='', eqSource='', eqGrade='', eqWarn='';
+    if(!isEcmps){
+      // MMF + tac → Mathew 2010 (Indian, MEIA)
+      if(ok(mc.c0)&&ok(mc.c05)&&ok(mc.c1)&&ok(mc.c15)&&ok(mc.c3)){
+        mpaAuc = -0.2677 + 3.0326*c0 + 0.7353*c05 + 0.5545*c1 + 0.7171*c15 + 3.6757*c3;
+        eqName='Mathew 2010 (5-point) — PRIMARY'; eqSource='Mathew BS et al. 2010, CMC Vellore'; eqGrade='Indian cohort · MEIA · ICC 0.98 · bias 0.67%';
+      } else if(ok(mc.c05)&&ok(mc.c15)&&ok(mc.c3)&&ok(mc.c4)){
+        mpaAuc = 0.3546 + 0.9297*c05 + 1.2872*c15 + 3.6416*c3 + 2.9424*c4;
+        eqName='Mathew 2010 (4-point)'; eqSource='Mathew BS et al. 2010, CMC Vellore'; eqGrade='Indian cohort · MEIA · ICC 0.97';
+      } else if(ok(mc.c05)&&ok(mc.c15)&&ok(mc.c3)){
+        mpaAuc = -0.5754 + 1.0664*c05 + 1.4692*c15 + 4.7313*c3;
+        eqName='Mathew 2010 (3-point)'; eqSource='Mathew BS et al. 2010, CMC Vellore'; eqGrade='Indian cohort · MEIA · ICC 0.96';
+      }
+    } else {
+      // EC-MPS + tac → Jia 2017 (Chinese, EMIT)
+      if(ok(mc.c0)&&ok(mc.c3)&&ok(mc.c4)&&ok(mc.c8)){
+        mpaAuc = 3.132 + 5.337*c0 + 0.735*c3 + 1.783*c4 + 3.065*c8;
+        eqName='Jia 2017 (4-point) — PREFERRED'; eqSource='Jia Y et al. 2017, Shanghai (Chinese cohort)'; eqGrade='EC-MPS+tac · EMIT · R²=0.873 (validation) · precision 13.4%';
+        eqWarn='⚠ Derived on EMIT (Chinese). No Indian EC-MPS LSS exists. If your MPA assay is HPLC or CMIA, values may differ systematically. Validate against full AUC at your center before routine use.';
+      } else if(ok(mc.c0)&&ok(mc.c3)&&ok(mc.c4)){
+        mpaAuc = 6.629 + 8.029*c0 + 0.592*c3 + 1.786*c4;
+        eqName='Jia 2017 (3-point) — WEAKER'; eqSource='Jia Y et al. 2017, Shanghai (Chinese cohort)'; eqGrade='EC-MPS+tac · EMIT · R²=0.573 (validation) — add C8 for 4-pt preferred equation';
+        eqWarn='⚠ 3-point Jia 2017 has poor validation performance (R²=0.573, precision 21.3%). Add C8 (8h) sample to use the stronger 4-point equation. Derived on EMIT — no Indian EC-MPS validation exists.';
+      }
+    }
+
+    h+=`<div class="k"><h3>MPA Level (Limited Sampling)</h3>
+    <div class="su" style="font-size:10px;margin-bottom:6px">Target AUC₀₋₁₂ <b>${S.mmfTgt.mn}–${S.mmfTgt.mx} mg·h/L</b> (IATDMCT 2021 Bergan, PMID 33711005). Formulation: <b>${S.mmf.form}</b> (change in Context above).</div>
+
+    ${isEcmps?`<div class="al al-w" style="font-size:10px;margin-bottom:6px">
+      ⚠ <b>EC-MPS equation (Jia 2017) — proxy only.</b> No Indian EC-MPS LSS equation exists. Jia 2017 derived from Chinese stable KTR on EMIT. Validate locally before clinical reliance.
+    </div>`:''}
+
+    <div style="background:var(--cd);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;margin-bottom:8px">
+      <div style="font-size:10px;font-weight:600;color:var(--t2);margin-bottom:6px">Enter MPA concentrations (mg/L) at timepoints post-dose</div>
+      ${!isEcmps?`
+      <div style="display:flex;flex-wrap:wrap;gap:6px;font-size:10px">
+        <div style="display:flex;align-items:center;gap:3px"><label style="width:36px">C0</label><input type="text" inputmode="decimal" pattern="[0-9.]*" value="${mc.c0||''}" oninput="sMc('c0',this.value)" placeholder="2.0" maxlength="5" style="width:55px;padding:3px 6px"></div>
+        <div style="display:flex;align-items:center;gap:3px"><label style="width:36px">C0.5</label><input type="text" inputmode="decimal" pattern="[0-9.]*" value="${mc.c05||''}" oninput="sMc('c05',this.value)" placeholder="12.0" maxlength="5" style="width:55px;padding:3px 6px"></div>
+        <div style="display:flex;align-items:center;gap:3px"><label style="width:36px">C1</label><input type="text" inputmode="decimal" pattern="[0-9.]*" value="${mc.c1||''}" oninput="sMc('c1',this.value)" placeholder="6.0" maxlength="5" style="width:55px;padding:3px 6px"></div>
+        <div style="display:flex;align-items:center;gap:3px"><label style="width:36px">C1.5</label><input type="text" inputmode="decimal" pattern="[0-9.]*" value="${mc.c15||''}" oninput="sMc('c15',this.value)" placeholder="4.0" maxlength="5" style="width:55px;padding:3px 6px"></div>
+        <div style="display:flex;align-items:center;gap:3px"><label style="width:36px">C3</label><input type="text" inputmode="decimal" pattern="[0-9.]*" value="${mc.c3||''}" oninput="sMc('c3',this.value)" placeholder="2.5" maxlength="5" style="width:55px;padding:3px 6px"></div>
+        <div style="display:flex;align-items:center;gap:3px"><label style="width:36px">C4</label><input type="text" inputmode="decimal" pattern="[0-9.]*" value="${mc.c4||''}" oninput="sMc('c4',this.value)" placeholder="2.0" maxlength="5" style="width:55px;padding:3px 6px"></div>
+      </div>
+      <div style="font-size:8px;color:var(--t2);margin-top:5px"><b>Mathew 2010 auto-select:</b> 5-pt (C0+C0.5+C1+C1.5+C3) → primary. 4-pt (C0.5+C1.5+C3+C4) → fallback. 3-pt (C0.5+C1.5+C3) → minimum. <b>Platform: MEIA (Abbott).</b></div>
+      `:`
+      <div style="display:flex;flex-wrap:wrap;gap:6px;font-size:10px">
+        <div style="display:flex;align-items:center;gap:3px"><label style="width:36px">C0</label><input type="text" inputmode="decimal" pattern="[0-9.]*" value="${mc.c0||''}" oninput="sMc('c0',this.value)" placeholder="2.8" maxlength="5" style="width:55px;padding:3px 6px"></div>
+        <div style="display:flex;align-items:center;gap:3px"><label style="width:36px">C3</label><input type="text" inputmode="decimal" pattern="[0-9.]*" value="${mc.c3||''}" oninput="sMc('c3',this.value)" placeholder="5.8" maxlength="5" style="width:55px;padding:3px 6px"></div>
+        <div style="display:flex;align-items:center;gap:3px"><label style="width:36px">C4</label><input type="text" inputmode="decimal" pattern="[0-9.]*" value="${mc.c4||''}" oninput="sMc('c4',this.value)" placeholder="6.5" maxlength="5" style="width:55px;padding:3px 6px"></div>
+        <div style="display:flex;align-items:center;gap:3px"><label style="width:36px">C8 ★</label><input type="text" inputmode="decimal" pattern="[0-9.]*" value="${mc.c8||''}" oninput="sMc('c8',this.value)" placeholder="3.1" maxlength="5" style="width:55px;padding:3px 6px"></div>
+      </div>
+      <div style="font-size:8px;color:var(--t2);margin-top:5px"><b>Jia 2017 auto-select:</b> ★ C8 (8h) required for 4-point (preferred, R²=0.873). Without C8: 3-pt only (R²=0.573 — weaker). <b>Platform: EMIT.</b></div>
+      `}
+    </div>`;
+
+    if(mpaAuc!==null){
+      const aucRounded=mpaAuc.toFixed(1);
+      const tgt=S.mmfTgt;
+      let statusLabel, statusColor, actionTxt;
+      if(mpaAuc<tgt.mn){
+        statusLabel='BELOW target'; statusColor='var(--red)';
+        actionTxt=`MPA underexposure (${aucRounded} mg·h/L &lt; ${tgt.mn}). Associated with acute rejection risk in trough-only cohorts. Consider dose escalation if tac exposure adequate and no contraindication (leukopenia, GI).`;
+      } else if(mpaAuc>tgt.mx){
+        statusLabel='ABOVE target'; statusColor='var(--org)';
+        actionTxt=`MPA overexposure (${aucRounded} mg·h/L &gt; ${tgt.mx}). Associated with leukopenia, GI toxicity, infection. Consider dose reduction, particularly if ANC trending down or GI symptoms present.`;
+      } else {
+        statusLabel='WITHIN target'; statusColor='var(--grn)';
+        actionTxt=`MPA exposure adequate (${aucRounded} mg·h/L in ${tgt.mn}–${tgt.mx} target range). No dose change indicated by PK data. Continue monitoring per schedule.`;
+      }
+      h+=`<div style="background:#f8fafb;border:1px solid var(--bd);border-radius:8px;padding:8px 10px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:8px">
+          <div>
+            <div style="font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:0.5px">MPA AUC₀₋₁₂</div>
+            <div style="font-size:22px;font-weight:700;color:${statusColor}">${aucRounded} <span style="font-size:11px;font-weight:500;color:var(--t2)">mg·h/L</span></div>
+            <div style="font-size:11px;font-weight:600;color:${statusColor}">${statusLabel} (target ${tgt.mn}–${tgt.mx})</div>
+          </div>
+          <div style="text-align:right;font-size:9px;color:var(--t2);max-width:55%">
+            <div><b style="color:var(--pri)">${eqName}</b></div>
+            <div>${eqSource}</div>
+            <div style="margin-top:2px">${eqGrade}</div>
+          </div>
+        </div>
+        <div style="font-size:10px;line-height:1.5;padding:6px 8px;background:white;border-radius:5px;border-left:3px solid ${statusColor}">${actionTxt}</div>
+      </div>`;
+
+      if(eqWarn){
+        h+=`<div class="al al-w" style="font-size:9px;margin-top:4px">${eqWarn}</div>`;
+      }
+      // Context-aware integration — if clinical scenarios active, add cross-link note
+      if(S.mmf.scenarios.includes('Leuk')&&mpaAuc>tgt.mx){
+        h+=`<div class="al al-w" style="font-size:9px;margin-top:4px">⚠ MPA AUC above target AND leukopenia scenario active — MPA overexposure may be the primary driver. Review Leukopenia Management above.</div>`;
+      }
+      if(S.mmf.scenarios.includes('GI')&&mpaAuc>tgt.mx){
+        h+=`<div class="al al-w" style="font-size:9px;margin-top:4px">⚠ MPA AUC above target AND GI scenario active — MPA overexposure may contribute to GI symptoms. Consider dose reduction before EC-MPS conversion.</div>`;
+      }
+      if((S.mmf.scenarios.includes('CMV')||S.mmf.scenarios.includes('BK'))&&mpaAuc<tgt.mn){
+        h+=`<div class="al al-w" style="font-size:9px;margin-top:4px">⚠ MPA AUC already below target AND ${S.mmf.scenarios.includes('BK')?'BK':'CMV'} scenario recommends MMF reduction — patient already underexposed. Review rejection risk carefully before further reduction.</div>`;
+      }
+    } else if(!isEcmps){
+      // Check what's entered to give helpful prompt
+      const entered=[mc.c0,mc.c05,mc.c1,mc.c15,mc.c3,mc.c4].filter(x=>ok(x)).length;
+      if(entered>0){
+        h+=`<div class="al al-i" style="font-size:10px;margin-bottom:6px">
+          <b>Insufficient timepoints for Mathew 2010.</b> Minimum: C0.5 + C1.5 + C3 (3-pt). Preferred: add C0 + C1 for 5-pt primary, or add C4 for 4-pt. ${entered} timepoint${entered===1?'':'s'} entered so far.
+        </div>`;
+      }
+    }
+
+    // Indian lab reality footnote
+    h+=`<div style="font-size:9px;color:var(--t2);background:#fef3e0;border:1px solid #f0a856;border-radius:6px;padding:6px 8px;margin-bottom:4px">
+      <b>🇮🇳 Indian lab reality:</b> Most commercial labs (Metropolis, SRL, Dr. Lal) offer only MPA trough — not full AUC. Academic centers with multi-timepoint MPA assay capability: <b>CMC Vellore, PGIMER Chandigarh, SGPGI Lucknow, AIIMS Delhi</b>. For centers without this, use MMF trough as proxy (less precise) or rely on clinical scenarios (leukopenia/GI/infection) for exposure assessment.
+    </div>
+
+    <div style="font-size:9px;color:var(--t2);margin-top:4px">
+      <b>Equation attribution (PDF-verified):</b><br>
+      • <b>MMF + tac → Mathew 2010</b> (Mathew BS et al. Ther Drug Monit 2010;32:136–140, CMC Vellore). Indian cohort, n=30. <b>Platform: MEIA (Abbott)</b> — CMIA is closest current proxy. No Indian CMIA-specific MPA LSS exists (<b>this is your Bansal study aim</b>).<br>
+      • <b>EC-MPS + tac → Jia 2017</b> (Jia Y et al. Ther Drug Monit 2017;39:29–36, Shanghai). Chinese cohort, n=36, stable 2wk. <b>Platform: EMIT (Siemens)</b> — EMIT overestimates vs HPLC ~25%; CMIA difference unknown. No Indian EC-MPS LSS exists — extrapolated proxy only.<br>
+      • <b>CsA co-therapy:</b> Neither equation validated with CsA. MPA exposure ~30–40% lower on CsA (MRP2 inhibition).<br>
+      • <b>CMIA MPA assay:</b> Abbott Architect MPA kit is separate from tacrolimus CMIA reagent — confirm availability at your lab before ordering multi-timepoint MPA.
+    </div>`;
+
+    h+=`</div>`; // close MPA k-div
+
+    h+=`<div class="ft" style="margin-top:8px">v6.13.2 MMF/MPA — Section C: MPA LSS calculator. MMF: Mathew 2010 (3/4/5-pt, Indian, MEIA, PDF-verified). EC-MPS: Jia 2017 (3/4-pt, Chinese, EMIT, PDF-verified). Formulation-aware inputs. Platform caveats displayed.</div>`;
+  }
+
+  // ===== TAB 9: Reference =====
+  else if(S.tab===9){
     h+=`<div class="k"><h3>AUC Targets (your center)</h3><div class="su">Editable via ⚙ settings. Targets vary by center — no universal standard.</div><table><thead><tr><th>Phase</th><th>AUC₀₋₁₂</th><th>C0</th></tr></thead><tbody>${TGT.map(t=>`<tr><td><b>${t.ph}</b></td><td>${t.mn}–${t.mx}</td><td>${t.c0mn}–${t.c0mx}</td></tr>`).join("")}</tbody></table></div>`;
+
+    // === v6.10.5: Platform × Risk Tier × Phase target matrix ===
+    h+=`<div class="k"><h3>Platform × Risk Tier Target Matrix</h3><div class="su">All 4 assay platforms × 3 risk tiers × 3 phases. Sourced from live tool defaults — edits in settings apply here too.</div>`;
+    const platformOrder=["CMIA","CLIA","ECLIA","LCMS"];
+    const tierOrder=[["low","Low Risk"],["std","Standard"],["high","High Risk"]];
+    platformOrder.forEach(p=>{
+      h+=`<div style="margin-top:8px"><div style="font-weight:700;color:var(--pri);font-size:11px;margin-bottom:3px">${assayLabel(p)}</div>
+      <table style="font-size:10px"><thead><tr><th>Tier</th><th>Phase</th><th>AUC₀₋₁₂</th><th>C0</th></tr></thead><tbody>`;
+      tierOrder.forEach(([tKey,tLabel])=>{
+        const rows=TGT_PLATFORMS[p][tKey];
+        rows.forEach((r,i)=>{
+          h+=`<tr>${i===0?`<td rowspan="3" style="vertical-align:middle"><b>${tLabel}</b></td>`:''}<td>${r.ph}</td><td>${r.mn}–${r.mx}</td><td>${r.c0mn}–${r.c0mx}</td></tr>`;
+        });
+      });
+      h+=`</tbody></table></div>`;
+    });
+    h+=`</div>`;
+
+    // === v6.10.5: Assay platform bias reference ===
+    h+=`<div class="k"><h3>Assay Platform Bias (vs LC-MS/MS reference)</h3><div class="su">Cross-platform conversion. Do NOT titrate a patient monitored on one platform using targets derived on another.</div>
+    <table style="font-size:10px"><thead><tr><th>Platform</th><th>Bias vs LC-MS/MS</th><th>Factor</th><th>Key reference</th></tr></thead><tbody>
+    <tr><td><b>CMIA</b> (Abbott Architect)</td><td>+18–21% higher</td><td>×1.20 (Bazin)</td><td>Bazin 2010 JPBA: CMIA=1.2·LC-MS/MS+0.14 (r=0.98); Jia 2024 AJCP +18.4% bias</td></tr>
+    <tr><td><b>ECLIA</b> (Roche)</td><td>+9–10% higher</td><td>×1.09</td><td>Jia 2024 AJCP: Deming slope 1.032; mean bias +9.7% vs LC-MS/MS</td></tr>
+    <tr><td><b>CLIA</b></td><td>≈ CMIA (similar immunoassay bias)</td><td>~×1.15–1.20</td><td>Fu 2025 CCLM; uses same anti-tac antibodies</td></tr>
+    <tr><td><b>LC-MS/MS</b></td><td>Reference standard</td><td>×1.00</td><td>Gold standard; detects parent drug only</td></tr>
+    <tr><td colspan="4" style="font-size:9px;color:var(--t2);padding-top:4px"><b>Why the difference:</b> Immunoassays cross-react with tacrolimus metabolites M-II (94% cross-reactivity), M-III (45%), M-I (8%), and M-IV (9%). LC-MS/MS detects parent drug only. Bias is higher in low-albumin/low-Hct patients and acutely ill patients with altered metabolite clearance. ${evTag("rct")}</td></tr>
+    </tbody></table></div>`;
+
+    // === v6.10.5: Cmax PK descriptor block ===
+    h+=`<div class="k"><h3>Tac Cmax — PK Descriptor (Not a Target)</h3><div class="su"><b>⚠ Cmax is NOT a titration target in any guideline.</b> Numbers below are typical ranges for reference only — do not adjust dose to "hit a Cmax."</div>
+    <table style="font-size:10px"><thead><tr><th>Parameter</th><th>Typical value</th><th>Note</th></tr></thead><tbody>
+    <tr><td><b>Tmax (time to peak)</b></td><td>~1.0–1.5 h post-dose</td><td>IR-tac; 93% of patients peak within 1.5 h (Mathew 2010)</td></tr>
+    <tr><td><b>Cmax / C0 ratio</b></td><td>2–3× trough</td><td>IR-tac BD; established PK</td></tr>
+    <tr><td><b>Cmax (therapeutic C0, CMIA)</b></td><td>~15–30 ng/mL</td><td>Derived: C0 6–10 × 2.5 peak multiplier</td></tr>
+    <tr><td><b>Cmax (therapeutic C0, LC-MS/MS)</b></td><td>~12–25 ng/mL</td><td>~20% lower than CMIA equivalents</td></tr>
+    <tr><td><b>Cmax in CYP3A5 expressors</b></td><td>40–80% higher at same dose</td><td>Rapid absorption + rapid clearance → exaggerated peak-trough swing</td></tr>
+    <tr><td colspan="3" style="font-size:9px;color:var(--t2);padding-top:4px"><b>Clinical use:</b> Cmax matters for peak-driven toxicity (tremor, headache, neurotoxicity, acute tubular injury in CYP3A5 expressors) — not for rejection prevention. Reshape the curve (TDS split, Envarsus, CD diltiazem) when Cmax-driven toxicity suspected, not Cmax-driven titration. ${evTag("pk")}</td></tr>
+    </tbody></table></div>`;
     h+=`<div class="k"><h3>AUC Interpretation</h3><table><thead><tr><th>Finding</th><th>Action</th></tr></thead><tbody>
     <tr><td><b>High AUC + High C0</b></td><td>↓ Dose</td></tr><tr><td><b>High AUC + Low C0</b></td><td>↓ Dose + reshape</td></tr>
     <tr><td><b>Normal AUC + High C2</b></td><td>Reshape only (do NOT ↓ dose)</td></tr><tr><td><b>Low AUC + Low C0</b></td><td>↑ Dose + cascade</td></tr>
@@ -1632,7 +2434,7 @@ function R(){
     <tr><td><b>IR → CD switch</b></td><td><b>Expect trough DROP.</b> CD has weaker presystemic gut CYP3A4 inactivation — reduced first-pass boosting. Recheck C0 day 3–5. May need 15–25% tac dose increase to compensate.</td></tr>
     <tr><td><b>Max sparing dose</b></td><td>180 mg/day. Above this: diminishing/paradoxical returns (Choong 2018).</td></tr>
     <tr><td><b>Non-linearity</b></td><td>120→240 mg = 2.7× AUC increase. Titrate cautiously.</td></tr>
-    <tr><td><b>Why IR beats CD for boosting</b></td><td>CYP3A4 inhibition is mechanism-based (suicide). Gut wall CYP3A4 recovery t½ ~23h (Simcyp default); hepatic t½ ~36h in vitro, up to 70–140h in vivo. IR TDS delivers 3 inactivation hits (q8h gap). CD delivers 1 slow trickle — lower gut lumen Cmax = less efficient enzyme kill. Hepatic inhibition is comparable. Note: IR-vs-SR/CD head-to-head comparison in tacrolimus PK has not been directly studied.</td></tr>
+    <tr><td><b>Why IR beats CD for boosting</b></td><td>Diltiazem is a mechanism-based inactivator of CYP3A4: its reactive metabolite forms a quasi-irreversible complex with the enzyme, so recovery depends on de novo enzyme synthesis rather than inhibitor clearance. Gut wall CYP3A4 resynthesis t½ ~23h (Simcyp default); hepatic t½ ~36h in vitro, up to 70–140h in vivo. IR TDS delivers three high-concentration gut exposures per day (q8h), producing more complete presystemic enzyme inactivation than CD's single sustained-release profile, which generates a lower luminal Cmax. Hepatic inhibition is comparable between formulations. Note: IR-vs-SR/CD head-to-head comparison in tacrolimus PK has not been directly studied.</td></tr>
     <tr><td><b>Key principle</b></td><td>Choose formulation by clinical goal: BOOST (IR TDS) vs RESHAPE (CD OD). Confirm effect by tac PK response — interpatient variability is substantial.</td></tr>
     </tbody></table></div>`;
 
@@ -1690,7 +2492,21 @@ function R(){
     <div><b>When to use:</b> Trough-only visits after at least one LSS/AUC measurement. Replaces population C0 target with patient-specific target.</div>
     <div><b>When to recalculate:</b> After formulation switch, diltiazem start/stop, major Hct shift, or any PK-altering change.</div>
     <div><b>Works with:</b> LSS AUC (Mathew) or Full AUC (trapezoidal). Both are acceptable denominators.</div>
-    </div></div>`;}
+    </div></div>`;
+
+    // === v6.13.1: Patient Counseling — food & dietary interactions (Claim A15) ===
+    h+=`<div class="k"><h3>Patient Counseling — Food & Dietary Interactions</h3><div class="su">Patient-facing guidance for tacrolimus administration. Reinforce at every clinic visit.</div>
+    <table style="font-size:10px"><thead><tr><th>Item</th><th>Guidance</th><th>Mechanism</th></tr></thead><tbody>
+    <tr><td><b>Timing relative to food</b></td><td>Empty stomach — 1 h before or 2–3 h after food. Keep timing consistent day-to-day.</td><td>High-fat meal ↓Cmax 71%, ↓AUC 37% (Bekersky 2001). Inconsistent timing creates PK noise that mimics fast metabolism.</td></tr>
+    <tr><td><b>Vehicle for swallowing</b></td><td>Plain water only. Avoid milk, juice, or other beverages.</td><td>Milk reduces tacrolimus absorption; water is the studied/safe vehicle.</td></tr>
+    <tr><td><b>Pomelo / chakotra (<i>Citrus maxima</i>)</b></td><td><b>Avoid.</b> Includes raw fruit, juice, and marmalade.</td><td>Pomelo contains bergamottin and 6′,7′-dihydroxybergamottin — mechanism-based CYP3A4 inhibitors (same class as grapefruit). Unpredictable tacrolimus level elevation lasting 24–72 h per dose.</td></tr>
+    <tr><td><b>Grapefruit</b></td><td><b>Avoid.</b> Raw fruit and juice.</td><td>Same mechanism as pomelo. Both fruits share furanocoumarin content.</td></tr>
+    <tr><td><b>Star fruit (carambola)</b></td><td><b>Avoid</b> (neurotoxicity risk in CKD, independent of tacrolimus).</td><td>Caramboxin accumulation in reduced eGFR → seizures, altered sensorium. Not a PK interaction but a safety item for transplant recipients.</td></tr>
+    <tr><td><b>St John's Wort</b></td><td><b>Avoid.</b></td><td>Potent CYP3A4 inducer — drops tacrolimus levels, rejection risk.</td></tr>
+    <tr><td><b>Brand consistency</b></td><td>Same brand every refill. Flag any substitution to the transplant team before taking.</td><td>Generic-to-generic and generic-to-brand switches produce measurable exposure shifts. Narrow therapeutic index drug.</td></tr>
+    </tbody></table>
+    <div style="font-size:8px;color:var(--t2);margin-top:5px">References: Bekersky 2001 (food effect); Liu 2009 <i>Transplantation</i> (pomelo-tacrolimus case reports); Egashira 2003 <i>Drug Metab Dispos</i> (pomelo CYP3A4 inhibition characterization). ${evTag("pk")}</div>
+    </div>`;}
 
   $("ct").innerHTML=h;_rs();
   // v6.7: Sync static panel inputs (checkboxes + selects outside #ct) with S.px state
@@ -1699,6 +2515,7 @@ function R(){
     Object.keys(cbs).forEach(id=>{const el=$(id);if(el)el.checked=!!S.px[cbs[id]];});
   }catch(e){}
   updateFieldVis();
+  _saveSnapshot(); // v6.13.0: autosave on every render
 }
 
 // LSS↔Full AUC mapping: LSS field → fp index
@@ -1724,13 +2541,58 @@ function sI(i,v){_sv();S.ipv.vals[i]=v;R();}
 function sC(k,v){_sv();S.csa[k]=v;R();}
 function sMg(k,v){_sv();S.px[k]=v;R();}
 function sPtx(k,v){S.px[k]=v;R();}
+// v6.10: MMF/MPA setters
+function sM(k,v){_sv();S.mmf[k]=v;R();}
+function sMk(obj,k,v){_sv();S.mmf[obj][k]=v;R();}
+function sMc(k,v){_sv();S.mmf.conc[k]=v;R();}
+function sMsc(scenario,on){_sv();const i=S.mmf.scenarios.indexOf(scenario);if(on&&i<0)S.mmf.scenarios.push(scenario);else if(!on&&i>=0)S.mmf.scenarios.splice(i,1);R();}
+// v6.10.2: Dose entry with auto-detect formulation
+function sMDose(v){
+  _sv();
+  S.px.mmf=v;
+  const d=pf(v);
+  if(ok(v)&&d>=180&&d<=3000){
+    const isMMF=(d%250===0)&&(d>=250); // v6.10.8: MMF minimum is 250 mg (1 capsule), not 500
+    const isECMPS=(d%180===0)&&(d>=180);
+    if(isMMF&&!isECMPS&&S.mmf.form!=='MMF'){
+      S.mmf.form='MMF';
+      S.mmf.flashMsg='Auto-set to MMF ('+d+' mg/day)';
+      S.mmf.flashUntil=Date.now()+3000;
+    }else if(isECMPS&&!isMMF&&S.mmf.form!=='EC-MPS'){
+      S.mmf.form='EC-MPS';
+      S.mmf.flashMsg='Auto-set to EC-MPS ('+d+' mg/day)';
+      S.mmf.flashUntil=Date.now()+3000;
+    }else if(!isMMF&&!isECMPS){
+      S.mmf.flashMsg='⚠ Non-standard dose — verify formulation manually';
+      S.mmf.flashUntil=Date.now()+5000;
+    }
+  }
+  R();
+  // v6.10.6: Sync top-bar MMF input (not re-rendered by R) so MMF tab → top bar works
+  const topInput=$("topMmfInput");
+  if(topInput&&document.activeElement!==topInput)topInput.value=v;
+  // Auto-clear flash after timeout
+  if(S.mmf.flashUntil){
+    const t=S.mmf.flashUntil-Date.now();
+    if(t>0)setTimeout(()=>{if(Date.now()>=S.mmf.flashUntil){S.mmf.flashMsg='';S.mmf.flashUntil=0;R();}},t+50);
+  }
+}
 function rM(i){S.ipv.vals.splice(i,1);if(S.ipv.vals.length<3)S.ipv.vals.push("");R();}
 updateFieldVis();
-// v6.9: sync all selectors to saved state on load
+// v6.13.0: restore last autosaved case BEFORE syncing selectors and first R()
+_restoreSnapshot();
+// v6.9 + v6.13.0: sync all DOM inputs to (possibly restored) S state on load
 (function(){
   const as=$("assaySel");if(as)as.value=S.assay;
   const rs=$("riskSel");if(rs)rs.value=S.riskTier;
   const an=$("assayNote");if(an)an.textContent=assayLabel(S.assay)+" · "+tierLabel(S.riskTier);
+  // v6.13.0: top-bar text inputs must be synced from restored S
+  const w=$("wt");if(w&&S.wt)w.value=S.wt;
+  const g=$("geno");if(g)g.value=S.geno||"unk";
+  const p=$("ptName");if(p&&S.patientName)p.value=S.patientName;
+  const d=$("donorAge");if(d&&S.donorAge)d.value=S.donorAge;
+  // MMF top-bar input (lives outside R() render)
+  const tm=$("topMmfInput");if(tm&&S.px&&S.px.mmf)tm.value=S.px.mmf;
 })();
 R();
 </script>
